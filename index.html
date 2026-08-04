@@ -279,10 +279,19 @@
     }
     .distr-seg:nth-child(2) {
       background: rgba(24,29,37,0.8);
-      border-left: 1px dashed var(--border-card);
-      border-right: 1px dashed var(--border-card);
     }
     .distr-seg svg { width: 24px; height: 24px; }
+    .distr-icon {
+      position: absolute; top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none; z-index: 1;
+    }
+    .distr-divider {
+      position: absolute; top: 0; bottom: 0; width: 0;
+      border-left: 1px dashed var(--border-card);
+      pointer-events: none; z-index: 1;
+    }
     .distr-handle {
       position: absolute;
       transform: translateX(-50%);
@@ -687,16 +696,22 @@
         <div class="slider-distr">
           <div class="distr-outer">
             <div class="distr-segments" id="distrSegments">
+              <div class="distr-divider" id="distr-divider-1" style="left:33.33%"></div>
+              <div class="distr-divider" id="distr-divider-2" style="left:66.67%"></div>
               <!-- City -->
-              <div class="distr-seg" id="seg-city">
+              <div class="distr-seg" id="seg-city"></div>
+              <!-- Country road -->
+              <div class="distr-seg" id="seg-country"></div>
+              <!-- Motorway -->
+              <div class="distr-seg" id="seg-motorway"></div>
+              <!-- Icons — absolutely centred in their region by JS -->
+              <div class="distr-icon" id="icon-city" style="left:16.67%">
                 <img src="assets/icons/city.svg" width="20" height="20" alt="">
               </div>
-              <!-- Country road -->
-              <div class="distr-seg" id="seg-country">
+              <div class="distr-icon" id="icon-country" style="left:50%">
                 <img src="assets/icons/country.svg" width="24" height="22" alt="">
               </div>
-              <!-- Motorway -->
-              <div class="distr-seg" id="seg-motorway">
+              <div class="distr-icon" id="icon-motorway" style="left:83.33%">
                 <img src="assets/icons/motorway.svg" width="23" height="22" alt="">
               </div>
               <!-- Handle 1 -->
@@ -1204,9 +1219,20 @@
 
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
+  /* Icon shrink/fade as a segment nears the edge (mirrors VW range-simulator's dist-icon sizing) */
+  const ICON_MAX = 24, ICON_MIN = 10;
+  function iconScale(pct) {
+    return clamp(ICON_MIN + (ICON_MAX - ICON_MIN) * (pct - 5) / 15, ICON_MIN, ICON_MAX) / ICON_MAX;
+  }
+  function iconOpacity(pct) {
+    return pct < 4 ? 0 : Math.min(1, (pct - 4) / 4);
+  }
+
   function setHandles(h1, h2) {
     handle1El.style.left = h1 + '%';
     handle2El.style.left = h2 + '%';
+    document.getElementById('distr-divider-1').style.left = h1 + '%';
+    document.getElementById('distr-divider-2').style.left = h2 + '%';
     cityPct    = h1;
     countryPct = h2 - h1;
     document.getElementById('pct-city').textContent     = Math.round(cityPct) + '%';
@@ -1217,6 +1243,17 @@
     document.getElementById('seg-city').style.flex     = cityPct + ' 0 0%';
     document.getElementById('seg-country').style.flex  = countryPct + ' 0 0%';
     document.getElementById('seg-motorway').style.flex = mwPct() + ' 0 0%';
+
+    /* position each icon at its region's true centre, and shrink + fade it as the region nears the edge */
+    const iconCentres = [h1 / 2, (h1 + h2) / 2, (h2 + 100) / 2];
+    [['#icon-city', cityPct], ['#icon-country', countryPct], ['#icon-motorway', mwPct()]]
+      .forEach(([sel, pct], i) => {
+        const icon = document.querySelector(sel);
+        icon.style.left = iconCentres[i] + '%';
+        const img = icon.querySelector('img');
+        img.style.transform = `scale(${iconScale(pct)})`;
+        img.style.opacity   = iconOpacity(pct);
+      });
 
     updateResult();
   }
@@ -1234,19 +1271,19 @@
     if (!dragging) return;
     const rect  = segments.getBoundingClientRect();
     const dxPct = ((e.clientX - dragStartX) / rect.width) * 100;
-    const newP  = clamp(dragStartPct + dxPct, 5, 95);
+    const newP  = clamp(dragStartPct + dxPct, 0, 100);
     const h2    = cityPct + countryPct;
-    if (dragging === 1) setHandles(clamp(newP, 5, h2 - 5), h2);
-    else                setHandles(cityPct, clamp(newP, cityPct + 5, 95));
+    if (dragging === 1) setHandles(clamp(newP, 0, h2), h2);
+    else                setHandles(cityPct, clamp(newP, cityPct, 100));
   });
   document.addEventListener('touchmove', e => {
     if (!dragging) return;
     const rect  = segments.getBoundingClientRect();
     const dxPct = ((e.touches[0].clientX - dragStartX) / rect.width) * 100;
-    const newP  = clamp(dragStartPct + dxPct, 5, 95);
+    const newP  = clamp(dragStartPct + dxPct, 0, 100);
     const h2    = cityPct + countryPct;
-    if (dragging === 1) setHandles(clamp(newP, 5, h2 - 5), h2);
-    else                setHandles(cityPct, clamp(newP, cityPct + 5, 95));
+    if (dragging === 1) setHandles(clamp(newP, 0, h2), h2);
+    else                setHandles(cityPct, clamp(newP, cityPct, 100));
   }, { passive: false });
   document.addEventListener('mouseup',  () => { dragging = null; });
   document.addEventListener('touchend', () => { dragging = null; });

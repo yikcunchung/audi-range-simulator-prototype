@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audi Range Simulator</title>
+  <style>
+    /* ── FONTS ─────────────────────────────────────────────────────────── */
+    @font-face {
+      font-family: 'Audi Type Variable';
+      src: url('assets/fonts/AudiTypeVF_Lat.woff2') format('woff2');
+      font-weight: 400 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Audi Type Variable';
+      src: url('assets/fonts/AudiTypeVF.woff2') format('woff2');
+      font-weight: 400 700;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* ── RESET ──────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *:focus { outline: none; }
+    *:focus-visible { outline: none; }
+
+    /* ── TOKENS ─────────────────────────────────────────────────────────── */
+    :root {
+      --canvas:            #101319;
+      --surface-card:      rgba(154,163,177,0.1);
+      --surface-input:     rgba(24,29,37,0.6);
+      --text-primary:      #fcfcfd;
+      --text-muted:        rgba(252,252,253,0.7);
+      --border-card:       rgba(252,252,253,0.2);
+      --border-input:      rgba(219,223,230,0.6);
+      --border-distr:      #4d5766;
+      --slider-track:      rgba(252,252,253,0.2);
+      --slider-progress:   #fcfcfd;
+      --radius-card:       20px;
+      --radius-input:      10px;
+      --radius-pill:       999px;
+      --max-content-width: 1920px;
+      --page-width:        320px;
+      --sys-page-margin:       28px;
+      --sys-breakpoint-xs:  320px;
+      --sys-breakpoint-sm:  375px;
+      --sys-breakpoint-md:  768px;
+      --sys-breakpoint-lg:  1024px;
+      --sys-breakpoint-xl:  1440px;
+      --sys-breakpoint-2xl: 1920px;
+      --sys-space-fixed-0:    0px;
+      --sys-space-fixed-25:   2px;
+      --sys-space-fixed-50:   4px;
+      --sys-space-fixed-100:  8px;
+      --sys-space-fixed-150:  12px;
+      --sys-space-fixed-200:  16px;
+      --sys-space-fixed-250:  20px;
+      --sys-space-fixed-300:  24px;
+      --sys-space-fixed-400:  32px;
+      --sys-space-fixed-450:  36px;
+      --sys-space-fixed-500:  40px;
+      --sys-space-fixed-600:  48px;
+      --sys-space-fixed-700:  56px;
+      --sys-space-fixed-800:  64px;
+      --sys-space-fixed-900:  72px;
+      --sys-space-fixed-1000: 80px;
+      --sys-space-fixed-1200: 96px;
+      --sys-space-fixed-1600: 128px;
+      --sys-space-fixed-2000: 160px;
+      --sys-space-fixed-2600: 208px;
+      --sys-space-relative-2xs: 4px;
+      --sys-space-relative-xs:  8px;
+      --sys-space-relative-sm:  12px;
+      --sys-space-relative-md:  16px;
+      --sys-space-relative-lg:  24px;
+      --sys-space-relative-xl:  28px;
+      --sys-space-relative-2xl: 36px;
+      --sys-space-relative-3xl: 40px;
+      --sys-space-relative-4xl: 48px;
+      --sys-space-relative-5xl: 64px;
+      --sys-space-relative-6xl: 80px;
+      --sys-space-relative-7xl: 96px;
+      --sys-space-relative-8xl: 120px;
+      --font-copy:         'Audi Type Variable', sans-serif;
+      --font-headline:     'Audi Type Variable', sans-serif;
+      --wdth-wide:         105;
+      --wdth-extended:     130;
+      --sys-fs-display-order1:  40px;  --sys-lh-display-order1:  60px;
+      --sys-fs-display-order2:  36px;  --sys-lh-display-order2:  52px;
+      --sys-fs-display-order3:  32px;  --sys-lh-display-order3:  48px;
+      --sys-fs-headline-order1: 28px;  --sys-lh-headline-order1: 40px;
+      --sys-fs-headline-order2: 24px;  --sys-lh-headline-order2: 36px;
+      --sys-fs-headline-order3: 20px;  --sys-lh-headline-order3: 32px;
+      --sys-fs-headline-order4: 16px;  --sys-lh-headline-order4: 24px;
+    }
+
+    /* ── CUSTOM MEDIA (CSS MQ Level 5 — postcss-custom-media compatible) ─── */
+    @custom-media --sys-breakpoint-sm  (min-width: 375px);
+    @custom-media --sys-breakpoint-md  (min-width: 768px);
+    @custom-media --sys-breakpoint-lg  (min-width: 1024px);
+    @custom-media --sys-breakpoint-xl  (min-width: 1440px);
+    @custom-media --sys-breakpoint-2xl (min-width: 1920px);
+
+    @media (min-width: 768px) {
+      :root {
+        --sys-page-margin:            40px;
+        --sys-space-relative-3xl: 48px;
+        --sys-space-relative-4xl: 64px;
+        --sys-space-relative-5xl: 72px;
+        --sys-space-relative-6xl: 88px;
+        --sys-space-relative-7xl: 104px;
+        --sys-space-relative-8xl: 136px;
+        --sys-fs-display-order1:  48px;  --sys-lh-display-order1:  68px;
+        --sys-fs-display-order2:  44px;  --sys-lh-display-order2:  60px;
+        --sys-fs-display-order3:  36px;  --sys-lh-display-order3:  52px;
+      }
+    }
+    @media (min-width: 1024px) {
+      :root {
+        --page-width:             1024px;
+        --sys-page-margin:            60px;
+        --sys-space-relative-2xl: 40px;
+        --sys-space-relative-3xl: 56px;
+        --sys-space-relative-4xl: 72px;
+        --sys-space-relative-5xl: 88px;
+        --sys-space-relative-6xl: 104px;
+        --sys-space-relative-7xl: 128px;
+        --sys-space-relative-8xl: 168px;
+        --sys-fs-display-order1:  60px;  --sys-lh-display-order1:  84px;
+        --sys-fs-display-order2:  52px;  --sys-lh-display-order2:  76px;
+        --sys-fs-display-order3:  44px;  --sys-lh-display-order3:  64px;
+        --sys-fs-headline-order1: 36px;  --sys-lh-headline-order1: 52px;
+        --sys-fs-headline-order2: 28px;  --sys-lh-headline-order2: 40px;
+      }
+    }
+    @media (min-width: 1440px) {
+      :root {
+        --page-width:             1440px;
+        --sys-page-margin:            96px;
+        --sys-space-relative-xl:  32px;
+        --sys-space-relative-2xl: 56px;
+        --sys-space-relative-3xl: 72px;
+        --sys-space-relative-4xl: 88px;
+        --sys-space-relative-5xl: 104px;
+        --sys-space-relative-6xl: 120px;
+        --sys-space-relative-7xl: 160px;
+        --sys-space-relative-8xl: 216px;
+        --sys-fs-display-order1:  72px;  --sys-lh-display-order1:  100px;
+        --sys-fs-display-order2:  60px;  --sys-lh-display-order2:  84px;
+        --sys-fs-display-order3:  52px;  --sys-lh-display-order3:  76px;
+        --sys-fs-headline-order1: 40px;  --sys-lh-headline-order1: 60px;
+        --sys-fs-headline-order2: 32px;  --sys-lh-headline-order2: 44px;
+        --sys-fs-headline-order3: 24px;  --sys-lh-headline-order3: 36px;
+        --sys-fs-headline-order4: 18px;  --sys-lh-headline-order4: 28px;
+      }
+    }
+    @media (min-width: 1920px) {
+      :root {
+        --sys-page-margin:        96px;
+        --sys-space-relative-xl:  40px;
+        --sys-space-relative-2xl: 72px;
+        --sys-space-relative-3xl: 88px;
+        --sys-space-relative-4xl: 104px;
+        --sys-space-relative-5xl: 120px;
+        --sys-space-relative-6xl: 136px;
+        --sys-space-relative-7xl: 176px;
+        --sys-space-relative-8xl: 248px;
+        --sys-fs-display-order1:  84px;  --sys-lh-display-order1:  112px;
+        --sys-fs-display-order2:  72px;  --sys-lh-display-order2:  100px;
+        --sys-fs-display-order3:  60px;  --sys-lh-display-order3:  84px;
+        --sys-fs-headline-order1: 44px;  --sys-lh-headline-order1: 64px;
+        --sys-fs-headline-order2: 36px;  --sys-lh-headline-order2: 52px;
+        --sys-fs-headline-order4: 20px;  --sys-lh-headline-order4: 32px;
+      }
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--canvas);
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      max-width: var(--max-content-width);
+      margin-inline: auto;
+    }
+
+    /* ── TOPBAR ─────────────────────────────────────────────────────────── */
+    .topbar {
+      height: 72px; background: #020203;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--sys-page-margin);
+    }
+    .topbar-mobile-left { display: flex; align-items: center; gap: 12px; flex: 1 0 0; }
+    .topbar-menu-label {
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 16px; line-height: 24px;
+      color: var(--text-primary); white-space: nowrap;
+    }
+    .topbar-rings { display: flex; align-items: center; flex-shrink: 0; }
+    .topbar-rings svg { width: 69px; height: 24px; }
+    .topbar-nav { display: none; align-items: center; gap: 24px; flex: 1 0 0; }
+    .topbar-nav-item {
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 100, 'wght' 500;
+      font-size: 14px; line-height: 20px;
+      color: rgba(252, 252, 253, 0.7);
+      display: flex; justify-content: space-between; flex-flow: row;
+      text-decoration: none; white-space: nowrap; cursor: pointer;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 24px; flex: 1 0 0; justify-content: flex-end; }
+    .topbar-right .nav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .nav-icon img { display: block; width: 24px; height: 24px; object-fit: contain; }
+    .topbar-search-icon { display: none; }
+
+    /* ── PAGE ───────────────────────────────────────────────────────────── */
+    .page-layout { padding: 36px var(--sys-page-margin) 48px; display: flex; flex-direction: column; gap: 28px; }
+
+    /* ── HEADER ─────────────────────────────────────────────────────────── */
+    .header { display: flex; align-items: flex-start; gap: 20px; max-width: 766px; }
+    .header-icon { flex-shrink: 0; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+    .header h1 {
+      font-family: var(--font-headline);
+      font-variation-settings: 'wdth' 130, 'wght' 400;
+      font-size: 24px; line-height: 36px; font-weight: 400;
+      letter-spacing: 0; color: var(--text-primary);
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────────────────────────── */
+    .section-group { display: flex; flex-direction: column; gap: 36px; align-items: flex-start; }
+
+    /* ── INPUT PANEL ────────────────────────────────────────────────────── */
+    .section-input {
+      flex: 1; min-width: 0; width: 100%;
+      background: var(--canvas);
+      border: none;
+      border-radius: 28px;
+      padding: 0;
+      display: flex; flex-direction: column; gap: 28px;
+    }
+
+    /* ── COMBO ───────────────────────────────────────────────────────────── */
+    .combo { display: flex; flex-direction: column; gap: 8px; }
+    .question { display: flex; align-items: center; gap: 4px; }
+    .question-text {
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 600;
+      font-size: 16px; line-height: 24px; letter-spacing: 0px;
+      font-stretch: 105%; font-weight: 600;
+      color: rgba(252, 252, 253, 0.7); text-decoration: none;
+    }
+
+    .info-btn {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; background: none; border: none; cursor: pointer; padding: 0;
+    }
+    .info-btn svg { width: 16px; height: 16px; }
+
+    /* ── DISTRIBUTION SLIDER ────────────────────────────────────────────── */
+    .slider-distr { padding-top: 12px; }
+    .distr-outer { position: relative; }
+    .distr-segments {
+      display: flex;
+      border: 1px solid var(--border-distr);
+      border-radius: var(--radius-input);
+      position: relative; height: 80px; overflow: visible;
+    }
+    .distr-seg {
+      flex: 1; display: flex;
+      align-items: center; justify-content: center;
+      position: relative;
+    }
+    .distr-seg:nth-child(2) {
+      background: rgba(24,29,37,0.8);
+    }
+    .distr-seg svg { width: 24px; height: 24px; }
+    .distr-icon {
+      position: absolute; top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none; z-index: 1;
+    }
+    .distr-divider {
+      position: absolute; top: 0; bottom: 0; width: 0;
+      border-left: 1px dashed var(--border-card);
+      pointer-events: none; z-index: 1;
+    }
+    .distr-handle {
+      position: absolute;
+      transform: translateX(-50%);
+      cursor: ew-resize; z-index: 10; user-select: none;
+    }
+    .distr-handle-top    { top: 0; }
+    .distr-handle-bottom { bottom: 0; }
+    .distr-handle-top .distr-thumb    { top: -14px; }
+    .distr-handle-bottom .distr-thumb { bottom: -14px; }
+    .distr-thumb {
+      display: flex; position: absolute; z-index: 1;
+      left: -14px;
+      box-sizing: border-box;
+      align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      border: 1px solid rgb(77, 87, 102); border-radius: 100%;
+      background-color: rgb(16, 19, 25);
+      color: rgba(252, 252, 253, 0.7);
+      cursor: grab;
+      overflow: hidden;
+    }
+    .distr-thumb-arrows {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      pointer-events: none;
+    }
+    .distr-labels {
+      display: flex; justify-content: space-between;
+      padding: 24px 0 0;
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 16px; line-height: 24px;
+      color: var(--text-primary);
+    }
+    .distr-label-col { flex: 1; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+    .distr-pct { font-size: 16px; line-height: 24px; font-variation-settings: 'wdth' 105, 'wght' 600; font-weight: 600; }
+    .distr-name { font-size: 16px; line-height: 24px; font-variation-settings: 'wdth' 105, 'wght' 600; font-weight: 600; color: var(--text-muted); }
+
+    /* ── RADIO GROUP ────────────────────────────────────────────────────── */
+    .radio-group { display: flex; gap: 24px; align-items: center; }
+    .radio-option { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .radio-control { width: 24px; height: 24px; flex-shrink: 0; position: relative; cursor: pointer; }
+    .radio-control input[type="radio"] {
+      position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 2; margin: 0;
+    }
+    /* visual circle — CSS-driven, no SVG mask issues */
+    .radio-visual {
+      display: block; width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(24,29,37,0.6);
+      border: 1px solid rgba(219,223,230,0.6);
+      position: relative; flex-shrink: 0; pointer-events: none;
+    }
+    .radio-control input[type="radio"]:checked ~ .radio-visual {
+      background: #404A59;
+    }
+    .radio-control input[type="radio"]:checked ~ .radio-visual::after {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: rgba(252,252,253,0.7);
+    }
+    .radio-label {
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 600;
+      font-weight: 600;
+      font-size: 16px; line-height: 20px;
+      color: var(--text-muted); padding-top: 2px;
+    }
+
+    /* ── SELECT ─────────────────────────────────────────────────────────── */
+    .select-wrapper { position: relative; width: 100%; }
+    .select-field {
+      width: 100%; min-height: 48px;
+      background: var(--surface-input);
+      border: 1px solid var(--border-input);
+      border-radius: var(--radius-input);
+      padding: 12px 40px 12px 12px;
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 600;
+      font-weight: 600;
+      font-size: 16px; line-height: 20px;
+      color: var(--text-muted);
+      appearance: none; -webkit-appearance: none; cursor: pointer;
+    }
+    .select-field:focus { outline: none; }
+    .select-field option { background: #1e2433; color: var(--text-primary); }
+    .select-field optgroup { background: #1e2433; color: var(--text-muted); font-style: normal; font-size: 13px; }
+    .select-chevron {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      width: 24px; height: 24px; pointer-events: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .select-chevron svg { width: 24px; height: 24px; }
+
+    /* ── TEMPERATURE SLIDER ─────────────────────────────────────────────── */
+    .slider-temp { display: flex; flex-direction: column; width: 100%; }
+    .slider-value-row { position: relative; height: 32px; }
+    .slider-value-display {
+      position: absolute; bottom: 2px;
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 600;
+      font-weight: 600;
+      font-size: 16px; line-height: 20px;
+      color: var(--text-muted); white-space: nowrap; padding: 0 4px;
+    }
+    .slider-track-row { position: relative; height: 24px; display: flex; align-items: center; }
+    .slider-track-bg {
+      position: absolute; left: 0; right: 0;
+      height: 6px; background: var(--slider-track);
+      border-radius: var(--radius-pill);
+    }
+    .slider-track-fill {
+      position: absolute; left: 0; height: 6px;
+      background: var(--slider-progress);
+      border-radius: var(--radius-pill); pointer-events: none;
+    }
+    input[type="range"].temp-slider {
+      position: absolute; left: 0; right: 0; width: 100%;
+      height: 6px; background: transparent;
+      appearance: none; -webkit-appearance: none;
+      cursor: pointer; z-index: 2; margin: 0;
+    }
+    input[type="range"].temp-slider::-webkit-slider-thumb {
+      appearance: none; -webkit-appearance: none;
+      width: 24px; height: 12px;
+      border-radius: 999px;
+      background: #fcfcfd; border: 1px solid #2c343f;
+      cursor: ew-resize;
+    }
+    input[type="range"].temp-slider::-moz-range-thumb {
+      width: 24px; height: 12px;
+      border-radius: 999px;
+      background: #fcfcfd; border: 1px solid #2c343f;
+      cursor: ew-resize;
+    }
+    .slider-range-row {
+      display: flex; justify-content: space-between; padding-top: 8px;
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 600;
+      font-weight: 600;
+      font-size: 14px; line-height: 20px; color: var(--text-muted);
+    }
+
+    /* ── OUTPUT PANEL ───────────────────────────────────────────────────── */
+    .section-output { display: flex; flex-direction: column; gap: 28px; width: 100%; }
+    .section-model { display: flex; flex-direction: column; gap: 40px; }
+    .model-combo { display: flex; flex-direction: column; gap: 12px; }
+    .model-label {
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 16px; line-height: 24px; color: var(--text-primary);
+    }
+    .select-group { display: flex; gap: 16px; }
+    .select-group > div { flex: 0 0 calc(50% - 8px); min-width: 0; }
+    .select-sub-label {
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 14px; line-height: 20px; color: var(--text-muted);
+      padding-bottom: 8px; display: block;
+    }
+
+    /* ── CAR + DISCLAIMER ───────────────────────────────────────────────── */
+    .car-wrapper { display: flex; flex-direction: column; gap: 4px; }
+    .car-img-box { aspect-ratio: 260/110; width: 100%; position: relative; overflow: hidden; border-radius: 4px; }
+    .car-img-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .cons-data {
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 600;
+      font-size: 14px; line-height: 20px; letter-spacing: 0;
+      color: var(--text-muted);
+    }
+
+    /* ── RESULT CARD ────────────────────────────────────────────────────── */
+    .result-cta-group { display: flex; flex-direction: column; gap: 20px; }
+    .section-result {
+      background: var(--surface-card);
+      border-radius: var(--radius-card);
+      padding: 24px;
+      display: flex; flex-direction: column; gap: 32px;
+    }
+    .result-headline { display: flex; align-items: center; gap: 4px; }
+    .result-label {
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 600;
+      font-size: 16px; line-height: 24px; letter-spacing: 0px;
+      font-stretch: 105%; font-weight: 600;
+      color: rgba(252, 252, 253, 0.7); text-decoration: none;
+    }
+    .result-value {
+      font-family: var(--font-headline);
+      font-variation-settings: 'wdth' 130, 'wght' 400;
+      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2);
+      color: var(--text-primary); letter-spacing: 0;
+      display: flex; align-items: baseline;
+    }
+    .slot-digit { display: inline-block; overflow: hidden; height: 1em; vertical-align: top; }
+    .slot-reel { display: flex; flex-direction: column; transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+    .slot-reel span { display: block; height: 1em; line-height: 1; text-align: center; }
+    .range-unit {
+      font-family: var(--font-headline);
+      font-variation-settings: 'wdth' 130, 'wght' 400;
+      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2);
+      color: var(--text-primary);
+    }
+
+    /* ── BUTTON ─────────────────────────────────────────────────────────── */
+    .btn-group { display: flex; flex-direction: column; gap: 24px; align-items: center; width: 100%; }
+    .btn-primary {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; height: 48px;
+      background: #657081;
+      border: none;
+      border-radius: 999px;
+      color: #fcfcfd;
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 14px; line-height: 20px;
+      cursor: pointer; transition: background 0.15s; padding: 0 24px;
+      text-decoration: none;
+    }
+    .btn-primary:hover { background: #758292; }
+
+    /* ── TEXT LINKS ─────────────────────────────────────────────────────── */
+    .text-link-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    /* each standalone = full-width centered column */
+    .text-link-standalone {
+      display: flex; flex-direction: column; align-items: center; width: 100%;
+    }
+    /* content container: shrinks to content, adds 4px below for underline breathing room */
+    .text-link-content {
+      display: flex; align-items: center; gap: 8px; padding-bottom: 4px;
+    }
+    /* the label itself */
+    .text-link {
+      font-family: var(--font-copy);
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 16px; line-height: 24px;
+      color: #fcfcfd;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 4px;
+      text-decoration-color: #fcfcfd;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .text-link:hover { opacity: 0.75; }
+
+    /* ── TYPOGRAPHY TOKENS ─────────────────────────────────────────────── */
+    /* Fixed: Copy */
+    .sys-type-copy-order1-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 1rem;      line-height: 1.5rem;  letter-spacing: 0; }
+    .sys-type-copy-order1-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 1rem;      line-height: 1.5rem;  letter-spacing: 0; }
+    .sys-type-copy-order2-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.875rem;  line-height: 1.5rem;  letter-spacing: 0; }
+    .sys-type-copy-order2-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.875rem;  line-height: 1.5rem;  letter-spacing: 0; }
+    .sys-type-copy-order3-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.75rem;   line-height: 1.25rem; letter-spacing: 0; }
+    .sys-type-copy-order3-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.75rem;   line-height: 1.25rem; letter-spacing: 0; }
+    /* Fixed: Label */
+    .sys-type-label-order1-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 1rem;     line-height: 1.25rem; letter-spacing: 0; }
+    .sys-type-label-order1-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 1rem;     line-height: 1.25rem; letter-spacing: 0; }
+    .sys-type-label-order2-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0; }
+    .sys-type-label-order2-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0; }
+    .sys-type-label-order3-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.75rem;  line-height: 1rem;    letter-spacing: 0; }
+    .sys-type-label-order3-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.75rem;  line-height: 1rem;    letter-spacing: 0; }
+    .sys-type-label-order4-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.625rem; line-height: 0.75rem; letter-spacing: 0; }
+    .sys-type-label-order4-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.625rem; line-height: 0.75rem; letter-spacing: 0; }
+    /* Fixed: Link */
+    .sys-type-link-order1-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 1rem;     line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order1-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 1rem;     line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order2-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.875rem; line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order2-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.875rem; line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order3-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.75rem;  line-height: 1.25rem; letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order3-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.75rem;  line-height: 1.25rem; letter-spacing: 0; text-decoration: underline; }
+    /* Responsive: Display */
+    .sys-type-display-order1-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1); letter-spacing: 0; }
+    .sys-type-display-order2-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); letter-spacing: 0; }
+    .sys-type-display-order3-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-display-order3); line-height: var(--sys-lh-display-order3); letter-spacing: 0; }
+    /* Responsive: Headline */
+    .sys-type-headline-order1-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
+    .sys-type-headline-order1-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
+    .sys-type-headline-order2-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
+    .sys-type-headline-order2-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
+    .sys-type-headline-order3-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
+    .sys-type-headline-order3-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
+    .sys-type-headline-order4-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
+    .sys-type-headline-order4-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
+
+    /* ── RESPONSIVE: TOPBAR ─────────────────────────────────────────────── */
+    @media (min-width: 1024px) {
+      .topbar { gap: 28px; }
+      .topbar-mobile-left { display: none; }
+      .topbar-nav { display: flex; }
+      .topbar-right { flex: initial; flex-shrink: 0; }
+      .topbar-search-icon { display: flex; }
+    }
+
+    /* ── RESPONSIVE: LAYOUT ─────────────────────────────────────────────── */
+    @media (min-width: 1024px) {
+      .page-layout { padding-top: 40px; padding-bottom: 40px; }
+      .header h1 { font-size: 28px; line-height: 40px; }
+      .section-group { display: grid; grid-template-columns: 4fr 2.2fr; gap: var(--sys-space-relative-2xl); }
+      .section-input {
+        width: auto;
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-card);
+        padding: 40px;
+      }
+      .section-output { width: auto; }
+    }
+    @media (min-width: 1440px) {
+      .header { max-width: none; }
+      .header h1 { font-size: 32px; line-height: 44px; }
+      .section-input { padding: 56px; }
+    }
+    @media (min-width: 1920px) {
+      .page-layout { padding-top: 72px; padding-bottom: 72px; }
+      .header h1 { font-size: 36px; line-height: 52px; }
+      .section-group { display: grid; grid-template-columns: 4fr 2.2fr; gap: var(--sys-space-relative-2xl); }
+      .section-input { flex: none; width: auto; padding: 72px; }
+      .section-output { width: auto; }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ── TOPBAR ─────────────────────────────────────────────────────────── -->
+<nav class="topbar">
+  <!-- Mobile left: hamburger + Menu (hidden on desktop) -->
+  <div class="topbar-mobile-left">
+    <div class="nav-icon">
+      <img src="assets/icons/menu.svg" width="24" height="24" alt="">
+    </div>
+    <span class="topbar-menu-label">Menu</span>
+  </div>
+
+  <!-- Audi rings: centered on mobile, left on desktop -->
+  <div class="topbar-rings">
+    <img src="assets/logo-audi.svg" width="69" height="24" alt="Audi">
+  </div>
+
+  <!-- Nav links (desktop only) -->
+  <div class="topbar-nav">
+    <span class="topbar-nav-item">Models</span>
+    <span class="topbar-nav-item">Find &amp; Buy</span>
+    <span class="topbar-nav-item">Owners</span>
+    <span class="topbar-nav-item">Electric</span>
+    <span class="topbar-nav-item">Discover Audi</span>
+  </div>
+
+  <!-- Right icons -->
+  <div class="topbar-right">
+    <div class="nav-icon topbar-search-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+        <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="#DBDFE6"/>
+      </svg>
+    </div>
+    <div class="nav-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M2.11091 4.61091C4.2588 2.46303 7.7412 2.46303 9.88909 4.61091L12 6.72183L14.1109 4.61091C16.2588 2.46303 19.7412 2.46303 21.8891 4.61091C24.037 6.7588 24.037 10.2412 21.8891 12.3891L12 22.2782L2.11091 12.3891C-0.036971 10.2412 -0.036971 6.7588 2.11091 4.61091Z" stroke="#DBDFE6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="nav-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M17.5 13.5C18.1 13.5 18.5 13.9 18.5 14.5V21.5H5.5V14.5C5.5 13.9 5.9 13.5 6.5 13.5H17.5ZM13.5 3.5C14.6 3.5 15.5 4.4 15.5 5.5V8.5C15.5 9.6 14.6 10.5 13.5 10.5H10.5C9.4 10.5 8.5 9.6 8.5 8.5V5.5C8.5 4.4 9.4 3.5 10.5 3.5H13.5Z" stroke="#DBDFE6"/>
+      </svg>
+    </div>
+  </div>
+</nav>
+
+<!-- ── PAGE ───────────────────────────────────────────────────────────── -->
+<div class="page-layout">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-icon">
+      <!-- battery-at-destination -->
+      <svg width="33" height="41" viewBox="0 0 32.5 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20.5 36.5C20.5 37.5609 20.0786 38.5783 19.3284 39.3284C18.5783 40.0786 17.5609 40.5 16.5 40.5H4.5C3.43913 40.5 2.42172 40.0786 1.67157 39.3284C0.921428 38.5783 0.5 37.5609 0.5 36.5V4.5H5.5M5.5 4.5V0.5H15.5V4.5M5.5 4.5H15.5M15.5 4.5H20.5V18M15.5 14.5H10.5M10.5 14.5H5.5M10.5 14.5V19.5M10.5 14.5V9.5M6.5 32.5H14.5M25 29C26.6569 29 28 27.6569 28 26C28 24.3431 26.6569 23 25 23C23.3431 23 22 24.3431 22 26C22 27.6569 23.3431 29 25 29ZM32 26C32 22.1 28.9 19 25 19C21.1 19 18 22.1 18 26C18 29.9 25 40 25 40C25 40 32 29.9 32 26Z" stroke="#FCFCFD"/>
+      </svg>
+    </div>
+    <h1>Calculate your electric driving range</h1>
+  </div>
+
+  <!-- SECTION GROUP -->
+  <div class="section-group">
+
+    <!-- ── LEFT: INPUTS ─────────────────────────────────────────────────── -->
+    <div class="section-input">
+
+      <!-- Q1: Driving distribution -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">Where do you travel and how often?</span>
+          <button class="info-btn" aria-label="More info">
+              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+            </button>
+        </div>
+
+        <div class="slider-distr">
+          <div class="distr-outer">
+            <div class="distr-segments" id="distrSegments">
+              <div class="distr-divider" id="distr-divider-1" style="left:33.33%"></div>
+              <div class="distr-divider" id="distr-divider-2" style="left:66.67%"></div>
+              <!-- City -->
+              <div class="distr-seg" id="seg-city"></div>
+              <!-- Country road -->
+              <div class="distr-seg" id="seg-country"></div>
+              <!-- Motorway -->
+              <div class="distr-seg" id="seg-motorway"></div>
+              <!-- Icons — absolutely centred in their region by JS -->
+              <div class="distr-icon" id="icon-city" style="left:16.67%">
+                <img src="assets/icons/city.svg" width="20" height="20" alt="">
+              </div>
+              <div class="distr-icon" id="icon-country" style="left:50%">
+                <img src="assets/icons/country.svg" width="24" height="22" alt="">
+              </div>
+              <div class="distr-icon" id="icon-motorway" style="left:83.33%">
+                <img src="assets/icons/motorway.svg" width="23" height="22" alt="">
+              </div>
+              <!-- Handle 1 -->
+              <div class="distr-handle distr-handle-top" id="handle1" style="left:33.33%">
+                <div class="distr-thumb">
+                  <div class="distr-thumb-arrows">
+                    <img src="assets/icons/arrow-left.svg" width="7" height="13" alt="">
+                    <img src="assets/icons/arrow-right.svg" width="7" height="13" alt="" style="transform:scaleX(-1)">
+                  </div>
+                </div>
+              </div>
+              <!-- Handle 2 -->
+              <div class="distr-handle distr-handle-bottom" id="handle2" style="left:66.67%">
+                <div class="distr-thumb">
+                  <div class="distr-thumb-arrows">
+                    <img src="assets/icons/arrow-left.svg" width="7" height="13" alt="">
+                    <img src="assets/icons/arrow-right.svg" width="7" height="13" alt="" style="transform:scaleX(-1)">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="distr-labels">
+            <div class="distr-label-col">
+              <span class="distr-pct" id="pct-city">33%</span>
+              <span class="distr-name">City</span>
+            </div>
+            <div class="distr-label-col">
+              <span class="distr-pct" id="pct-country">33%</span>
+              <span class="distr-name">Country road</span>
+            </div>
+            <div class="distr-label-col">
+              <span class="distr-pct" id="pct-motorway">33%</span>
+              <span class="distr-name">Motorway</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2: Speed on motorway -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">Do you often drive faster than 120 km/h on the motorway?</span>
+          <button class="info-btn" aria-label="More info">
+              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+            </button>
+        </div>
+        <div class="radio-group">
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="speed" value="no" checked>
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">No</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="speed" value="yes">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Yes</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q3: Tyre size -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">What size tyres does your vehicle have?</span>
+          <button class="info-btn" aria-label="More info">
+              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+            </button>
+        </div>
+        <div class="select-wrapper">
+          <select class="select-field" id="sel-tyres">
+            <option value="18">18"</option>
+            <option value="19">19"</option>
+            <option value="20" selected>20"</option>
+            <option value="21">21"</option>
+            <option value="22">22"</option>
+          </select>
+          <div class="select-chevron">
+            <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+          </div>
+        </div>
+      </div>
+
+      <!-- Q4: Temperature -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">What is the outside temperature?</span>
+          <button class="info-btn" aria-label="More info">
+              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+            </button>
+        </div>
+        <div class="slider-temp">
+          <div class="slider-value-row">
+            <span class="slider-value-display" id="temp-display">+20 °C</span>
+          </div>
+          <div class="slider-track-row">
+            <div class="slider-track-bg"></div>
+            <div class="slider-track-fill" id="temp-fill"></div>
+            <input type="range" class="temp-slider" id="temp-slider" min="-20" max="30" value="20" step="10">
+          </div>
+          <div class="slider-range-row">
+            <span>-20 °C</span>
+            <span>+30 °C</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q5: Heating / A/C -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">Is the heating or air conditioning on?</span>
+          <button class="info-btn" aria-label="More info">
+              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+            </button>
+        </div>
+        <div class="radio-group">
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="hvac" value="no">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">No</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="hvac" value="yes" checked>
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Yes</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q6: Vehicle load -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">How is the vehicle loaded?</span>
+          <button class="info-btn" aria-label="More info">
+              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+            </button>
+        </div>
+        <div class="radio-group">
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="load" value="normal" checked>
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Normal</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="load" value="full">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Full</span>
+          </label>
+        </div>
+      </div>
+
+    </div><!-- /section-input -->
+
+    <!-- ── RIGHT: OUTPUT ─────────────────────────────────────────────────── -->
+    <div class="section-output">
+
+      <div class="section-model">
+        <div class="model-combo">
+          <div class="question">
+            <span class="model-label">A6 e-tron</span>
+          </div>
+          <div class="select-group">
+            <div id="model-col">
+              <span class="select-sub-label">Model</span>
+              <div class="select-wrapper">
+                <select class="select-field" id="sel-model">
+                  <optgroup label="A6 e-tron">
+                    <option value="a6-sportback" selected>A6 Sportback e-tron</option>
+                    <option value="a6-avant">A6 Avant e-tron</option>
+                    <option value="s6-sportback">S6 Sportback e-tron</option>
+                    <option value="s6-avant">S6 Avant e-tron</option>
+                  </optgroup>
+                  <optgroup label="Q4 e-tron">
+                    <option value="q4-suv">Q4 SUV e-tron</option>
+                    <option value="q4-sportback">Q4 Sportback e-tron</option>
+                  </optgroup>
+                </select>
+                <div class="select-chevron">
+                  <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+                </div>
+              </div>
+            </div>
+            <div id="pt-col">
+              <span class="select-sub-label">Powertrain</span>
+              <div class="select-wrapper">
+                <select class="select-field" id="sel-powertrain">
+                </select>
+                <div class="select-chevron">
+                  <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="car-wrapper">
+          <div class="car-img-box">
+            <img id="car-img" src="assets/media/a6-etron/a6-sportback.png" alt="Audi A6 Sportback e-tron">
+          </div>
+          <p class="cons-data">Power consumption (combined): 15.4 – 13.4 kWh/100 km²; CO₂ emissions (combined): 0 g/km²</p>
+        </div>
+      </div>
+
+      <div class="result-cta-group">
+        <!-- Result -->
+        <div class="section-result">
+          <div id="label-group">
+            <div class="result-headline">
+              <span class="result-label">Estimated Range</span>
+              <button class="info-btn" aria-label="More info">
+                <img src="assets/icons/info.svg" width="16" height="16" alt="">
+              </button>
+            </div>
+            <p class="result-value" id="result-value"></p>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="section-result" id="section-cta">
+          <div class="btn-group" id="btn-group-nxt">
+            <a class="btn-primary" id="btn-build" target="_blank">Build</a>
+            <div class="text-link-group">
+              <div class="text-link-standalone">
+                <div class="text-link-content">
+                  <a class="text-link" id="link-new-cars" target="_blank"></a>
+                </div>
+              </div>
+              <div class="text-link-standalone">
+                <div class="text-link-content">
+                  <a class="text-link" id="link-used-cars" target="_blank"></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /section-output -->
+  </div><!-- /section-group -->
+</div><!-- /page-layout -->
+
+<script>
+  /* ── MODEL CONFIG ── */
+  const MODELS = {
+    'a6-sportback': {
+      family: 'A6 e-tron',
+      powertrains: [
+        { value: 'etron',        label: 'e-tron',              buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-sportback-e-tron/configurator/?pr=GHAABA1_2027|0E0E|FW#configurator', consumption: '15,4 – 13,3 kWh/100 km' },
+        { value: 'performance',  label: 'e-tron performance',  buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-sportback-e-tron/configurator/?pr=GHAAC81_2027|0E0E|FW#configurator', consumption: '15,8 – 13,6 kWh/100 km' },
+        { value: 'quattro',      label: 'e-tron quattro',      buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-sportback-e-tron/configurator/?pr=GHAAD81_2027%7C0E0E%7CFW#configurator', consumption: '16,6 – 14,4 kWh/100 km' },
+      ],
+      tyres: [18,19,20,21,22], defaultTyre: 20,
+      image: 'assets/media/a6-etron/a6-sportback.png', alt: 'Audi A6 Sportback e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-sportback-e-tron/configurator/?pr=GHAABA1_2027|0E0E|FW#configurator',
+      newCars: 174, newCarsUrl: 'https://www.audi.co.uk/en/new-car-search/?#filter=carline.a6sbetron',
+      usedCars: 114, usedCarsUrl: 'https://www.audi.co.uk/en/used-car-search/?intcid=uc-vtp-filter-switch',
+    },
+    'a6-avant': {
+      family: 'A6 e-tron',
+      powertrains: [
+        { value: 'etron',        label: 'e-tron',             buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-avant-e-tron/configurator/?pr=GH5ABA1_2027|0E0E|FW#configurator', consumption: '16,3 – 14 kWh/100 km' },
+        { value: 'performance',  label: 'e-tron performance', buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-avant-e-tron/configurator/?pr=GH5AC81_2027|0E0E|FW#configurator', consumption: '16,8 – 14,3 kWh/100 km' },
+        { value: 'quattro',      label: 'e-tron quattro',     buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-avant-e-tron/configurator/?pr=GH5AD81_2027%7C0E0E%7CFW#configurator', consumption: '17,7 – 15,2 kWh/100 km' },
+      ],
+      tyres: [18,19,20,21,22], defaultTyre: 20,
+      image: 'assets/media/a6-etron/a6-avant.png', alt: 'Audi A6 Avant e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-avant-e-tron/configurator/?pr=GH5ABA1_2027|0E0E|FW#configurator',
+      newCars: 143, newCarsUrl: 'https://www.audi.co.uk/en/new-car-search/',
+      usedCars: 73, usedCarsUrl: 'https://www.audi.co.uk/en/used-car-search/',
+    },
+    's6-sportback': {
+      family: 'A6 e-tron',
+      powertrains: null,
+      tyres: [18,19,20,21,22], defaultTyre: 21,
+      image: 'assets/media/a6-etron/s6-sportback.png', alt: 'Audi S6 Sportback e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/s6-sportback-e-tron/configurator/?pr=GHASE81_2027%7C0E0E%7CGX#configurator',
+      newCars: 8, newCarsUrl: 'https://entry.audi.com/entry?country=gb&language=en&sc_market=uk&target=results&filter=carline.s6sbetron',
+      usedCars: 2, usedCarsUrl: 'https://entry.audi.com/entry?country=gb&language=en&sc_market=ukuc&target=results&filter=carline.s6sbetron',
+      consumption: '16,7 – 15,7 kWh/100 km',
+    },
+    's6-avant': {
+      family: 'A6 e-tron',
+      powertrains: null,
+      tyres: [18,19,20,21,22], defaultTyre: 21,
+      image: 'assets/media/a6-etron/s6-avant.png', alt: 'Audi S6 Avant e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/s6-avant-e-tron/configurator/?pr=GH5SE81_2027%7C0E0E%7CGX#configurator',
+      newCars: 8, newCarsUrl: 'https://entry.audi.com/entry?country=gb&language=en&sc_market=uk&target=results&filter=carline.s6avantetron',
+      usedCars: 9, usedCarsUrl: 'https://entry.audi.com/entry?country=gb&language=en&sc_market=ukuc&target=results&filter=carline.s6avantetron',
+      consumption: '17,5 – 16,4 kWh/100 km',
+    },
+    'q4-suv': {
+      family: 'Q4 e-tron',
+      powertrains: [
+        { value: '40etron',   label: 'e-tron',             buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron/configurator/?pr=F4GAHM1_2027|V6V6|AI#configurator', consumption: '18 – 15,3 kWh/100 km' },
+        { value: '45etron',   label: 'e-tron performance', buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron/configurator/?pr=F4GA5K1_2027|V6V6|AI#configurator', consumption: '18,4 – 15,6 kWh/100 km' },
+        { value: '55quattro', label: 'e-tron quattro',     buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron/configurator/?pr=F4GAU31_2027%7CV6V6%7CAI#configurator', consumption: '19,1 – 16,1 kWh/100 km' },
+      ],
+      tyres: [19,20,21], defaultTyre: 20,
+      image: 'assets/media/q4-etron/q4-suv.png', alt: 'Audi Q4 SUV e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron/configurator/?pr=F4GAHM1_2027|V6V6|AI#configurator',
+      newCars: 202, newCarsUrl: 'https://www.audi.co.uk/en/new-car-search/',
+      usedCars: null, usedCarsUrl: 'https://www.audi.co.uk/en/used-car-search/?intcid=uc-vtp-filter-switch',
+    },
+    'q4-sportback': {
+      family: 'Q4 e-tron',
+      powertrains: [
+        { value: '40etron',   label: 'e-tron',             buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron-sportback/configurator/?pr=F4TAHM1_2027|V6V6|AI#configurator', consumption: '17,3 – 14,8 kWh/100 km' },
+        { value: '45etron',   label: 'e-tron performance', buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron-sportback/configurator/?pr=F4GA5K1_2027|V6V6|AI#configurator', consumption: '17,7 – 15,2 kWh/100 km' },
+        { value: '55quattro', label: 'e-tron quattro',     buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron-sportback/configurator/?pr=F4TAU31_2027|V6V6|AI#configurator', consumption: '18,6 – 15,6 kWh/100 km' },
+      ],
+      tyres: [19,20,21], defaultTyre: 20,
+      image: 'assets/media/q4-etron/q4-sportback.png', alt: 'Audi Q4 Sportback e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron-sportback/configurator/?pr=F4TAHM1_2027|V6V6|AI#configurator',
+      newCars: 307, newCarsUrl: 'https://www.audi.co.uk/en/new-car-search/',
+      usedCars: 3, usedCarsUrl: 'https://www.audi.co.uk/en/used-car-search/?intcid=uc-vtp-filter-switch',
+    },
+  };
+
+  /* ── BASE RANGES (WLTP, miles) ── */
+  const BASE = {
+    'a6-sportback': { etron: 365, performance: 436, quattro: 414 },
+    'a6-avant':     { etron: 350, performance: 419, quattro: 399 },
+    's6-sportback': { default: 399 },
+    's6-avant':     { default: 380 },
+    'q4-suv':       { '40etron': 256, '45etron': 351, '55quattro': 327 },
+    'q4-sportback': { '40etron': 270, '45etron': 347, '55quattro': 355 },
+  };
+
+  let cityPct = 33.33;
+  let countryPct = 33.33;
+  function mwPct() { return Math.max(0, 100 - cityPct - countryPct); }
+
+  function updateConsumption() {
+    const model = document.getElementById('sel-model').value;
+    const cfg   = MODELS[model];
+    if (!cfg) return;
+    let consumption = cfg.consumption ?? null;
+    if (cfg.powertrains) {
+      const pt = document.getElementById('sel-powertrain').value;
+      const ptCfg = cfg.powertrains.find(p => p.value === pt);
+      if (ptCfg) consumption = ptCfg.consumption ?? null;
+    }
+    const el = document.querySelector('.cons-data');
+    if (el) el.textContent = consumption
+      ? `Power consumption (combined): ${consumption}; CO₂ emissions (combined): 0 g/km`
+      : '';
+  }
+
+  function updateBuildUrl() {
+    const model = document.getElementById('sel-model').value;
+    const cfg   = MODELS[model];
+    if (!cfg) return;
+    const btnBuild = document.getElementById('btn-build');
+    let url = cfg.buildUrl ?? null;
+    if (cfg.powertrains) {
+      const pt = document.getElementById('sel-powertrain').value;
+      const ptCfg = cfg.powertrains.find(p => p.value === pt);
+      if (ptCfg) url = ptCfg.buildUrl ?? url;
+    }
+    if (url) { btnBuild.href = url; } else { btnBuild.removeAttribute('href'); }
+  }
+
+  function updateModelConfig() {
+    const model = document.getElementById('sel-model').value;
+    const cfg   = MODELS[model];
+    if (!cfg) return;
+
+    // Floating family label
+    document.querySelector('.model-label').textContent = cfg.family;
+
+    // Powertrain dropdown
+    const ptContainer = document.getElementById('pt-col');
+    if (cfg.powertrains) {
+      ptContainer.style.display = '';
+      const ptSel = document.getElementById('sel-powertrain');
+      ptSel.innerHTML = cfg.powertrains
+        .map(p => `<option value="${p.value}">${p.label}</option>`).join('');
+    } else {
+      ptContainer.style.display = 'none';
+    }
+
+    // Tyre options
+    const tyreSel = document.getElementById('sel-tyres');
+    tyreSel.innerHTML = cfg.tyres
+      .map(t => `<option value="${t}"${t === cfg.defaultTyre ? ' selected' : ''}>${t}"</option>`).join('');
+
+    // Car image
+    const img = document.getElementById('car-img');
+    img.src = cfg.image;
+    img.alt = cfg.alt;
+
+    // Build CTA and consumption — resolved after powertrain options are populated
+    updateBuildUrl();
+    updateConsumption();
+
+    // Available cars links
+    const linkNew  = document.getElementById('link-new-cars');
+    const linkUsed = document.getElementById('link-used-cars');
+    const newGroup  = linkNew.closest('.text-link-standalone');
+    const usedGroup = linkUsed.closest('.text-link-standalone');
+    if (cfg.newCars === 0) {
+      newGroup.style.display = 'none';
+    } else {
+      linkNew.textContent = cfg.newCars != null
+        ? `Available new cars (${cfg.newCars.toLocaleString()})`
+        : 'Available new cars';
+      if (cfg.newCarsUrl) { linkNew.href = cfg.newCarsUrl; } else { linkNew.removeAttribute('href'); }
+      newGroup.style.display = '';
+    }
+
+    if (cfg.usedCars === 0) {
+      usedGroup.style.display = 'none';
+    } else {
+      linkUsed.textContent = cfg.usedCars != null
+        ? `Available used cars (${cfg.usedCars.toLocaleString()})`
+        : 'Available used cars';
+      if (cfg.usedCarsUrl) { linkUsed.href = cfg.usedCarsUrl; } else { linkUsed.removeAttribute('href'); }
+      usedGroup.style.display = '';
+    }
+
+    updateResult();
+  }
+
+  function calcRange() {
+    const model       = document.getElementById('sel-model').value;
+    const powertrain  = document.getElementById('sel-powertrain').value;
+    const modelBase   = BASE[model] ?? {};
+    const base        = modelBase[powertrain] ?? modelBase.default ?? Object.values(modelBase)[0] ?? 365;
+    const defaultTyre = MODELS[model]?.defaultTyre ?? 20;
+
+    const city    = cityPct / 100;
+    const country = countryPct / 100;
+    const mw      = mwPct() / 100;
+    const REF_MIX = (1/3) * 1.18 + (1/3) * 1.00 + (1/3) * 0.78;
+    const mix     = (city * 1.18 + country * 1.00 + mw * 0.78) / REF_MIX;
+
+    const highSpeed  = document.querySelector('input[name="speed"]:checked')?.value === 'yes';
+    const tyreSize   = parseInt(document.getElementById('sel-tyres').value);
+    const temp       = parseInt(document.getElementById('temp-slider').value);
+    const hvacOn     = document.querySelector('input[name="hvac"]:checked')?.value === 'yes';
+    const loadFull   = document.querySelector('input[name="load"]:checked')?.value === 'full';
+
+    let tempF;
+    if      (temp <= 0)  tempF = 0.72 + (temp + 20) / 20 * 0.22;
+    else if (temp <= 20) tempF = 0.94 + (temp / 20) * 0.06;
+    else                 tempF = 1.00 - (temp - 20) / 10 * 0.06;
+
+    const total = base
+      * mix
+      * (highSpeed ? 0.90 : 1.00)
+      * (1 - (tyreSize - defaultTyre) * 0.015)
+      * tempF
+      * (hvacOn   ? 0.92 : 1.00)
+      * (loadFull ? 0.96 : 1.00);
+
+    return Math.round(total);
+  }
+
+  function buildSlots(container, value) {
+    const digits = String(value).split('');
+    const existing = container.querySelectorAll('.slot-digit');
+    if (existing.length !== digits.length) {
+      container.innerHTML = '';
+      digits.forEach(() => {
+        const col = document.createElement('span');
+        col.className = 'slot-digit';
+        const reel = document.createElement('span');
+        reel.className = 'slot-reel';
+        for (let i = 0; i <= 9; i++) {
+          const d = document.createElement('span');
+          d.textContent = i;
+          reel.appendChild(d);
+        }
+        col.appendChild(reel);
+        container.appendChild(col);
+      });
+      const unit = document.createElement('span');
+      unit.className = 'range-unit';
+      unit.textContent = ' miles';
+      container.appendChild(unit);
+    }
+    container.querySelectorAll('.slot-digit').forEach((col, i) => {
+      const d = parseInt(digits[i]);
+      const reel = col.querySelector('.slot-reel');
+      const delay = (digits.length - 1 - i) * 60;
+      reel.style.transitionDelay = delay + 'ms';
+      reel.style.transform = `translateY(-${d}em)`;
+    });
+  }
+
+  function updateResult() {
+    buildSlots(document.getElementById('result-value'), calcRange());
+  }
+
+  /* ── DISTRIBUTION SLIDER ── */
+  const segments  = document.getElementById('distrSegments');
+  const handle1El = document.getElementById('handle1');
+  const handle2El = document.getElementById('handle2');
+
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  /* Icon shrink/fade as a segment nears the edge (mirrors VW range-simulator's dist-icon sizing) */
+  const ICON_MAX = 24, ICON_MIN = 10;
+  function iconScale(pct) {
+    return clamp(ICON_MIN + (ICON_MAX - ICON_MIN) * (pct - 5) / 15, ICON_MIN, ICON_MAX) / ICON_MAX;
+  }
+  function iconOpacity(pct) {
+    return pct < 4 ? 0 : Math.min(1, (pct - 4) / 4);
+  }
+
+  function setHandles(h1, h2) {
+    handle1El.style.left = h1 + '%';
+    handle2El.style.left = h2 + '%';
+    document.getElementById('distr-divider-1').style.left = h1 + '%';
+    document.getElementById('distr-divider-2').style.left = h2 + '%';
+    cityPct    = h1;
+    countryPct = h2 - h1;
+    document.getElementById('pct-city').textContent     = Math.round(cityPct) + '%';
+    document.getElementById('pct-country').textContent  = Math.round(countryPct) + '%';
+    document.getElementById('pct-motorway').textContent = Math.round(mwPct()) + '%';
+
+    /* resize segment widths */
+    document.getElementById('seg-city').style.flex     = cityPct + ' 0 0%';
+    document.getElementById('seg-country').style.flex  = countryPct + ' 0 0%';
+    document.getElementById('seg-motorway').style.flex = mwPct() + ' 0 0%';
+
+    /* position each icon at its region's true centre, and shrink + fade it as the region nears the edge */
+    const iconCentres = [h1 / 2, (h1 + h2) / 2, (h2 + 100) / 2];
+    [['#icon-city', cityPct], ['#icon-country', countryPct], ['#icon-motorway', mwPct()]]
+      .forEach(([sel, pct], i) => {
+        const icon = document.querySelector(sel);
+        icon.style.left = iconCentres[i] + '%';
+        const img = icon.querySelector('img');
+        img.style.transform = `scale(${iconScale(pct)})`;
+        img.style.opacity   = iconOpacity(pct);
+      });
+
+    updateResult();
+  }
+
+  let dragging = null, dragStartX = 0, dragStartPct = 0;
+
+  function dragStart(e, which) {
+    dragging = which;
+    dragStartX   = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    dragStartPct = which === 1 ? cityPct : cityPct + countryPct;
+    e.preventDefault();
+  }
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const rect  = segments.getBoundingClientRect();
+    const dxPct = ((e.clientX - dragStartX) / rect.width) * 100;
+    const newP  = clamp(dragStartPct + dxPct, 0, 100);
+    const h2    = cityPct + countryPct;
+    if (dragging === 1) setHandles(clamp(newP, 0, h2), h2);
+    else                setHandles(cityPct, clamp(newP, cityPct, 100));
+  });
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const rect  = segments.getBoundingClientRect();
+    const dxPct = ((e.touches[0].clientX - dragStartX) / rect.width) * 100;
+    const newP  = clamp(dragStartPct + dxPct, 0, 100);
+    const h2    = cityPct + countryPct;
+    if (dragging === 1) setHandles(clamp(newP, 0, h2), h2);
+    else                setHandles(cityPct, clamp(newP, cityPct, 100));
+  }, { passive: false });
+  document.addEventListener('mouseup',  () => { dragging = null; });
+  document.addEventListener('touchend', () => { dragging = null; });
+
+  handle1El.addEventListener('mousedown',  e => dragStart(e, 1));
+  handle2El.addEventListener('mousedown',  e => dragStart(e, 2));
+  handle1El.addEventListener('touchstart', e => dragStart(e, 1), { passive: false });
+  handle2El.addEventListener('touchstart', e => dragStart(e, 2), { passive: false });
+
+  /* ── TEMPERATURE SLIDER ── */
+  const tempSlider  = document.getElementById('temp-slider');
+  const tempDisplay = document.getElementById('temp-display');
+  const tempFill    = document.getElementById('temp-fill');
+  let heatingManuallySet = false;
+
+  function updateTemp() {
+    const val = parseInt(tempSlider.value);
+    const pct = ((val - (-20)) / 50) * 100;
+    tempFill.style.width = pct + '%';
+    tempDisplay.style.left = pct + '%';
+    tempDisplay.style.transform = `translateX(-${pct}%)`;
+    tempDisplay.textContent = (val > 0 ? '+' : '') + val + ' °C';
+    if (!heatingManuallySet) {
+      const autoYes = val !== 10 && val !== 20;
+      document.querySelector(`input[name="hvac"][value="${autoYes ? 'yes' : 'no'}"]`).checked = true;
+    }
+    updateResult();
+  }
+  tempSlider.addEventListener('input', updateTemp);
+
+  /* ── SELECTS ── */
+  document.getElementById('sel-model').addEventListener('change', updateModelConfig);
+  document.getElementById('sel-powertrain').addEventListener('change', () => { updateBuildUrl(); updateConsumption(); updateResult(); });
+  document.getElementById('sel-tyres').addEventListener('change', updateResult);
+
+  /* ── RADIO CHANGE ── */
+  document.querySelectorAll('input[type="radio"]').forEach(r =>
+    r.addEventListener('change', updateResult)
+  );
+  document.querySelectorAll('input[name="hvac"]').forEach(r =>
+    r.addEventListener('change', () => { heatingManuallySet = true; })
+  );
+
+  /* ── INIT ── */
+  updateModelConfig();
+  setHandles(33.33, 66.67);
+  updateTemp();
+</script>
+</body>
+</html>
