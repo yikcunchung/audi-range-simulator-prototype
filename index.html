@@ -515,6 +515,24 @@
       text-decoration: none;
     }
     .btn-primary:hover { background: #758292; }
+    .btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100%; min-height: 48px;
+      background-color: rgb(24, 29, 37);
+      border: 0;
+      border-radius: 999px;
+      box-shadow: rgb(44, 52, 63) 0px 0px 0px 1px inset;
+      color: rgb(252, 252, 253);
+      font-family: var(--font-copy);
+      font-size: 14px; line-height: 20px; font-stretch: 105%; font-weight: 400; letter-spacing: 0;
+      padding: 12px 24px;
+      cursor: pointer;
+      text-decoration: none;
+      transition-property: color, box-shadow, background-color;
+      transition-duration: 250ms;
+      transition-timing-function: cubic-bezier(0.75, 0.02, 0.5, 1);
+    }
+    .btn-secondary:hover { background-color: rgb(44, 52, 63); color: rgb(252, 252, 253); box-shadow: rgba(219, 223, 230, 0.2) 0px 0px 0px 1px inset; }
 
     /* ── TEXT LINKS ─────────────────────────────────────────────────────── */
     .text-link-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
@@ -939,7 +957,7 @@
           <p class="result-value" id="result-value"></p>
         </div>
         <div class="btn-group" id="btn-group-nxt">
-          <a class="btn-primary" id="btn-build" target="_blank">Build</a>
+          <a class="btn-secondary" id="btn-build" target="_blank">Build</a>
           <div class="text-link-group">
             <div class="text-link-standalone">
               <div class="text-link-content">
