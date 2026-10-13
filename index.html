@@ -121,6 +121,8 @@
       --sys-motion-duration-base:  0.25s;
       --sys-motion-duration-layer: 0.24s;
       --sys-motion-duration-layer-slide: 0.42s;
+      --sys-motion-duration-faq-inner: 0.32s;   /* FAQ answer fade / padding / visibility (the grid rows run --sys-motion-duration-base) */
+      --sys-motion-easing-faq-inner: ease-in;
       --sys-motion-duration-reel:  1s;
       --sys-motion-easing-standard: cubic-bezier(0.75, 0.02, 0.5, 1);
       --sys-z-sticky: 10;
@@ -738,10 +740,17 @@
     .faq-q:focus:not(:active) { background-color: var(--surface-selected); color: var(--text-muted); }
     .faq-q svg { flex: 0 0 var(--sys-space-fixed-300); width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); transition: transform var(--sys-motion-duration-fast) ease-in; }
     .faq-q[aria-expanded="true"] svg { transform: rotate(180deg); }
+    /* Answer panel (as on the live page): the grid rows run 0fr -> 1fr over 0.25s, the inner (grid item, overflow hidden) fades in,
+       pads from 0 16px to 16px and turns visible over 0.32s ease-in, in both directions. Only one item is open at a time. */
     .faq-panel { display: grid; grid-template-rows: 0fr; transition: all var(--sys-motion-duration-base) ease; }
     .faq-panel.is-open { grid-template-rows: 1fr; }
-    .faq-panel-clip { overflow: hidden; min-height: 0; }
-    .faq-panel-inner { padding: var(--sys-space-fixed-200); }
+    .faq-panel-inner {
+      overflow: hidden; padding: 0 var(--sys-space-fixed-200); opacity: 0; visibility: hidden;
+      transition-property: transform, opacity, padding, visibility;
+      transition-duration: var(--sys-motion-duration-faq-inner);
+      transition-timing-function: var(--sys-motion-easing-faq-inner);
+    }
+    .faq-panel.is-open .faq-panel-inner { padding: var(--sys-space-fixed-200); opacity: 1; visibility: visible; }
     .faq-panel-inner p {
       margin: 0; font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
       font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
@@ -1235,8 +1244,8 @@
           <span>What influence does the driving speed have on the range of my e-vehicle?</span>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
-        <div class="faq-panel" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
-          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        <div class="faq-panel" id="faq-a-1" role="region" aria-labelledby="faq-q-1" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
         </div>
       </div>
       <div class="faq-item">
@@ -1244,8 +1253,8 @@
           <span>What influence do temperature fluctuations in the vehicle interior have on the range?</span>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
-        <div class="faq-panel" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
-          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        <div class="faq-panel" id="faq-a-2" role="region" aria-labelledby="faq-q-2" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
         </div>
       </div>
       <div class="faq-item">
@@ -1253,8 +1262,8 @@
           <span>How should I best use the interior heating so that my electric vehicle does not lose too much range?</span>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
-        <div class="faq-panel" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
-          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        <div class="faq-panel" id="faq-a-3" role="region" aria-labelledby="faq-q-3" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
         </div>
       </div>
       <div class="faq-item">
@@ -1262,8 +1271,8 @@
           <span>What influence does my individual driving style have on the range of my e-vehicle?</span>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
-        <div class="faq-panel" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
-          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        <div class="faq-panel" id="faq-a-4" role="region" aria-labelledby="faq-q-4" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
         </div>
       </div>
       <div class="faq-item">
@@ -1271,8 +1280,8 @@
           <span>How can I use braking processes while driving positively for my range?</span>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
-        <div class="faq-panel" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
-          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        <div class="faq-panel" id="faq-a-5" role="region" aria-labelledby="faq-q-5" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
         </div>
       </div>
       <div class="faq-item">
@@ -1280,8 +1289,8 @@
           <span>What influence does the interior air conditioning have on the range of my e-vehicle?</span>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
-        <div class="faq-panel" id="faq-a-6" role="region" aria-labelledby="faq-q-6">
-          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        <div class="faq-panel" id="faq-a-6" role="region" aria-labelledby="faq-q-6" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
         </div>
       </div>
       <div class="faq-item">
@@ -1289,8 +1298,8 @@
           <span>What influence does the interior heating have on the range of my electric vehicle?</span>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
-        <div class="faq-panel" id="faq-a-7" role="region" aria-labelledby="faq-q-7">
-          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        <div class="faq-panel" id="faq-a-7" role="region" aria-labelledby="faq-q-7" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
         </div>
       </div>
     </div>
@@ -1702,12 +1711,21 @@
   setHandles(34, 65);
   updateTemp();
 
-  /* ── FAQ ACCORDION ── */
-  document.querySelectorAll('.faq-q').forEach(btn => {
+  /* ── FAQ ACCORDION (exclusive, as on the live page) ──
+     Only one answer is open at a time: opening a row closes the open one at the same moment, clicking the open row closes it.
+     Enter / Space are the native button click. aria-expanded (button) and aria-hidden (panel) follow. */
+  const faqRows = [...document.querySelectorAll('.faq-q')];
+  const setFaqRow = (btn, open) => {
+    const panel = document.getElementById(btn.getAttribute('aria-controls'));
+    btn.setAttribute('aria-expanded', String(open));
+    panel.setAttribute('aria-hidden', String(!open));
+    panel.classList.toggle('is-open', open);
+  };
+  faqRows.forEach(btn => {
     btn.addEventListener('click', () => {
-      const open = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!open));
-      document.getElementById(btn.getAttribute('aria-controls')).classList.toggle('is-open', !open);
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      faqRows.forEach(other => { if (other !== btn && other.getAttribute('aria-expanded') === 'true') setFaqRow(other, false); });
+      setFaqRow(btn, open);
     });
   });
 
