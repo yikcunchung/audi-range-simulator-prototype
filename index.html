@@ -53,6 +53,10 @@
       --border-subtle:          rgba(219,223,230,0.2);
       --border-input-focus:     #dbdfe6;
       --border-focus:           #005fcc;
+      --surface-transparent:    rgba(154,163,177,0);   /* idle state of tinted surfaces (colour kept so it can transition) */
+      --border-subtle-0:        rgba(219,223,230,0);   /* idle state of the light border */
+      --border-layer:           #37404e;               /* info layer dialog border */
+      --border-sticky:          #dfe4e8;               /* top border of the mobile sticky result bar */
       --gradient-layer:         linear-gradient(134deg, var(--surface-hover) 0%, var(--surface-raised) 100%);
       --radius-card:       20px;
       --radius-input:      10px;
@@ -116,11 +120,14 @@
       --sys-motion-duration-fast:  0.2s;
       --sys-motion-duration-base:  0.25s;
       --sys-motion-duration-layer: 0.24s;
+      --sys-motion-duration-layer-slide: 0.42s;
       --sys-motion-duration-reel:  1s;
       --sys-motion-easing-standard: cubic-bezier(0.75, 0.02, 0.5, 1);
       --sys-z-sticky: 10;
       --sys-z-layer:  1000;
+      --sys-z-layer-close: 100;   /* Close button wrapper inside the info layer dialog */
       --sys-blur-surface: 60px;
+      --layer-text-gap: 15px;   /* paragraph -> link line inside the info layer (measured on the live layer; no DS3 spacing token has 15px) */
       /* fixed type: copy (16/24, 14/24, 12/20) and label (16/20, 14/20, 12/16, 10/12) */
       --sys-fs-copy-order1:  1rem;      --sys-lh-copy-order1:  1.5rem;
       --sys-fs-copy-order2:  0.875rem;  --sys-lh-copy-order2:  1.5rem;
@@ -224,7 +231,6 @@
       font-family: var(--font-copy);
       font-variation-settings: var(--fvs-copy-normal);
       color: var(--text-primary);
-      -webkit-font-smoothing: antialiased;
     }
     body {
       max-width: var(--max-content-width);
@@ -307,16 +313,16 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; padding: 0; cursor: pointer;
       color: var(--text-primary);
-      background: transparent;
-      border: var(--sys-border-width-sm) solid transparent;
+      background-color: var(--surface-transparent);
+      border: var(--sys-border-width-sm) solid var(--border-subtle-0);
       border-radius: var(--radius-pill);
-      transition-property: color, box-shadow, border-color, background;
+      transition-property: color, box-shadow, border-color, background-color;
       transition-duration: var(--sys-motion-duration-base);
       transition-timing-function: var(--sys-motion-easing-standard);
     }
     .info-btn:hover, .info-btn:active,
     .layer-close:hover, .layer-close:active {
-      background: var(--surface-hover);
+      background-color: var(--surface-hover);
       border-color: var(--border-subtle);
     }
     .question-end .info-btn {
@@ -324,7 +330,9 @@
       /* 36px hit area, but only the 16px icon counts towards the line width (as in the design) */
       height: var(--sys-space-fixed-450); margin-left: var(--sys-space-fixed-50); margin-right: calc(-1 * var(--sys-space-fixed-150));
     }
-    .info-btn img { width: var(--sys-space-fixed-200); height: var(--sys-space-fixed-200); }
+    /* 16x16 inline svg icons (<use> of the sprite at the top of <body>): same box as the live icons, drawn crisp at the button's pixel grid */
+    .icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .info-btn svg, .layer-close svg { display: block; width: var(--sys-space-fixed-200); height: var(--sys-space-fixed-200); }
 
     /* ── DISTRIBUTION SLIDER ────────────────────────────────────────────── */
     .slider-distr { padding-top: 0; }
@@ -576,7 +584,7 @@
     .result-value {
       font-family: var(--font-headline);
       font-variation-settings: var(--fvs-headline-normal);
-      font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1);
+      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2);
       color: var(--text-primary); letter-spacing: 0;
       display: flex; flex-wrap: wrap; align-items: baseline;
     }
@@ -587,7 +595,7 @@
     .range-unit {
       font-family: var(--font-headline);
       font-variation-settings: var(--fvs-headline-normal);
-      font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1);
+      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2);
       color: var(--text-primary);
     }
 
@@ -746,53 +754,69 @@
     @media (min-width: 1440px) { .page-layout { padding-bottom: 92px; } }
     @media (min-width: 1920px) { .page-layout { padding-bottom: 111px; } }
 
-    /* sticky result bar: below 1024px only */
+    /* Sticky result bar (below 1024px only), as on the live page: fixed to the bottom, 64px wider than the viewport on the right,
+       10% tinted blurred surface with an opaque 1px top border; slides away (transform 0.2s) while the end of the input card is in view. */
     .result-bar { display: none; }
     @media (max-width: 1023px) {
       .result-bar {
-        display: flex; flex-direction: column; position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--sys-z-sticky);
-        padding: var(--sys-space-fixed-200) var(--sys-space-fixed-400); background: var(--surface-card);
+        display: block; position: fixed; left: 0; right: calc(var(--sys-space-fixed-800) * -1); bottom: 0; z-index: var(--sys-z-sticky);
+        padding: var(--sys-space-fixed-200) var(--sys-space-fixed-400);
+        background-color: var(--surface-card);
+        border-top: var(--sys-border-width-sm) solid var(--border-sticky);
         -webkit-backdrop-filter: blur(var(--sys-blur-surface)); backdrop-filter: blur(var(--sys-blur-surface));
-        transition: transform var(--sys-motion-duration-base) var(--sys-motion-easing-standard);
+        transform: translateY(0);
+        transition: transform var(--sys-motion-duration-fast);
       }
       .result-bar.is-hidden { transform: translateY(100%); }
     }
     .result-bar-label {
+      display: block;
       font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
       font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
     }
     .result-bar-value {
+      display: block;
       font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal);
       font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); color: var(--text-primary);
     }
 
     /* ── INFO LAYER (modal) ─────────────────────────────────────────────── */
-    /* Full-viewport fixed shader that fades in; dialog is a bottom sheet below 1024px and a centred dialog from 1024px. */
-    .layer {
-      position: fixed; inset: 0; z-index: var(--sys-z-layer);
-      display: flex; align-items: flex-end; justify-content: center;
-    }
-    .layer[hidden] { display: none; }
+    /* Same structure and motion as the live one-layer. Two fixed siblings (shader, then outer, both z-index 1000);
+       outer > width wrapper > open-animation wrapper > native <dialog open> > scroll container > content, plus the Close button.
+       Below 768px: bottom sheet that slides up (no fade). From 768px: centred dialog that rises 40px and fades in.
+       The layer is shown/hidden as a whole (#info-layer[hidden]): closing removes it at once, there is no exit animation. */
+    #info-layer { display: contents; }
+    #info-layer[hidden] { display: none; }
     .layer-shader {
-      position: absolute; inset: 0; background: var(--surface-shader);
-      animation: layer-shader-in var(--sys-motion-duration-layer) ease;
+      position: fixed; inset: 0; z-index: var(--sys-z-layer);
+      background-color: var(--surface-shader);
+      animation: layer-fade-in var(--sys-motion-duration-layer) var(--sys-motion-easing-standard);
     }
-    @keyframes layer-shader-in { from { opacity: 0; } to { opacity: 1; } }
+    .layer-outer {
+      position: fixed; inset: 0; z-index: var(--sys-z-layer);
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    }
+    .layer-width { width: min(100%, var(--sys-breakpoint-lg)); max-height: 100%; }
+    .layer-open {
+      display: flex; justify-content: center; max-height: 100%;
+      animation: layer-sheet-in var(--sys-motion-duration-layer-slide) var(--sys-motion-easing-standard) forwards;
+    }
     .layer-dialog {
-      position: relative; width: 100%; max-height: 100%; overflow-y: auto;
-      display: flex; flex-direction: column; gap: var(--sys-space-fixed-200);
+      display: flex; flex-direction: column; justify-content: center; position: relative; inset: 0;
+      width: 100%; max-height: 100%; margin: 0; padding: 0; overflow: visible;
+      border: var(--sys-border-width-sm) solid var(--border-layer);
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
       background: var(--gradient-layer);
-      border: var(--sys-border-width-sm) solid transparent;
-      border-radius: var(--radius-card);
-      padding: var(--sys-space-relative-xl) var(--sys-space-relative-xl) calc(var(--sys-space-relative-xl) + var(--sys-space-fixed-600));
     }
-    .layer-dialog:focus { outline: auto var(--sys-border-width-sm) var(--border-focus); }
+    .layer-scroll { max-height: 100vh; overflow: auto; }
+    .layer-content { padding: var(--sys-space-relative-xl); }
+    .layer-copy { padding-bottom: var(--sys-space-fixed-600); }   /* bottom sheet: extra space below the copy (as on the live layer) */
     .layer-text {
       margin: 0; font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
       font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
     }
     .layer-link {
-      align-self: flex-start;
+      display: block; width: fit-content; margin-top: var(--layer-text-gap);
       font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
       font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2);
       color: var(--text-primary); text-decoration: underline; cursor: pointer;
@@ -802,14 +826,38 @@
     }
     .layer-link:hover, .layer-link:active { color: var(--text-muted); }
     .layer-link[hidden] { display: none; }
-    .layer-close { position: absolute; top: var(--sys-space-fixed-100); right: var(--sys-space-fixed-100); }
+    .layer-close-wrap {
+      position: absolute; top: var(--sys-space-fixed-100); right: var(--sys-space-fixed-100); z-index: var(--sys-z-layer-close);
+      display: flex; justify-content: flex-end;
+    }
+    @keyframes layer-fade-in  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes layer-slide-in { from { transform: translateY(var(--sys-space-fixed-500)); } to { transform: translateY(0); } }
+    @keyframes layer-sheet-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @media (min-width: 768px) {
+      .layer-outer { justify-content: center; }
+      .layer-open {
+        animation: layer-slide-in var(--sys-motion-duration-layer-slide) var(--sys-motion-easing-standard) forwards,
+                   layer-fade-in var(--sys-motion-duration-layer) var(--sys-motion-easing-standard) forwards;
+      }
+      .layer-content { padding: var(--sys-space-fixed-600); }
+      .layer-copy { padding-bottom: 0; }
+    }
     @media (min-width: 1024px) {
-      .layer { align-items: center; padding-inline: var(--sys-page-margin); }
-      .layer-dialog { max-width: var(--sys-breakpoint-lg); padding: var(--sys-space-fixed-800); }
+      .layer-dialog { border-radius: var(--radius-card); }
+      .layer-content { padding: var(--sys-space-fixed-700); }
+    }
+    @media (min-width: 1440px) {
+      .layer-content { padding: var(--sys-space-fixed-800); }
     }
   </style>
 </head>
 <body>
+
+<!-- Icon sprite: 16x16 stroke icons (info-circle-xs, close-xs) referenced with <use>; colour follows currentColor -->
+<svg class="icon-sprite" aria-hidden="true" focusable="false">
+  <symbol id="icon-info-circle-xs" viewBox="0 0 16 16"><path d="M8 12.5V7M8 5.5V3.5M8 .5a7.5 7.5 0 1 1 0 15a7.5 7.5 0 1 1 0-15Z" stroke="currentColor"/></symbol>
+  <symbol id="icon-close-xs" viewBox="0 0 16 16"><path d="M3 3L13.3 13.3M13.25 3L3.25 13" stroke="currentColor"/></symbol>
+</svg>
 
 <!-- ── TOPBAR ─────────────────────────────────────────────────────────── -->
 <nav class="topbar">
@@ -881,7 +929,7 @@
       <div class="combo">
         <div class="question">
           <span class="question-text"><span id="q-distr-lead">Where do you travel and how </span><span class="question-end"><span id="q-distr-tail">often?</span><button type="button" class="info-btn" aria-label="More information about your driving profile" data-layer="profile">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
             </button></span></span>
         </div>
 
@@ -947,7 +995,7 @@
       <div class="combo">
         <div class="question">
           <span class="question-text">Do you often drive faster than 120 km/h on the <span class="question-end">motorway?<button type="button" class="info-btn" aria-label="More information about driving faster on the motorway" data-layer="speed">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
             </button></span></span>
         </div>
         <div class="radio-group">
@@ -972,7 +1020,7 @@
       <div class="combo combo--select">
         <div class="question">
           <span class="question-text">What size tyres does your vehicle <span class="question-end">have?<button type="button" class="info-btn" aria-label="More information about tyre selection" data-layer="tyres">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
             </button></span></span>
         </div>
         <div class="select-wrapper">
@@ -993,7 +1041,7 @@
       <div class="combo">
         <div class="question">
           <span class="question-text">What is the outside <span class="question-end">temperature?<button type="button" class="info-btn" aria-label="More information about the outside temperature" data-layer="temp">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
             </button></span></span>
         </div>
         <div class="slider-temp">
@@ -1016,7 +1064,7 @@
       <div class="combo">
         <div class="question">
           <span class="question-text">Is the heating or air conditioning <span class="question-end">on?<button type="button" class="info-btn" aria-label="More information about heating or air conditioning" data-layer="hvac">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
             </button></span></span>
         </div>
         <div class="radio-group">
@@ -1041,7 +1089,7 @@
       <div class="combo">
         <div class="question">
           <span class="question-text">How is the vehicle <span class="question-end">loaded?<button type="button" class="info-btn" aria-label="More information about the vehicle load" data-layer="load">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
             </button></span></span>
         </div>
         <div class="radio-group">
@@ -1066,7 +1114,7 @@
       <div class="combo">
         <div class="question">
           <span class="question-text">What is the condition of the vehicle <span class="question-end">battery?<button type="button" class="info-btn" aria-label="More information about the battery condition" data-layer="battery">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
             </button></span></span>
         </div>
         <div class="battery-options">
@@ -1162,7 +1210,7 @@
           <div class="result-headline">
             <span class="result-label">Estimated Range<sup class="fn-ref">1</sup></span>
             <button type="button" class="info-btn" aria-label="More information about the range indication" data-layer="result">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
             </button>
           </div>
           <p class="result-value" id="result-value"></p>
@@ -1249,15 +1297,29 @@
   </section>
 </div><!-- /page-layout -->
 
-<!-- Info layer (modal): shared by all info buttons -->
-<div class="layer" id="info-layer" hidden>
+<!-- Info layer (modal): shared by all info buttons; shown while open (shader and outer are fixed siblings, like the live one-layer) -->
+<div id="info-layer" hidden>
   <div class="layer-shader"></div>
-  <div class="layer-dialog" role="dialog" aria-modal="true" aria-label="Opened layer" tabindex="-1">
-    <p class="layer-text" id="layer-text"></p>
-    <a class="layer-link" id="layer-link" href="#faq-heading">For more information, see the FAQ below.</a>
-    <button type="button" class="layer-close" id="layer-close" aria-label="Close layer">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7L17 17M17 7L7 17" stroke="currentColor"/></svg>
-    </button>
+  <div class="layer-outer">
+    <div class="layer-width">
+      <div class="layer-open">
+        <dialog class="layer-dialog" open role="dialog" aria-modal="true" aria-label="Opened layer" tabindex="-1">
+          <div class="layer-scroll" data-scroll-context>
+            <div class="layer-content">
+              <div class="layer-copy">
+                <p class="layer-text" id="layer-text"></p>
+                <a class="layer-link" id="layer-link" href="#faq-heading">For more information, see the FAQ below.</a>
+              </div>
+            </div>
+          </div>
+          <div class="layer-close-wrap">
+            <button type="button" class="layer-close" id="layer-close" aria-label="Close layer">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-close-xs"/></svg>
+            </button>
+          </div>
+        </dialog>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1650,8 +1712,9 @@
   });
 
   /* ── INFO LAYER (modal) ──
-     Click on an info button opens one shared dialog: shader fades in, focus moves to the dialog, Tab cycles link -> Close,
-     Escape / click on the shader / Close button close it and focus returns to the info button. No page scroll lock. */
+     Click on an info button shows the shared layer (CSS plays the open animation): focus moves to the dialog, Tab cycles link -> Close.
+     About 525ms after opening the page is scroll-locked (body position: fixed; top: -scrollY); closing restores it.
+     Escape / click outside the dialog / Close button remove the layer at once (no exit animation) and return focus to the info button. */
   const LAYERS = {
     profile: { faq: true,  text: 'Define your personal driving profile here and find out how the combination of driving scenarios you choose affects the range of your electric vehicle. Depending on the profile you define, there are direct implications for the range of your vehicle. For example, driving at high speed on the motorway uses considerably more energy than using the vehicle in city traffic.' },
     speed:   { faq: true,  text: 'Driving faster than 120 km/h on the motorway considerably increases air resistance and therefore energy consumption. Select Yes if you regularly drive at these speeds to see how this affects the range of your electric vehicle.' },
@@ -1662,13 +1725,29 @@
     battery: { faq: false, text: 'The state of health (SoH) describes the ageing of the high-voltage battery. Over time its usable capacity decreases slightly, which reduces the range compared with a new vehicle.' },
     result:  { faq: true,  text: 'The estimated range is calculated from the WLTP range of the selected model and the influence of the settings you have made. The actual range may vary.' },
   };
+  const LAYER_LOCK_DELAY_MS = 525;   // measured on the live layer: the scroll lock is applied ~525ms after the click
   const layerEl    = document.getElementById('info-layer');
   const dialogEl   = layerEl.querySelector('.layer-dialog');
   const layerText  = document.getElementById('layer-text');
   const layerLink  = document.getElementById('layer-link');
   const layerClose = document.getElementById('layer-close');
   let layerOpener  = null;
+  let lockTimer    = 0;
+  let lockedAt     = null;   // scroll position while the page is locked
 
+  function lockPageScroll() {
+    lockedAt = window.scrollY;
+    document.body.style.top = '-' + lockedAt + 'px';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  }
+  function unlockPageScroll() {
+    clearTimeout(lockTimer);
+    if (lockedAt === null) return;
+    document.body.style.top = document.body.style.position = document.body.style.width = '';
+    window.scrollTo(0, lockedAt);
+    lockedAt = null;
+  }
   function openLayer(btn) {
     const cfg = LAYERS[btn.dataset.layer];
     if (!cfg) return;
@@ -1677,13 +1756,16 @@
     layerLink.hidden = !cfg.faq;
     layerEl.hidden = false;
     dialogEl.focus();
+    clearTimeout(lockTimer);
+    lockTimer = setTimeout(lockPageScroll, LAYER_LOCK_DELAY_MS);
   }
   function closeLayer(returnFocus = true) {
     if (layerEl.hidden) return;
     layerEl.hidden = true;
+    unlockPageScroll();
     const opener = layerOpener;
     layerOpener = null;
-    if (returnFocus && opener) opener.focus();
+    if (returnFocus && opener) opener.focus({ preventScroll: true });
   }
   document.querySelectorAll('.info-btn[data-layer]').forEach(b => b.addEventListener('click', () => openLayer(b)));
   layerClose.addEventListener('click', () => closeLayer());
