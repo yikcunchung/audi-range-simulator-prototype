@@ -194,8 +194,9 @@
     .topbar {
       height: 72px; background: #020203;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 var(--sys-page-margin);
+      padding: 0 16px;
     }
+    @media (min-width: 768px) { .topbar { padding: 0 var(--sys-page-margin); } }
     .topbar-mobile-left { display: flex; align-items: center; gap: 12px; flex: 1 0 0; }
     .topbar-menu-label {
       font-family: var(--font-copy);
@@ -205,12 +206,13 @@
     }
     .topbar-rings { display: flex; align-items: center; flex-shrink: 0; }
     .topbar-rings svg { width: 69px; height: 24px; }
+    .topbar-rings img { width: 72px; height: 25px; }
     .topbar-nav { display: none; align-items: center; gap: 24px; flex: 1 0 0; }
     .topbar-nav-item {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 100, 'wght' 500;
-      font-size: 14px; line-height: 20px;
-      color: rgba(252, 252, 253, 0.7);
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 16px; line-height: 24px;
+      color: var(--text-primary);
       display: flex; justify-content: space-between; flex-flow: row;
       text-decoration: none; white-space: nowrap; cursor: pointer;
     }
@@ -247,24 +249,32 @@
 
     /* ── COMBO ───────────────────────────────────────────────────────────── */
     .combo { display: flex; flex-direction: column; gap: 8px; }
-    .question { display: flex; align-items: center; gap: 4px; }
+    /* The info icon sits inline at the end of the label so it wraps together with the text */
+    .question { display: flex; align-items: center; min-height: 36px; }
     .question-text {
+      display: block;
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
+      font-variation-settings: 'wdth' 105, 'wght' 400;
       font-size: 16px; line-height: 24px; letter-spacing: 0px;
-      font-stretch: 105%; font-weight: 600;
+      font-stretch: 105%; font-weight: 400;
       color: rgba(252, 252, 253, 0.7); text-decoration: none;
     }
+    .question-end { white-space: nowrap; }
 
     .info-btn {
       width: 36px; height: 36px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; background: none; border: none; cursor: pointer; padding: 0;
     }
+    .question-end .info-btn {
+      display: inline-flex; vertical-align: middle;
+      /* 36px hit area, but only the 16px icon counts towards the line width (as in the design) */
+      height: 36px; margin-left: 4px; margin-right: -12px;
+    }
     .info-btn svg { width: 16px; height: 16px; }
 
     /* ── DISTRIBUTION SLIDER ────────────────────────────────────────────── */
-    .slider-distr { padding-top: 12px; }
+    .slider-distr { padding-top: 0; }
     .distr-outer { position: relative; }
     .distr-segments {
       display: flex;
@@ -326,12 +336,12 @@
       color: var(--text-primary);
     }
     .distr-label-col { flex: 1; display: flex; flex-direction: column; gap: 4px; align-items: center; }
-    .distr-pct { font-size: 16px; line-height: 24px; font-variation-settings: 'wdth' 105, 'wght' 600; font-weight: 600; }
-    .distr-name { font-size: 16px; line-height: 24px; font-variation-settings: 'wdth' 105, 'wght' 600; font-weight: 600; color: var(--text-muted); }
+    .distr-pct { font-size: 16px; line-height: 24px; font-variation-settings: 'wdth' 105, 'wght' 400; font-weight: 400; color: var(--text-muted); }
+    .distr-name { font-size: 16px; line-height: 24px; font-variation-settings: 'wdth' 105, 'wght' 400; font-weight: 400; color: var(--text-muted); }
 
     /* ── RADIO GROUP ────────────────────────────────────────────────────── */
     .radio-group { display: flex; gap: 24px; align-items: center; }
-    .radio-option { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .radio-option { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
     .radio-control { width: 24px; height: 24px; flex-shrink: 0; position: relative; cursor: pointer; }
     .radio-control input[type="radio"] {
       position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 2; margin: 0;
@@ -357,8 +367,8 @@
     }
     .radio-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-weight: 600;
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-weight: 400;
       font-size: 16px; line-height: 20px;
       color: var(--text-muted); padding-top: 2px;
     }
@@ -370,10 +380,10 @@
       background: var(--surface-input);
       border: 1px solid var(--border-input);
       border-radius: var(--radius-input);
-      padding: 12px 40px 12px 12px;
+      padding: 12px 48px 12px 12px;
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-weight: 600;
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-weight: 400;
       font-size: 16px; line-height: 20px;
       color: var(--text-muted);
       appearance: none; -webkit-appearance: none; cursor: pointer;
@@ -395,10 +405,10 @@
     .slider-value-display {
       position: absolute; bottom: 2px;
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-weight: 600;
-      font-size: 16px; line-height: 20px;
-      color: var(--text-muted); white-space: nowrap; padding: 0 4px;
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-weight: 400;
+      font-size: 16px; line-height: 24px;
+      color: var(--text-muted); white-space: nowrap; padding: 0 8px;
     }
     .slider-track-row { position: relative; height: 24px; display: flex; align-items: center; }
     .slider-track-bg {
@@ -433,22 +443,26 @@
     .slider-range-row {
       display: flex; justify-content: space-between; padding-top: 8px;
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-weight: 600;
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-weight: 400;
       font-size: 14px; line-height: 20px; color: var(--text-muted);
     }
 
     /* ── OUTPUT PANEL ───────────────────────────────────────────────────── */
-    .section-output { display: flex; flex-direction: column; gap: 28px; width: 100%; }
-    .section-model { display: flex; flex-direction: column; gap: 40px; }
+    .section-output { display: flex; flex-direction: column; gap: 28px; width: 100%; padding-inline: 4px; }
+    .section-model { display: flex; flex-direction: column; gap: 48px; }
     .model-combo { display: flex; flex-direction: column; gap: 12px; }
     .model-label {
       font-family: var(--font-copy);
       font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px; color: var(--text-primary);
+      font-size: 16px; line-height: 24px; color: var(--text-muted);
     }
-    .select-group { display: flex; gap: 16px; }
-    .select-group > div { flex: 0 0 calc(50% - 8px); min-width: 0; }
+    .select-group { display: flex; gap: 12px; }
+    .select-group > div { flex: 1 1 0; min-width: 0; }
+    @media (min-width: 768px) { .select-group { gap: 28px; } }
+    @media (min-width: 1024px) { .select-group { gap: 12px; } }
+    @media (min-width: 1440px) { .select-group { gap: 16px; } }
+    @media (min-width: 1920px) { .select-group { gap: 24px; } }
     .select-sub-label {
       font-family: var(--font-copy);
       font-variation-settings: 'wdth' 105, 'wght' 400;
@@ -462,8 +476,8 @@
     .car-img-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .cons-data {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-size: 14px; line-height: 20px; letter-spacing: 0;
+      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 14px; line-height: 24px; letter-spacing: 0;
       color: var(--text-muted);
     }
 
@@ -472,22 +486,24 @@
       background: var(--surface-card);
       border-radius: var(--radius-card);
       padding: 24px;
-      display: flex; flex-direction: column; gap: 32px;
+      display: flex; flex-direction: column; gap: 8px;
     }
-    .result-headline { display: flex; align-items: center; gap: 4px; }
+    #label-group { display: flex; flex-direction: column; gap: 0; }
+    .result-headline { display: flex; align-items: center; gap: 4px; height: 24px; margin-top: 5px; margin-bottom: -2px; }
+    .result-headline .info-btn { height: 24px; }
     .result-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
+      font-variation-settings: 'wdth' 105, 'wght' 400;
       font-size: 16px; line-height: 24px; letter-spacing: 0px;
-      font-stretch: 105%; font-weight: 600;
+      font-stretch: 105%; font-weight: 400;
       color: rgba(252, 252, 253, 0.7); text-decoration: none;
     }
     .result-value {
       font-family: var(--font-headline);
       font-variation-settings: 'wdth' 130, 'wght' 400;
-      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2);
+      font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1);
       color: var(--text-primary); letter-spacing: 0;
-      display: flex; align-items: baseline;
+      display: flex; flex-wrap: wrap; align-items: baseline;
     }
     .slot-digit { display: inline-block; overflow: hidden; height: 1em; vertical-align: top; }
     .slot-reel { display: flex; flex-direction: column; transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -495,69 +511,9 @@
     .range-unit {
       font-family: var(--font-headline);
       font-variation-settings: 'wdth' 130, 'wght' 400;
-      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2);
+      font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1);
       color: var(--text-primary);
     }
-
-    /* ── BUTTON ─────────────────────────────────────────────────────────── */
-    .btn-group { display: flex; flex-direction: column; gap: 24px; align-items: center; width: 100%; }
-    .btn-primary {
-      display: flex; align-items: center; justify-content: center;
-      width: 100%; height: 48px;
-      background: #657081;
-      border: none;
-      border-radius: 999px;
-      color: #fcfcfd;
-      font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 14px; line-height: 20px;
-      cursor: pointer; transition: background 0.15s; padding: 0 24px;
-      text-decoration: none;
-    }
-    .btn-primary:hover { background: #758292; }
-    .btn-secondary {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 100%; min-height: 48px;
-      background-color: rgb(24, 29, 37);
-      border: 0;
-      border-radius: 999px;
-      box-shadow: rgb(44, 52, 63) 0px 0px 0px 1px inset;
-      color: rgb(252, 252, 253);
-      font-family: var(--font-copy);
-      font-size: 14px; line-height: 20px; font-stretch: 105%; font-weight: 400; letter-spacing: 0;
-      padding: 12px 24px;
-      cursor: pointer;
-      text-decoration: none;
-      transition-property: color, box-shadow, background-color;
-      transition-duration: 250ms;
-      transition-timing-function: cubic-bezier(0.75, 0.02, 0.5, 1);
-    }
-    .btn-secondary:hover { background-color: rgb(44, 52, 63); color: rgb(252, 252, 253); box-shadow: rgba(219, 223, 230, 0.2) 0px 0px 0px 1px inset; }
-
-    /* ── TEXT LINKS ─────────────────────────────────────────────────────── */
-    .text-link-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-    /* each standalone = full-width centered column */
-    .text-link-standalone {
-      display: flex; flex-direction: column; align-items: center; width: 100%;
-    }
-    /* content container: shrinks to content, adds 4px below for underline breathing room */
-    .text-link-content {
-      display: flex; align-items: center; gap: 8px; padding-bottom: 4px;
-    }
-    /* the label itself */
-    .text-link {
-      font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px;
-      color: #fcfcfd;
-      text-decoration: underline;
-      text-decoration-thickness: 1px;
-      text-underline-offset: 4px;
-      text-decoration-color: #fcfcfd;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-    .text-link:hover { opacity: 0.75; }
 
     /* ── TYPOGRAPHY TOKENS ─────────────────────────────────────────────── */
     /* Fixed: Copy */
@@ -598,8 +554,8 @@
     .sys-type-headline-order4-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
 
     /* ── RESPONSIVE: TOPBAR ─────────────────────────────────────────────── */
-    @media (min-width: 1024px) {
-      .topbar { gap: 28px; }
+    @media (min-width: 1440px) {
+      .topbar { gap: var(--sys-space-relative-xl); }
       .topbar-mobile-left { display: none; }
       .topbar-nav { display: flex; }
       .topbar-right { flex: initial; flex-shrink: 0; }
@@ -610,7 +566,7 @@
     @media (min-width: 1024px) {
       .page-layout { padding-top: 40px; padding-bottom: 40px; }
       .header h1 { font-size: 28px; line-height: 40px; }
-      .section-group { display: grid; grid-template-columns: 4fr 2.2fr; gap: var(--sys-space-relative-2xl); }
+      .section-group { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 2.2fr); gap: var(--sys-space-relative-2xl); }
       .section-input {
         width: auto;
         border: 1px solid var(--border-card);
@@ -620,18 +576,116 @@
       .section-output { width: auto; }
     }
     @media (min-width: 1440px) {
+      .page-layout { padding-top: 56px; padding-bottom: 56px; }
       .header { max-width: none; }
       .header h1 { font-size: 32px; line-height: 44px; }
-      .section-input { padding: 56px; }
+      .section-input { padding: 56px; gap: 32px; }
     }
     @media (min-width: 1920px) {
       .page-layout { padding-top: 72px; padding-bottom: 72px; }
       .header h1 { font-size: 36px; line-height: 52px; }
-      .section-group { display: grid; grid-template-columns: 4fr 2.2fr; gap: var(--sys-space-relative-2xl); }
-      .section-input { flex: none; width: auto; padding: 72px; }
+      .section-group { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 2.2fr); gap: 56px; }
+      .section-input { flex: none; width: auto; padding: 56px; gap: 32px; }
       .section-output { width: auto; }
     }
 
+
+    /* ── LIVE ALIGNMENT: header gap, extra live elements, footnote, FAQ, sticky bar ────────────────── */
+    @media (min-width: 1024px) and (max-width: 1439px) { .section-group { grid-template-columns: minmax(0, 4fr) minmax(0, 2.526fr); } }
+    .page-layout { gap: 0; }
+    .header { margin-bottom: 40px; }
+    @media (min-width: 768px)  { .header { margin-bottom: 51px; } }
+    @media (min-width: 1024px) { .header { margin-bottom: 49px; } }
+    @media (min-width: 1440px) { .header { margin-bottom: 47px; } }
+    @media (min-width: 1920px) { .header { margin-bottom: 73px; } }
+    .combo--select { padding-bottom: 8px; }
+    .model-combo .question { min-height: 24px; }
+    .cons-link {
+      display: block; background: none; border: 0; padding: 0; text-align: left; cursor: pointer;
+      font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 14px; line-height: 24px; color: var(--text-muted);
+      text-decoration: underline; text-underline-offset: 4px;
+    }
+    .fn-ref { font-size: 12px; line-height: 20px; vertical-align: top; margin-left: 2px; }
+    .section-input { position: relative; }
+    #input-end { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; pointer-events: none; }
+    .battery-options { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    @media (min-width: 1024px) { .battery-options { grid-template-columns: 1fr 1fr; } }
+
+    /* footnote */
+    .footnote {
+      display: flex; gap: 19px; padding-inline: 16px; margin-top: 30px;
+      font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 12px; line-height: 20px; color: var(--text-muted);
+    }
+    .footnote-mark { flex: 0 0 8px; }
+    .footnote-text { margin: 0; }
+    @media (min-width: 375px)  { .footnote { padding-inline: 19px; } }
+    @media (min-width: 768px)  { .footnote { padding-inline: 35px; } }
+    @media (min-width: 1024px) { .footnote { padding-inline: 3px; } }
+    @media (min-width: 1440px) { .footnote { margin-top: 34px; } }
+
+    /* FAQ accordion */
+    .faq { display: flex; flex-direction: column; }
+    .faq-heading {
+      margin: 31px 0 0; text-align: center;
+      font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-weight: 400;
+      font-size: 24px; line-height: 36px; color: var(--text-primary);
+    }
+    @media (min-width: 1024px) { .faq-heading { font-size: 28px; line-height: 40px; margin-top: 39px; } }
+    @media (min-width: 1440px) { .faq-heading { font-size: 32px; line-height: 44px; } }
+    @media (min-width: 1920px) { .faq-heading { font-size: 36px; line-height: 52px; margin-top: 83px; } }
+    .faq-list { width: min(62.5vw, 1200px); align-self: center; margin-top: 13px; border-bottom: 1px solid rgba(252, 252, 253, 0.2); }
+    @media (min-width: 375px)  { .faq-list { margin-top: 15px; } }
+    @media (min-width: 768px)  { .faq-list { margin-top: 32px; } }
+    @media (min-width: 1024px) { .faq-list { margin-top: 42px; } }
+    @media (min-width: 1440px) { .faq-list { margin-top: 60px; } }
+    @media (min-width: 1920px) { .faq-list { margin-top: 80px; } }
+    .faq-item { border-top: 1px solid rgba(252, 252, 253, 0.2); }
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      width: 100%; padding: 16px; background: none; border: 0; text-align: left; cursor: pointer;
+      font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 16px; line-height: 20px; color: var(--text-primary);
+    }
+    .faq-q img { flex: 0 0 24px; width: 24px; height: 24px; transition: transform 250ms cubic-bezier(0.75, 0.02, 0.5, 1); }
+    .faq-q[aria-expanded="true"] img { transform: rotate(180deg); }
+    .faq-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 250ms cubic-bezier(0.75, 0.02, 0.5, 1); }
+    .faq-panel.is-open { grid-template-rows: 1fr; }
+    .faq-panel-clip { overflow: hidden; min-height: 0; }
+    .faq-panel-inner { padding: 16px; }
+    .faq-panel-inner p {
+      margin: 0; font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 16px; line-height: 24px; color: var(--text-muted);
+    }
+
+    /* page bottom spacing (end of FAQ list to end of page, from the live page) */
+    .page-layout { padding-bottom: 41px; }
+    @media (min-width: 375px)  { .page-layout { padding-bottom: 44px; } }
+    @media (min-width: 768px)  { .page-layout { padding-bottom: 60px; } }
+    @media (min-width: 1024px) { .page-layout { padding-bottom: 71px; } }
+    @media (min-width: 1440px) { .page-layout { padding-bottom: 92px; } }
+    @media (min-width: 1920px) { .page-layout { padding-bottom: 111px; } }
+
+    /* sticky result bar: below 1024px only */
+    .result-bar { display: none; }
+    @media (max-width: 1023px) {
+      .result-bar {
+        display: flex; flex-direction: column; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+        padding: 16px 32px; background: rgba(154, 163, 177, 0.1);
+        -webkit-backdrop-filter: blur(60px); backdrop-filter: blur(60px);
+        transition: transform 250ms cubic-bezier(0.75, 0.02, 0.5, 1);
+      }
+      .result-bar.is-hidden { transform: translateY(100%); }
+    }
+    .result-bar-label {
+      font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-size: 16px; line-height: 24px; color: var(--text-muted);
+    }
+    .result-bar-value {
+      font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400;
+      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); color: var(--text-primary);
+    }
   </style>
 </head>
 <body>
@@ -705,10 +759,9 @@
       <!-- Q1: Driving distribution -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">Where do you travel and how often?</span>
-          <button class="info-btn" aria-label="More info">
+          <span class="question-text">Where do you travel and how <span class="question-end">often?<button class="info-btn" aria-label="More info">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+            </button></span></span>
         </div>
 
         <div class="slider-distr">
@@ -772,10 +825,9 @@
       <!-- Q2: Speed on motorway -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">Do you often drive faster than 120 km/h on the motorway?</span>
-          <button class="info-btn" aria-label="More info">
+          <span class="question-text">Do you often drive faster than 120 km/h on the <span class="question-end">motorway?<button class="info-btn" aria-label="More info">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+            </button></span></span>
         </div>
         <div class="radio-group">
           <label class="radio-option">
@@ -796,20 +848,19 @@
       </div>
 
       <!-- Q3: Tyre size -->
-      <div class="combo">
+      <div class="combo combo--select">
         <div class="question">
-          <span class="question-text">What size tyres does your vehicle have?</span>
-          <button class="info-btn" aria-label="More info">
+          <span class="question-text">What size tyres does your vehicle <span class="question-end">have?<button class="info-btn" aria-label="More info">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+            </button></span></span>
         </div>
         <div class="select-wrapper">
           <select class="select-field" id="sel-tyres">
-            <option value="18">18"</option>
-            <option value="19">19"</option>
-            <option value="20" selected>20"</option>
-            <option value="21">21"</option>
-            <option value="22">22"</option>
+            <option value="18">18”</option>
+            <option value="19">19”</option>
+            <option value="20" selected>20”</option>
+            <option value="21">21”</option>
+            <option value="22">22”</option>
           </select>
           <div class="select-chevron">
             <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
@@ -820,10 +871,9 @@
       <!-- Q4: Temperature -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">What is the outside temperature?</span>
-          <button class="info-btn" aria-label="More info">
+          <span class="question-text">What is the outside <span class="question-end">temperature?<button class="info-btn" aria-label="More info">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+            </button></span></span>
         </div>
         <div class="slider-temp">
           <div class="slider-value-row">
@@ -844,10 +894,9 @@
       <!-- Q5: Heating / A/C -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">Is the heating or air conditioning on?</span>
-          <button class="info-btn" aria-label="More info">
+          <span class="question-text">Is the heating or air conditioning <span class="question-end">on?<button class="info-btn" aria-label="More info">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+            </button></span></span>
         </div>
         <div class="radio-group">
           <label class="radio-option">
@@ -870,10 +919,9 @@
       <!-- Q6: Vehicle load -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">How is the vehicle loaded?</span>
-          <button class="info-btn" aria-label="More info">
+          <span class="question-text">How is the vehicle <span class="question-end">loaded?<button class="info-btn" aria-label="More info">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+            </button></span></span>
         </div>
         <div class="radio-group">
           <label class="radio-option">
@@ -892,6 +940,47 @@
           </label>
         </div>
       </div>
+
+      <!-- Q7: Battery condition -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">What is the condition of the vehicle <span class="question-end">battery?<button class="info-btn" aria-label="More info">
+              <img src="assets/icons/info.svg" width="16" height="16" alt="">
+            </button></span></span>
+        </div>
+        <div class="battery-options">
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="battery" value="new" checked>
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">New vehicle</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="battery" value="y3">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Up to 3 years or 37,000 miles</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="battery" value="y5">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Up to 5 years or 62,000 miles</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="battery" value="y8">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Up to 8 years or 100,000 miles</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="input-end" aria-hidden="true"></div>
 
     </div><!-- /section-input -->
 
@@ -941,7 +1030,8 @@
           <div class="car-img-box">
             <img id="car-img" src="assets/media/a6-etron/a6-sportback.png" alt="Audi A6 Sportback e-tron">
           </div>
-          <p class="cons-data">Power consumption (combined): 15.4 – 13.4 kWh/100 km²; CO₂ emissions (combined): 0 g/km²</p>
+          <p class="cons-data">Power consumption (combined): 15.4 - 13.4 kWh/100 km²; CO₂ emissions (combined): 0 g/km²</p>
+          <button type="button" class="cons-link">Show all values</button>
         </div>
       </div>
 
@@ -949,33 +1039,100 @@
       <div class="section-result">
         <div id="label-group">
           <div class="result-headline">
-            <span class="result-label">Estimated Range</span>
+            <span class="result-label">Estimated Range<sup class="fn-ref">1</sup></span>
             <button class="info-btn" aria-label="More info">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
             </button>
           </div>
           <p class="result-value" id="result-value"></p>
         </div>
-        <div class="btn-group" id="btn-group-nxt">
-          <a class="btn-secondary" id="btn-build" target="_blank">Build</a>
-          <div class="text-link-group">
-            <div class="text-link-standalone">
-              <div class="text-link-content">
-                <a class="text-link" id="link-new-cars" target="_blank"></a>
-              </div>
-            </div>
-            <div class="text-link-standalone">
-              <div class="text-link-content">
-                <a class="text-link" id="link-used-cars" target="_blank"></a>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
     </div><!-- /section-output -->
   </div><!-- /section-group -->
+
+  <!-- ── FOOTNOTE ────────────────────────────────────────────────────── -->
+  <div class="footnote">
+    <span class="footnote-mark">1</span>
+    <p class="footnote-text">Range indication based on WLTP and the influence of various factors. These can include individual driving style, the selected Audi drive select mode, electrical consumers switched on, vehicle configuration and load, and climatic conditions (weather). The actual range may vary.</p>
+  </div>
+
+  <!-- ── FAQ ─────────────────────────────────────────────────────────── -->
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 class="faq-heading" id="faq-heading">Find explanations and tricks here to get the most out of your range</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-1" aria-expanded="false" aria-controls="faq-a-1">
+          <span>What influence does the driving speed have on the range of my e-vehicle?</span>
+          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+        </button>
+        <div class="faq-panel" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
+          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-2" aria-expanded="false" aria-controls="faq-a-2">
+          <span>What influence do temperature fluctuations in the vehicle interior have on the range?</span>
+          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+        </button>
+        <div class="faq-panel" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
+          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-3" aria-expanded="false" aria-controls="faq-a-3">
+          <span>How should I best use the interior heating so that my electric vehicle does not lose too much range?</span>
+          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+        </button>
+        <div class="faq-panel" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
+          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-4" aria-expanded="false" aria-controls="faq-a-4">
+          <span>What influence does my individual driving style have on the range of my e-vehicle?</span>
+          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+        </button>
+        <div class="faq-panel" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
+          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-5" aria-expanded="false" aria-controls="faq-a-5">
+          <span>How can I use braking processes while driving positively for my range?</span>
+          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+        </button>
+        <div class="faq-panel" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
+          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-6" aria-expanded="false" aria-controls="faq-a-6">
+          <span>What influence does the interior air conditioning have on the range of my e-vehicle?</span>
+          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+        </button>
+        <div class="faq-panel" id="faq-a-6" role="region" aria-labelledby="faq-q-6">
+          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-7" aria-expanded="false" aria-controls="faq-a-7">
+          <span>What influence does the interior heating have on the range of my electric vehicle?</span>
+          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+        </button>
+        <div class="faq-panel" id="faq-a-7" role="region" aria-labelledby="faq-q-7">
+          <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div><!-- /page-layout -->
+
+<!-- Sticky result bar (below 1024px) -->
+<div class="result-bar is-hidden" id="result-bar" aria-hidden="true">
+  <span class="result-bar-label">Estimated Range</span>
+  <span class="result-bar-value" id="result-bar-value"></span>
+</div>
 
 <script>
   /* ── MODEL CONFIG ── */
@@ -1079,23 +1236,11 @@
       if (ptCfg) consumption = ptCfg.consumption ?? null;
     }
     const el = document.querySelector('.cons-data');
+    // Design format: dot decimals, hyphen range and a footnote marker after the units
+    const fmt = c => c.replace(/,/g, '.').replace(' – ', ' - ');
     if (el) el.textContent = consumption
-      ? `Power consumption (combined): ${consumption}; CO₂ emissions (combined): 0 g/km`
+      ? `Power consumption (combined): ${fmt(consumption)}²; CO₂ emissions (combined): 0 g/km²`
       : '';
-  }
-
-  function updateBuildUrl() {
-    const model = document.getElementById('sel-model').value;
-    const cfg   = MODELS[model];
-    if (!cfg) return;
-    const btnBuild = document.getElementById('btn-build');
-    let url = cfg.buildUrl ?? null;
-    if (cfg.powertrains) {
-      const pt = document.getElementById('sel-powertrain').value;
-      const ptCfg = cfg.powertrains.find(p => p.value === pt);
-      if (ptCfg) url = ptCfg.buildUrl ?? url;
-    }
-    if (url) { btnBuild.href = url; } else { btnBuild.removeAttribute('href'); }
   }
 
   function updateModelConfig() {
@@ -1120,41 +1265,15 @@
     // Tyre options
     const tyreSel = document.getElementById('sel-tyres');
     tyreSel.innerHTML = cfg.tyres
-      .map(t => `<option value="${t}"${t === cfg.defaultTyre ? ' selected' : ''}>${t}"</option>`).join('');
+      .map(t => `<option value="${t}"${t === cfg.defaultTyre ? ' selected' : ''}>${t}”</option>`).join('');
 
     // Car image
     const img = document.getElementById('car-img');
     img.src = cfg.image;
     img.alt = cfg.alt;
 
-    // Build CTA and consumption — resolved after powertrain options are populated
-    updateBuildUrl();
+    // Consumption — resolved after powertrain options are populated
     updateConsumption();
-
-    // Available cars links
-    const linkNew  = document.getElementById('link-new-cars');
-    const linkUsed = document.getElementById('link-used-cars');
-    const newGroup  = linkNew.closest('.text-link-standalone');
-    const usedGroup = linkUsed.closest('.text-link-standalone');
-    if (cfg.newCars === 0) {
-      newGroup.style.display = 'none';
-    } else {
-      linkNew.textContent = cfg.newCars != null
-        ? `Available new cars (${cfg.newCars.toLocaleString()})`
-        : 'Available new cars';
-      if (cfg.newCarsUrl) { linkNew.href = cfg.newCarsUrl; } else { linkNew.removeAttribute('href'); }
-      newGroup.style.display = '';
-    }
-
-    if (cfg.usedCars === 0) {
-      usedGroup.style.display = 'none';
-    } else {
-      linkUsed.textContent = cfg.usedCars != null
-        ? `Available used cars (${cfg.usedCars.toLocaleString()})`
-        : 'Available used cars';
-      if (cfg.usedCarsUrl) { linkUsed.href = cfg.usedCarsUrl; } else { linkUsed.removeAttribute('href'); }
-      usedGroup.style.display = '';
-    }
 
     updateResult();
   }
@@ -1177,6 +1296,7 @@
     const temp       = parseInt(document.getElementById('temp-slider').value);
     const hvacOn     = document.querySelector('input[name="hvac"]:checked')?.value === 'yes';
     const loadFull   = document.querySelector('input[name="load"]:checked')?.value === 'full';
+    const batteryF   = { new: 1.00, y3: 0.97, y5: 0.94, y8: 0.90 }[document.querySelector('input[name="battery"]:checked')?.value] ?? 1.00;
 
     let tempF;
     if      (temp <= 0)  tempF = 0.72 + (temp + 20) / 20 * 0.22;
@@ -1189,7 +1309,8 @@
       * (1 - (tyreSize - defaultTyre) * 0.015)
       * tempF
       * (hvacOn   ? 0.92 : 1.00)
-      * (loadFull ? 0.96 : 1.00);
+      * (loadFull ? 0.96 : 1.00)
+      * batteryF;
 
     return Math.round(total);
   }
@@ -1227,7 +1348,10 @@
   }
 
   function updateResult() {
-    buildSlots(document.getElementById('result-value'), calcRange());
+    const value = calcRange();
+    buildSlots(document.getElementById('result-value'), value);
+    const bar = document.getElementById('result-bar-value');
+    if (bar) bar.textContent = value + ' miles';
   }
 
   /* ── DISTRIBUTION SLIDER ── */
@@ -1321,8 +1445,8 @@
     const val = parseInt(tempSlider.value);
     const pct = ((val - (-20)) / 50) * 100;
     tempFill.style.width = pct + '%';
-    tempDisplay.style.left = pct + '%';
-    tempDisplay.style.transform = `translateX(-${pct}%)`;
+    tempDisplay.style.left = `calc(12px + (100% - 24px) * ${pct / 100})`;
+    tempDisplay.style.transform = 'translateX(-50%)';
     tempDisplay.textContent = (val > 0 ? '+' : '') + val + ' °C';
     if (!heatingManuallySet) {
       const autoYes = val !== 10 && val !== 20;
@@ -1334,7 +1458,7 @@
 
   /* ── SELECTS ── */
   document.getElementById('sel-model').addEventListener('change', updateModelConfig);
-  document.getElementById('sel-powertrain').addEventListener('change', () => { updateBuildUrl(); updateConsumption(); updateResult(); });
+  document.getElementById('sel-powertrain').addEventListener('change', () => { updateConsumption(); updateResult(); });
   document.getElementById('sel-tyres').addEventListener('change', updateResult);
 
   /* ── RADIO CHANGE ── */
@@ -1349,6 +1473,27 @@
   updateModelConfig();
   setHandles(33.33, 66.67);
   updateTemp();
+
+  /* ── FAQ ACCORDION ── */
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      document.getElementById(btn.getAttribute('aria-controls')).classList.toggle('is-open', !open);
+    });
+  });
+
+  /* ── STICKY RESULT BAR (below 1024px): visible while the end of the input card is still below the viewport ── */
+  (() => {
+    const bar = document.getElementById('result-bar');
+    const end = document.getElementById('input-end');
+    if (!bar || !end || !('IntersectionObserver' in window)) return;
+    new IntersectionObserver(([e]) => {
+      const hide = e.isIntersecting || e.boundingClientRect.top < 0;
+      bar.classList.toggle('is-hidden', hide);
+      bar.setAttribute('aria-hidden', String(hide));
+    }).observe(end);
+  })();
 </script>
 </body>
 </html>
