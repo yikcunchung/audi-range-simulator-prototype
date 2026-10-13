@@ -24,8 +24,9 @@
 
     /* ── RESET ──────────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    *:focus { outline: none; }
-    *:focus-visible { outline: none; }
+    /* DS3 focus: browser focus ring (outline: auto) in the DS3 focus colour, keyboard focus only */
+    :focus:not(:focus-visible) { outline: none; }
+    :focus-visible { outline: auto var(--sys-border-width-sm) var(--border-focus); }
 
     /* ── TOKENS ─────────────────────────────────────────────────────────── */
     :root {
@@ -39,9 +40,24 @@
       --border-distr:      #4d5766;
       --slider-track:      rgba(252,252,253,0.2);
       --slider-progress:   #fcfcfd;
+      /* interaction surfaces / borders (DS3 Dark theme, measured on the live tool) */
+      --surface-topbar:         #020203;
+      --surface-shader:         rgba(2,2,3,0.7);
+      --surface-hover:          #2c343f;
+      --surface-selected:       #404a59;
+      --surface-selected-hover: #37404e;
+      --surface-raised:         #232a34;
+      --surface-input-hover:    rgba(44,52,63,0.6);
+      --surface-segment:        rgba(24,29,37,0.8);
+      --surface-option:         #1e2433;
+      --border-subtle:          rgba(219,223,230,0.2);
+      --border-input-focus:     #dbdfe6;
+      --border-focus:           #005fcc;
+      --gradient-layer:         linear-gradient(134deg, var(--surface-hover) 0%, var(--surface-raised) 100%);
       --radius-card:       20px;
       --radius-input:      10px;
       --radius-pill:       999px;
+      --radius-media:      4px;
       --max-content-width: 1920px;
       --page-width:        320px;
       --sys-page-margin:       28px;
@@ -88,6 +104,31 @@
       --font-headline:     'Audi Type Variable', sans-serif;
       --wdth-wide:         105;
       --wdth-extended:     130;
+      --wght-normal:       400;
+      --wght-bold:         700;
+      --fvs-copy-normal:     'wdth' var(--wdth-wide),     'wght' var(--wght-normal);
+      --fvs-copy-bold:       'wdth' var(--wdth-wide),     'wght' var(--wght-bold);
+      --fvs-headline-normal: 'wdth' var(--wdth-extended), 'wght' var(--wght-normal);
+      --fvs-headline-bold:   'wdth' var(--wdth-extended), 'wght' var(--wght-bold);
+      /* borders, motion, stacking, blur */
+      --sys-border-width-sm: 1px;
+      --sys-border-width-md: 2px;
+      --sys-motion-duration-fast:  0.2s;
+      --sys-motion-duration-base:  0.25s;
+      --sys-motion-duration-layer: 0.24s;
+      --sys-motion-duration-reel:  1s;
+      --sys-motion-easing-standard: cubic-bezier(0.75, 0.02, 0.5, 1);
+      --sys-z-sticky: 10;
+      --sys-z-layer:  1000;
+      --sys-blur-surface: 60px;
+      /* fixed type: copy (16/24, 14/24, 12/20) and label (16/20, 14/20, 12/16, 10/12) */
+      --sys-fs-copy-order1:  1rem;      --sys-lh-copy-order1:  1.5rem;
+      --sys-fs-copy-order2:  0.875rem;  --sys-lh-copy-order2:  1.5rem;
+      --sys-fs-copy-order3:  0.75rem;   --sys-lh-copy-order3:  1.25rem;
+      --sys-fs-label-order1: 1rem;      --sys-lh-label-order1: 1.25rem;
+      --sys-fs-label-order2: 0.875rem;  --sys-lh-label-order2: 1.25rem;
+      --sys-fs-label-order3: 0.75rem;   --sys-lh-label-order3: 1rem;
+      --sys-fs-label-order4: 0.625rem;  --sys-lh-label-order4: 0.75rem;
       --sys-fs-display-order1:  40px;  --sys-lh-display-order1:  60px;
       --sys-fs-display-order2:  36px;  --sys-lh-display-order2:  52px;
       --sys-fs-display-order3:  32px;  --sys-lh-display-order3:  48px;
@@ -181,7 +222,7 @@
       min-height: 100%;
       background: var(--canvas);
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-variation-settings: var(--fvs-copy-normal);
       color: var(--text-primary);
       -webkit-font-smoothing: antialiased;
     }
@@ -192,95 +233,107 @@
 
     /* ── TOPBAR ─────────────────────────────────────────────────────────── */
     .topbar {
-      height: 72px; background: #020203;
+      height: var(--sys-space-fixed-900); background: var(--surface-topbar);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px;
+      padding: 0 var(--sys-space-fixed-200);
     }
     @media (min-width: 768px) { .topbar { padding: 0 var(--sys-page-margin); } }
-    .topbar-mobile-left { display: flex; align-items: center; gap: 12px; flex: 1 0 0; }
+    .topbar-mobile-left { display: flex; align-items: center; gap: var(--sys-space-fixed-150); flex: 1 0 0; }
     .topbar-menu-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1);
       color: var(--text-primary); white-space: nowrap;
     }
     .topbar-rings { display: flex; align-items: center; flex-shrink: 0; }
-    .topbar-rings svg { width: 69px; height: 24px; }
-    .topbar-rings img { width: 72px; height: 25px; }
-    .topbar-nav { display: none; align-items: center; gap: 24px; flex: 1 0 0; }
+    .topbar-rings svg { width: 69px; height: var(--sys-space-fixed-300); }
+    .topbar-rings img { width: var(--sys-space-fixed-900); height: 25px; }
+    .topbar-nav { display: none; align-items: center; gap: var(--sys-space-fixed-300); flex: 1 0 0; }
     .topbar-nav-item {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1);
       color: var(--text-primary);
       display: flex; justify-content: space-between; flex-flow: row;
       text-decoration: none; white-space: nowrap; cursor: pointer;
     }
-    .topbar-right { display: flex; align-items: center; gap: 24px; flex: 1 0 0; justify-content: flex-end; }
-    .topbar-right .nav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .nav-icon img { display: block; width: 24px; height: 24px; object-fit: contain; }
+    .topbar-right { display: flex; align-items: center; gap: var(--sys-space-fixed-300); flex: 1 0 0; justify-content: flex-end; }
+    .topbar-right .nav-icon { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .nav-icon img { display: block; width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); object-fit: contain; }
     .topbar-search-icon { display: none; }
 
     /* ── PAGE ───────────────────────────────────────────────────────────── */
-    .page-layout { padding: 36px var(--sys-page-margin) 48px; display: flex; flex-direction: column; gap: 40px; }
+    .page-layout { padding: var(--sys-space-relative-2xl) var(--sys-page-margin) 41px; display: flex; flex-direction: column; gap: 0; }
 
     /* ── HEADER ─────────────────────────────────────────────────────────── */
-    .header { display: flex; align-items: flex-end; gap: 20px; max-width: 766px; }
-    .header-icon { flex-shrink: 0; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+    .header { display: flex; align-items: flex-end; gap: var(--sys-space-fixed-250); max-width: 766px; }
+    .header-icon { flex-shrink: 0; width: var(--sys-space-fixed-600); height: var(--sys-space-fixed-600); display: flex; align-items: center; justify-content: center; }
     .header h1 {
       font-family: var(--font-headline);
-      font-variation-settings: 'wdth' 130, 'wght' 400;
-      font-size: 24px; line-height: 36px; font-weight: 400;
+      font-variation-settings: var(--fvs-headline-normal);
+      font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); font-weight: var(--wght-normal);
       letter-spacing: 0; color: var(--text-primary);
     }
 
     /* ── LAYOUT ─────────────────────────────────────────────────────────── */
-    .section-group { display: flex; flex-direction: column; gap: 36px; align-items: flex-start; }
+    .section-group { display: flex; flex-direction: column; gap: var(--sys-space-relative-2xl); align-items: flex-start; }
 
     /* ── INPUT PANEL ────────────────────────────────────────────────────── */
     .section-input {
       flex: 1; min-width: 0; width: 100%;
       background: var(--canvas);
       border: none;
-      border-radius: 28px;
       padding: 0;
-      display: flex; flex-direction: column; gap: 28px;
+      display: flex; flex-direction: column; gap: var(--sys-space-relative-xl);
     }
 
     /* ── COMBO ───────────────────────────────────────────────────────────── */
-    .combo { display: flex; flex-direction: column; gap: 8px; }
+    .combo { display: flex; flex-direction: column; gap: var(--sys-space-fixed-100); }
     /* The info icon sits inline at the end of the label so it wraps together with the text */
-    .question { display: flex; align-items: center; min-height: 36px; }
+    .question { display: flex; align-items: center; min-height: var(--sys-space-fixed-450); }
     .question-text {
       display: block;
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px; letter-spacing: 0px;
-      font-stretch: 105%; font-weight: 400;
-      color: rgba(252, 252, 253, 0.7); text-decoration: none;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0;
+      font-stretch: calc(var(--wdth-wide) * 1%); font-weight: var(--wght-normal);
+      color: var(--text-muted); text-decoration: none;
     }
     .question-end { white-space: nowrap; }
 
-    .info-btn {
-      width: 36px; height: 36px;
+    /* Info button (36x36, round). Hover/pressed: DS3 hover surface + subtle border. Keyboard focus: DS3 focus ring. */
+    .info-btn, .layer-close {
+      width: var(--sys-space-fixed-450); height: var(--sys-space-fixed-450);
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; background: none; border: none; cursor: pointer; padding: 0;
+      flex-shrink: 0; padding: 0; cursor: pointer;
+      color: var(--text-primary);
+      background: transparent;
+      border: var(--sys-border-width-sm) solid transparent;
+      border-radius: var(--radius-pill);
+      transition-property: color, box-shadow, border-color, background;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
+    }
+    .info-btn:hover, .info-btn:active,
+    .layer-close:hover, .layer-close:active {
+      background: var(--surface-hover);
+      border-color: var(--border-subtle);
     }
     .question-end .info-btn {
       display: inline-flex; vertical-align: middle;
       /* 36px hit area, but only the 16px icon counts towards the line width (as in the design) */
-      height: 36px; margin-left: 4px; margin-right: -12px;
+      height: var(--sys-space-fixed-450); margin-left: var(--sys-space-fixed-50); margin-right: calc(-1 * var(--sys-space-fixed-150));
     }
-    .info-btn svg { width: 16px; height: 16px; }
+    .info-btn img { width: var(--sys-space-fixed-200); height: var(--sys-space-fixed-200); }
 
     /* ── DISTRIBUTION SLIDER ────────────────────────────────────────────── */
     .slider-distr { padding-top: 0; }
     .distr-outer { position: relative; }
     .distr-segments {
       display: flex;
-      border: 1px solid var(--border-distr);
+      border: var(--sys-border-width-sm) solid var(--border-distr);
       border-radius: var(--radius-input);
-      position: relative; height: 80px; overflow: visible;
+      position: relative; height: var(--sys-space-fixed-1000); overflow: visible;
     }
     .distr-seg {
       flex: 1; display: flex;
@@ -288,9 +341,9 @@
       position: relative;
     }
     .distr-seg:nth-child(2) {
-      background: rgba(24,29,37,0.8);
+      background: var(--surface-segment);
     }
-    .distr-seg svg { width: 24px; height: 24px; }
+    .distr-seg svg { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); }
     .distr-icon {
       position: absolute; top: 50%;
       transform: translate(-50%, -50%);
@@ -299,29 +352,38 @@
     }
     .distr-divider {
       position: absolute; top: 0; bottom: 0; width: 0;
-      border-left: 1px dashed var(--border-card);
+      border-left: var(--sys-border-width-sm) dashed var(--border-card);
       pointer-events: none; z-index: 1;
     }
     .distr-handle {
       position: absolute;
       transform: translateX(-50%);
-      cursor: ew-resize; z-index: 10; user-select: none;
+      z-index: 10; user-select: none;
     }
     .distr-handle-top    { top: 0; }
     .distr-handle-bottom { bottom: 0; }
-    .distr-handle-top .distr-thumb    { top: -14px; }
-    .distr-handle-bottom .distr-thumb { bottom: -14px; }
+    .distr-handle-top .distr-thumb    { top: calc(var(--distr-thumb-size) / -2); }
+    .distr-handle-bottom .distr-thumb { bottom: calc(var(--distr-thumb-size) / -2); }
+    /* The handle is a real slider (role=slider, tabindex=0). Focus-visible: DS3 fills it with the muted text colour. */
     .distr-thumb {
+      --distr-thumb-size: 28px;
       display: flex; position: absolute; z-index: 1;
-      left: -14px;
+      left: calc(var(--distr-thumb-size) / -2);
       box-sizing: border-box;
       align-items: center; justify-content: center;
-      width: 28px; height: 28px;
-      border: 1px solid rgb(77, 87, 102); border-radius: 100%;
-      background-color: rgb(16, 19, 25);
-      color: rgba(252, 252, 253, 0.7);
+      width: var(--distr-thumb-size); height: var(--distr-thumb-size);
+      border: var(--sys-border-width-sm) solid var(--border-distr); border-radius: 100%;
+      background-color: var(--canvas);
+      color: var(--text-muted);
       cursor: grab;
       overflow: hidden;
+      touch-action: none;
+    }
+    body.is-dragging { user-select: none; -webkit-user-select: none; }
+    .distr-thumb:focus-visible {
+      outline: none;
+      background-color: var(--text-muted);
+      border-color: var(--text-muted);
     }
     .distr-thumb-arrows {
       display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -329,88 +391,103 @@
     }
     .distr-labels {
       display: flex; justify-content: space-between;
-      padding: 24px 0 0;
+      padding: var(--sys-space-fixed-300) 0 0;
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1);
       color: var(--text-primary);
     }
-    .distr-label-col { flex: 1; display: flex; flex-direction: column; gap: 4px; align-items: center; }
-    .distr-pct { font-size: 16px; line-height: 24px; font-variation-settings: 'wdth' 105, 'wght' 400; font-weight: 400; color: var(--text-muted); }
-    .distr-name { font-size: 16px; line-height: 24px; font-variation-settings: 'wdth' 105, 'wght' 400; font-weight: 400; color: var(--text-muted); }
+    .distr-label-col { flex: 1; display: flex; flex-direction: column; gap: var(--sys-space-fixed-50); align-items: center; }
+    .distr-pct { font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); font-variation-settings: var(--fvs-copy-normal); font-weight: var(--wght-normal); color: var(--text-muted); }
+    .distr-name { font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); font-variation-settings: var(--fvs-copy-normal); font-weight: var(--wght-normal); color: var(--text-muted); }
 
     /* ── RADIO GROUP ────────────────────────────────────────────────────── */
-    .radio-group { display: flex; gap: 24px; align-items: center; }
-    .radio-option { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
-    .radio-control { width: 24px; height: 24px; flex-shrink: 0; position: relative; cursor: pointer; }
+    .radio-group { display: flex; gap: var(--sys-space-fixed-300); align-items: center; }
+    .radio-option { display: flex; align-items: flex-start; gap: var(--sys-space-fixed-150); cursor: pointer; }
+    .radio-control { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); flex-shrink: 0; position: relative; cursor: pointer; }
     .radio-control input[type="radio"] {
       position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 2; margin: 0;
     }
     /* visual circle — CSS-driven, no SVG mask issues */
     .radio-visual {
-      display: block; width: 24px; height: 24px;
+      display: block; width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300);
       border-radius: 50%;
-      background: rgba(24,29,37,0.6);
-      border: 1px solid rgba(219,223,230,0.6);
+      background: var(--surface-input);
+      border: var(--sys-border-width-sm) solid var(--border-input);
       position: relative; flex-shrink: 0; pointer-events: none;
+      transition-property: border-color, color, background-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: ease;
     }
     .radio-control input[type="radio"]:checked ~ .radio-visual {
-      background: #404A59;
+      background: var(--surface-selected);
     }
     .radio-control input[type="radio"]:checked ~ .radio-visual::after {
       content: '';
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 12px; height: 12px;
+      width: var(--sys-space-fixed-150); height: var(--sys-space-fixed-150);
       border-radius: 50%;
-      background: rgba(252,252,253,0.7);
+      background: var(--text-muted);
     }
     .radio-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-weight: 400;
-      font-size: 16px; line-height: 20px;
-      color: var(--text-muted); padding-top: 2px;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1);
+      color: var(--text-muted); padding-top: var(--sys-space-fixed-25);
+      transition: color var(--sys-motion-duration-base) ease;
     }
+    /* hover (enabled): label text to 100%, checked circle to the DS3 selected-hover surface */
+    .radio-option:hover .radio-label { color: var(--text-primary); }
+    .radio-option:hover .radio-control input[type="radio"]:checked ~ .radio-visual { background: var(--surface-selected-hover); }
+    /* keyboard focus: DS3 focus ring on the hidden input and a solid 2px ring on the visual circle */
+    .radio-control input[type="radio"]:focus-visible { outline: auto var(--sys-border-width-sm) var(--border-focus); outline-offset: var(--sys-space-fixed-25); }
+    .radio-control input[type="radio"]:focus-visible ~ .radio-visual { outline: solid var(--sys-border-width-md) var(--border-focus); }
 
     /* ── SELECT ─────────────────────────────────────────────────────────── */
     .select-wrapper { position: relative; width: 100%; }
     .select-field {
-      width: 100%; min-height: 48px;
+      width: 100%; min-height: var(--sys-space-fixed-600);
       background: var(--surface-input);
-      border: 1px solid var(--border-input);
+      border: 0;
+      box-shadow: 0 0 0 var(--sys-border-width-sm) var(--border-input);
       border-radius: var(--radius-input);
-      padding: 12px 48px 12px 12px;
+      padding: var(--sys-space-fixed-150) var(--sys-space-fixed-600) var(--sys-space-fixed-150) var(--sys-space-fixed-150);
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-weight: 400;
-      font-size: 16px; line-height: 20px;
-      color: var(--text-muted);
-      appearance: none; -webkit-appearance: none; cursor: pointer;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1);
+      color: var(--text-primary);
+      appearance: none; -webkit-appearance: none; cursor: default;
+      transition-property: background, box-shadow;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
     }
-    .select-field:focus { outline: none; }
-    .select-field option { background: #1e2433; color: var(--text-primary); }
-    .select-field optgroup { background: #1e2433; color: var(--text-muted); font-style: normal; font-size: 13px; }
+    .select-field:hover { background: var(--surface-input-hover); }
+    .select-field:focus-visible { box-shadow: 0 0 0 var(--sys-border-width-sm) var(--border-input-focus); }
+    .select-field option { background: var(--surface-option); color: var(--text-primary); }
+    .select-field optgroup { background: var(--surface-option); color: var(--text-muted); font-style: normal; font-size: 13px; }
     .select-chevron {
-      position: absolute; right: 12px; top: 50%;
+      position: absolute; right: var(--sys-space-fixed-150); top: 50%;
       transform: translateY(-50%);
-      width: 24px; height: 24px; pointer-events: none;
+      width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); pointer-events: none;
       display: flex; align-items: center; justify-content: center;
     }
-    .select-chevron svg { width: 24px; height: 24px; }
+    .select-chevron svg { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); }
 
     /* ── TEMPERATURE SLIDER ─────────────────────────────────────────────── */
     .slider-temp { display: flex; flex-direction: column; width: 100%; }
-    .slider-value-row { position: relative; height: 32px; }
+    .slider-value-row { position: relative; height: var(--sys-space-fixed-400); }
     .slider-value-display {
-      position: absolute; bottom: 2px;
+      position: absolute; bottom: var(--sys-space-fixed-25);
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-weight: 400;
-      font-size: 16px; line-height: 24px;
-      color: var(--text-muted); white-space: nowrap; padding: 0 8px;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1);
+      color: var(--text-muted); white-space: nowrap; padding: 0 var(--sys-space-fixed-100);
     }
-    .slider-track-row { position: relative; height: 24px; display: flex; align-items: center; }
+    .slider-track-row { position: relative; height: var(--sys-space-fixed-300); display: flex; align-items: center; }
     .slider-track-bg {
       position: absolute; left: 0; right: 0;
       height: 6px; background: var(--slider-track);
@@ -421,63 +498,62 @@
       background: var(--slider-progress);
       border-radius: var(--radius-pill); pointer-events: none;
     }
+    /* native range input, 24px tall like the live control so the keyboard focus ring hugs the track row */
     input[type="range"].temp-slider {
       position: absolute; left: 0; right: 0; width: 100%;
-      height: 6px; background: transparent;
+      height: var(--sys-space-fixed-300); background: transparent;
       appearance: none; -webkit-appearance: none;
-      cursor: pointer; z-index: 2; margin: 0;
+      cursor: default; z-index: 2; margin: 0;
     }
     input[type="range"].temp-slider::-webkit-slider-thumb {
       appearance: none; -webkit-appearance: none;
-      width: 24px; height: 12px;
-      border-radius: 999px;
-      background: #fcfcfd; border: 1px solid #2c343f;
-      cursor: ew-resize;
+      width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-150);
+      border-radius: var(--radius-pill);
+      background: var(--slider-progress); border: var(--sys-border-width-sm) solid var(--surface-hover);
     }
     input[type="range"].temp-slider::-moz-range-thumb {
-      width: 24px; height: 12px;
-      border-radius: 999px;
-      background: #fcfcfd; border: 1px solid #2c343f;
-      cursor: ew-resize;
+      width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-150);
+      border-radius: var(--radius-pill);
+      background: var(--slider-progress); border: var(--sys-border-width-sm) solid var(--surface-hover);
     }
     .slider-range-row {
-      display: flex; justify-content: space-between; padding-top: 8px;
+      display: flex; justify-content: space-between; padding-top: var(--sys-space-fixed-100);
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-weight: 400;
-      font-size: 14px; line-height: 20px; color: var(--text-muted);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); color: var(--text-muted);
     }
 
     /* ── OUTPUT PANEL ───────────────────────────────────────────────────── */
-    .section-output { display: flex; flex-direction: column; gap: 28px; width: 100%; padding-inline: 4px; }
-    .section-model { display: flex; flex-direction: column; gap: 48px; }
-    .model-combo { display: flex; flex-direction: column; gap: 12px; }
+    .section-output { display: flex; flex-direction: column; gap: 28px; width: 100%; padding-inline: var(--sys-space-fixed-50); }
+    .section-model { display: flex; flex-direction: column; gap: var(--sys-space-fixed-600); }
+    .model-combo { display: flex; flex-direction: column; gap: var(--sys-space-fixed-150); }
     .model-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px; color: var(--text-muted);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
     }
-    .select-group { display: flex; gap: 12px; }
+    .select-group { display: flex; gap: var(--sys-space-fixed-150); }
     .select-group > div { flex: 1 1 0; min-width: 0; }
-    @media (min-width: 768px) { .select-group { gap: 28px; } }
-    @media (min-width: 1024px) { .select-group { gap: 12px; } }
-    @media (min-width: 1440px) { .select-group { gap: 16px; } }
-    @media (min-width: 1920px) { .select-group { gap: 24px; } }
+    @media (min-width: 768px) { .select-group { gap: var(--sys-space-relative-xl); } }
+    @media (min-width: 1024px) { .select-group { gap: var(--sys-space-fixed-150); } }
+    @media (min-width: 1440px) { .select-group { gap: var(--sys-space-fixed-200); } }
+    @media (min-width: 1920px) { .select-group { gap: var(--sys-space-fixed-300); } }
     .select-sub-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 14px; line-height: 20px; color: var(--text-muted);
-      padding-bottom: 8px; display: block;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); color: var(--text-muted);
+      padding-bottom: var(--sys-space-fixed-100); display: block;
     }
 
     /* ── CAR + DISCLAIMER ───────────────────────────────────────────────── */
-    .car-wrapper { display: flex; flex-direction: column; gap: 4px; }
-    .car-img-box { aspect-ratio: 260/110; width: 100%; position: relative; overflow: hidden; border-radius: 4px; }
+    .car-wrapper { display: flex; flex-direction: column; gap: var(--sys-space-fixed-50); }
+    .car-img-box { aspect-ratio: 260/110; width: 100%; position: relative; overflow: hidden; border-radius: var(--radius-media); }
     .car-img-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .cons-data {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 14px; line-height: 24px; letter-spacing: 0;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0;
       color: var(--text-muted);
     }
 
@@ -485,73 +561,73 @@
     .section-result {
       background: var(--surface-card);
       border-radius: var(--radius-card);
-      padding: 24px;
-      display: flex; flex-direction: column; gap: 8px;
+      padding: var(--sys-space-fixed-300);
+      display: flex; flex-direction: column; gap: var(--sys-space-fixed-100);
     }
     #label-group { display: flex; flex-direction: column; gap: 0; }
-    .result-headline { display: flex; align-items: center; gap: 4px; height: 24px; margin-top: 5px; margin-bottom: -2px; }
-    .result-headline .info-btn { height: 24px; }
+    .result-headline { display: flex; align-items: center; gap: var(--sys-space-fixed-50); height: var(--sys-space-fixed-300); margin-top: 5px; margin-bottom: calc(-1 * var(--sys-space-fixed-25)); }
     .result-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px; letter-spacing: 0px;
-      font-stretch: 105%; font-weight: 400;
-      color: rgba(252, 252, 253, 0.7); text-decoration: none;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0;
+      font-stretch: calc(var(--wdth-wide) * 1%); font-weight: var(--wght-normal);
+      color: var(--text-muted); text-decoration: none;
     }
     .result-value {
       font-family: var(--font-headline);
-      font-variation-settings: 'wdth' 130, 'wght' 400;
+      font-variation-settings: var(--fvs-headline-normal);
       font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1);
       color: var(--text-primary); letter-spacing: 0;
       display: flex; flex-wrap: wrap; align-items: baseline;
     }
     .slot-digit { display: inline-block; overflow: hidden; height: 1em; vertical-align: top; }
-    .slot-reel { display: flex; flex-direction: column; transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+    /* result digits are reels (0-9) that all slide at the same moment: transform 1s ease, no stagger (as on the live tool) */
+    .slot-reel { display: flex; flex-direction: column; transition: transform var(--sys-motion-duration-reel) ease; }
     .slot-reel span { display: block; height: 1em; line-height: 1; text-align: center; }
     .range-unit {
       font-family: var(--font-headline);
-      font-variation-settings: 'wdth' 130, 'wght' 400;
+      font-variation-settings: var(--fvs-headline-normal);
       font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1);
       color: var(--text-primary);
     }
 
     /* ── TYPOGRAPHY TOKENS ─────────────────────────────────────────────── */
     /* Fixed: Copy */
-    .sys-type-copy-order1-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 1rem;      line-height: 1.5rem;  letter-spacing: 0; }
-    .sys-type-copy-order1-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 1rem;      line-height: 1.5rem;  letter-spacing: 0; }
-    .sys-type-copy-order2-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.875rem;  line-height: 1.5rem;  letter-spacing: 0; }
-    .sys-type-copy-order2-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.875rem;  line-height: 1.5rem;  letter-spacing: 0; }
-    .sys-type-copy-order3-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.75rem;   line-height: 1.25rem; letter-spacing: 0; }
-    .sys-type-copy-order3-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.75rem;   line-height: 1.25rem; letter-spacing: 0; }
+    .sys-type-copy-order1-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; }
+    .sys-type-copy-order1-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; }
+    .sys-type-copy-order2-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; }
+    .sys-type-copy-order2-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; }
+    .sys-type-copy-order3-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; }
+    .sys-type-copy-order3-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; }
     /* Fixed: Label */
-    .sys-type-label-order1-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 1rem;     line-height: 1.25rem; letter-spacing: 0; }
-    .sys-type-label-order1-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 1rem;     line-height: 1.25rem; letter-spacing: 0; }
-    .sys-type-label-order2-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0; }
-    .sys-type-label-order2-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0; }
-    .sys-type-label-order3-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.75rem;  line-height: 1rem;    letter-spacing: 0; }
-    .sys-type-label-order3-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.75rem;  line-height: 1rem;    letter-spacing: 0; }
-    .sys-type-label-order4-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.625rem; line-height: 0.75rem; letter-spacing: 0; }
-    .sys-type-label-order4-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.625rem; line-height: 0.75rem; letter-spacing: 0; }
+    .sys-type-label-order1-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1); letter-spacing: 0; }
+    .sys-type-label-order1-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1); letter-spacing: 0; }
+    .sys-type-label-order2-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); letter-spacing: 0; }
+    .sys-type-label-order2-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); letter-spacing: 0; }
+    .sys-type-label-order3-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order3); line-height: var(--sys-lh-label-order3); letter-spacing: 0; }
+    .sys-type-label-order3-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order3); line-height: var(--sys-lh-label-order3); letter-spacing: 0; }
+    .sys-type-label-order4-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order4); line-height: var(--sys-lh-label-order4); letter-spacing: 0; }
+    .sys-type-label-order4-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order4); line-height: var(--sys-lh-label-order4); letter-spacing: 0; }
     /* Fixed: Link */
-    .sys-type-link-order1-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 1rem;     line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
-    .sys-type-link-order1-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 1rem;     line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
-    .sys-type-link-order2-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.875rem; line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
-    .sys-type-link-order2-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.875rem; line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
-    .sys-type-link-order3-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.75rem;  line-height: 1.25rem; letter-spacing: 0; text-decoration: underline; }
-    .sys-type-link-order3-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.75rem;  line-height: 1.25rem; letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order1-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order1-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order2-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order2-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order3-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order3-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; text-decoration: underline; }
     /* Responsive: Display */
-    .sys-type-display-order1-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1); letter-spacing: 0; }
-    .sys-type-display-order2-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); letter-spacing: 0; }
-    .sys-type-display-order3-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-display-order3); line-height: var(--sys-lh-display-order3); letter-spacing: 0; }
+    .sys-type-display-order1-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1); letter-spacing: 0; }
+    .sys-type-display-order2-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); letter-spacing: 0; }
+    .sys-type-display-order3-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-display-order3); line-height: var(--sys-lh-display-order3); letter-spacing: 0; }
     /* Responsive: Headline */
-    .sys-type-headline-order1-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
-    .sys-type-headline-order1-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
-    .sys-type-headline-order2-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
-    .sys-type-headline-order2-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
-    .sys-type-headline-order3-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
-    .sys-type-headline-order3-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
-    .sys-type-headline-order4-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
-    .sys-type-headline-order4-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
+    .sys-type-headline-order1-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
+    .sys-type-headline-order1-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
+    .sys-type-headline-order2-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
+    .sys-type-headline-order2-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
+    .sys-type-headline-order3-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
+    .sys-type-headline-order3-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
+    .sys-type-headline-order4-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
+    .sys-type-headline-order4-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
 
     /* ── RESPONSIVE: TOPBAR ─────────────────────────────────────────────── */
     @media (min-width: 1440px) {
@@ -564,61 +640,61 @@
 
     /* ── RESPONSIVE: LAYOUT ─────────────────────────────────────────────── */
     @media (min-width: 1024px) {
-      .page-layout { padding-top: 40px; padding-bottom: 40px; }
-      .header h1 { font-size: 28px; line-height: 40px; }
       .section-group { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 2.2fr); gap: var(--sys-space-relative-2xl); }
       .section-input {
         width: auto;
-        border: 1px solid var(--border-card);
+        border: var(--sys-border-width-sm) solid var(--border-card);
         border-radius: var(--radius-card);
-        padding: 40px;
+        padding: var(--sys-space-fixed-500);
       }
       .section-output { width: auto; }
     }
     @media (min-width: 1440px) {
-      .page-layout { padding-top: 56px; padding-bottom: 56px; }
       .header { max-width: none; }
-      .header h1 { font-size: 32px; line-height: 44px; }
-      .section-input { padding: 56px; gap: 32px; }
+      .section-input { padding: var(--sys-space-fixed-700); }
     }
     @media (min-width: 1920px) {
-      .page-layout { padding-top: 72px; padding-bottom: 72px; }
-      .header h1 { font-size: 36px; line-height: 52px; }
-      .section-group { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 2.2fr); gap: 56px; }
-      .section-input { flex: none; width: auto; padding: 56px; gap: 32px; }
+      .section-group { gap: var(--sys-space-fixed-700); }
+      .section-input { flex: none; width: auto; padding: var(--sys-space-fixed-700); gap: var(--sys-space-fixed-400); }
       .section-output { width: auto; }
     }
 
 
     /* ── LIVE ALIGNMENT: header gap, extra live elements, footnote, FAQ, sticky bar ────────────────── */
+    /* Residual px values below (51, 49, 47, 73, 30, 34, ...) are measured offsets of the live page; no DS3 spacing token has these values. */
     @media (min-width: 1024px) and (max-width: 1439px) { .section-group { grid-template-columns: minmax(0, 4fr) minmax(0, 2.526fr); } }
-    .page-layout { gap: 0; }
-    .header { margin-bottom: 40px; }
+    .header { margin-bottom: var(--sys-space-fixed-500); }
     @media (min-width: 768px)  { .header { margin-bottom: 51px; } }
     @media (min-width: 1024px) { .header { margin-bottom: 49px; } }
     @media (min-width: 1440px) { .header { margin-bottom: 47px; } }
     @media (min-width: 1920px) { .header { margin-bottom: 73px; } }
-    .combo--select { padding-bottom: 8px; }
-    .model-combo .question { min-height: 24px; }
+    .combo--select { padding-bottom: var(--sys-space-fixed-100); }
+    .model-combo .question { min-height: var(--sys-space-fixed-300); }
+    /* Text button (Show all values): button is 100% white and underlined, its label is 70%; hover/pressed fade the underline to 70% */
     .cons-link {
-      display: block; background: none; border: 0; padding: 0; text-align: left; cursor: pointer;
-      font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 14px; line-height: 24px; color: var(--text-muted);
-      text-decoration: underline; text-underline-offset: 4px;
+      display: block; align-self: flex-start; background: none; border: 0; padding: 0; text-align: left; cursor: pointer;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); color: var(--text-primary);
+      text-decoration: underline; text-underline-offset: var(--sys-space-fixed-50);
+      transition-property: color, text-decoration-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
     }
-    .fn-ref { font-size: 12px; line-height: 20px; vertical-align: top; margin-left: 2px; }
+    .cons-link > span { display: block; color: var(--text-muted); }
+    .cons-link:hover, .cons-link:active { color: var(--text-muted); }
+    .fn-ref { font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); vertical-align: top; margin-left: var(--sys-space-fixed-25); }
     .section-input { position: relative; }
     #input-end { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; pointer-events: none; }
-    .battery-options { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    .battery-options { display: grid; grid-template-columns: 1fr; gap: var(--sys-space-fixed-250); }
     @media (min-width: 1024px) { .battery-options { grid-template-columns: 1fr 1fr; } }
 
     /* footnote */
     .footnote {
-      display: flex; gap: 19px; padding-inline: 16px; margin-top: 30px;
-      font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 12px; line-height: 20px; color: var(--text-muted);
+      display: flex; gap: 19px; padding-inline: var(--sys-space-fixed-200); margin-top: 30px;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); color: var(--text-muted);
     }
-    .footnote-mark { flex: 0 0 8px; }
+    .footnote-mark { flex: 0 0 var(--sys-space-fixed-100); }
     .footnote-text { margin: 0; }
     @media (min-width: 375px)  { .footnote { padding-inline: 19px; } }
     @media (min-width: 768px)  { .footnote { padding-inline: 35px; } }
@@ -627,40 +703,43 @@
 
     /* FAQ accordion */
     .faq { display: flex; flex-direction: column; }
+    /* heading: text is always left-aligned inside a box that shrinks to fit and is centred (as on the live pages) */
     .faq-heading {
-      margin: 31px 0 0; text-align: left;
-      font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-weight: 400;
-      font-size: 24px; line-height: 36px; color: var(--text-primary);
+      width: fit-content; max-width: 100%; margin: 31px auto 0; text-align: left;
+      font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); color: var(--text-primary);
     }
-    @media (min-width: 1024px) { .faq-heading { font-size: 28px; line-height: 40px; margin-top: 39px; } }
-    @media (min-width: 1440px) { .faq-heading { font-size: 32px; line-height: 44px; } }
-    @media (min-width: 1920px) { .faq-heading { font-size: 36px; line-height: 52px; margin-top: 83px; text-align: center; } }
-    .faq-list { width: min(62.5vw, 1200px); align-self: center; margin-top: 13px; border-bottom: 1px solid rgba(252, 252, 253, 0.2); }
+    @media (min-width: 1024px) { .faq-heading { margin-top: 39px; } }
+    @media (min-width: 1920px) { .faq-heading { margin-top: 83px; } }
+    .faq-list { width: min(62.5vw, 1200px); align-self: center; margin-top: 13px; border-bottom: var(--sys-border-width-sm) solid var(--border-card); }
     @media (min-width: 375px)  { .faq-list { margin-top: 15px; } }
-    @media (min-width: 768px)  { .faq-list { margin-top: 32px; } }
+    @media (min-width: 768px)  { .faq-list { margin-top: var(--sys-space-fixed-400); } }
     @media (min-width: 1024px) { .faq-list { margin-top: 42px; } }
     @media (min-width: 1440px) { .faq-list { margin-top: 60px; } }
-    @media (min-width: 1920px) { .faq-list { margin-top: 80px; } }
-    .faq-item { border-top: 1px solid rgba(252, 252, 253, 0.2); }
+    @media (min-width: 1920px) { .faq-list { margin-top: var(--sys-space-fixed-1000); } }
+    .faq-item { border-top: var(--sys-border-width-sm) solid var(--border-card); }
+    /* Row states (DS3): hover/pressed = hover surface + 70% text; focused (after click or keyboard) = selected surface + 70% text, focus wins over hover */
     .faq-q {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      width: 100%; padding: 16px; background: none; border: 0; text-align: left; cursor: pointer;
-      font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 20px; color: var(--text-primary);
+      display: flex; align-items: center; justify-content: space-between; gap: var(--sys-space-fixed-100);
+      width: 100%; padding: var(--sys-space-fixed-200); background-color: transparent; border: 0; text-align: left; cursor: pointer;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1); color: var(--text-primary);
+      transition: color var(--sys-motion-duration-base) ease, background-color var(--sys-motion-duration-base) ease;
     }
-    .faq-q img { flex: 0 0 24px; width: 24px; height: 24px; transition: transform 250ms cubic-bezier(0.75, 0.02, 0.5, 1); }
-    .faq-q[aria-expanded="true"] img { transform: rotate(180deg); }
-    .faq-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 250ms cubic-bezier(0.75, 0.02, 0.5, 1); }
+    .faq-q:hover, .faq-q:active { background-color: var(--surface-hover); color: var(--text-muted); }
+    .faq-q:focus:not(:active) { background-color: var(--surface-selected); color: var(--text-muted); }
+    .faq-q svg { flex: 0 0 var(--sys-space-fixed-300); width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); transition: transform var(--sys-motion-duration-fast) ease-in; }
+    .faq-q[aria-expanded="true"] svg { transform: rotate(180deg); }
+    .faq-panel { display: grid; grid-template-rows: 0fr; transition: all var(--sys-motion-duration-base) ease; }
     .faq-panel.is-open { grid-template-rows: 1fr; }
     .faq-panel-clip { overflow: hidden; min-height: 0; }
-    .faq-panel-inner { padding: 16px; }
+    .faq-panel-inner { padding: var(--sys-space-fixed-200); }
     .faq-panel-inner p {
-      margin: 0; font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px; color: var(--text-muted);
+      margin: 0; font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
     }
 
     /* page bottom spacing (end of FAQ list to end of page, from the live page) */
-    .page-layout { padding-bottom: 41px; }
     @media (min-width: 375px)  { .page-layout { padding-bottom: 44px; } }
     @media (min-width: 768px)  { .page-layout { padding-bottom: 60px; } }
     @media (min-width: 1024px) { .page-layout { padding-bottom: 71px; } }
@@ -671,20 +750,62 @@
     .result-bar { display: none; }
     @media (max-width: 1023px) {
       .result-bar {
-        display: flex; flex-direction: column; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
-        padding: 16px 32px; background: rgba(154, 163, 177, 0.1);
-        -webkit-backdrop-filter: blur(60px); backdrop-filter: blur(60px);
-        transition: transform 250ms cubic-bezier(0.75, 0.02, 0.5, 1);
+        display: flex; flex-direction: column; position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--sys-z-sticky);
+        padding: var(--sys-space-fixed-200) var(--sys-space-fixed-400); background: var(--surface-card);
+        -webkit-backdrop-filter: blur(var(--sys-blur-surface)); backdrop-filter: blur(var(--sys-blur-surface));
+        transition: transform var(--sys-motion-duration-base) var(--sys-motion-easing-standard);
       }
       .result-bar.is-hidden { transform: translateY(100%); }
     }
     .result-bar-label {
-      font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px; color: var(--text-muted);
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
     }
     .result-bar-value {
-      font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400;
+      font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal);
       font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); color: var(--text-primary);
+    }
+
+    /* ── INFO LAYER (modal) ─────────────────────────────────────────────── */
+    /* Full-viewport fixed shader that fades in; dialog is a bottom sheet below 1024px and a centred dialog from 1024px. */
+    .layer {
+      position: fixed; inset: 0; z-index: var(--sys-z-layer);
+      display: flex; align-items: flex-end; justify-content: center;
+    }
+    .layer[hidden] { display: none; }
+    .layer-shader {
+      position: absolute; inset: 0; background: var(--surface-shader);
+      animation: layer-shader-in var(--sys-motion-duration-layer) ease;
+    }
+    @keyframes layer-shader-in { from { opacity: 0; } to { opacity: 1; } }
+    .layer-dialog {
+      position: relative; width: 100%; max-height: 100%; overflow-y: auto;
+      display: flex; flex-direction: column; gap: var(--sys-space-fixed-200);
+      background: var(--gradient-layer);
+      border: var(--sys-border-width-sm) solid transparent;
+      border-radius: var(--radius-card);
+      padding: var(--sys-space-relative-xl) var(--sys-space-relative-xl) calc(var(--sys-space-relative-xl) + var(--sys-space-fixed-600));
+    }
+    .layer-dialog:focus { outline: auto var(--sys-border-width-sm) var(--border-focus); }
+    .layer-text {
+      margin: 0; font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
+    }
+    .layer-link {
+      align-self: flex-start;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2);
+      color: var(--text-primary); text-decoration: underline; cursor: pointer;
+      transition-property: color, text-decoration-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
+    }
+    .layer-link:hover, .layer-link:active { color: var(--text-muted); }
+    .layer-link[hidden] { display: none; }
+    .layer-close { position: absolute; top: var(--sys-space-fixed-100); right: var(--sys-space-fixed-100); }
+    @media (min-width: 1024px) {
+      .layer { align-items: center; padding-inline: var(--sys-page-margin); }
+      .layer-dialog { max-width: var(--sys-breakpoint-lg); padding: var(--sys-space-fixed-800); }
     }
   </style>
 </head>
@@ -759,7 +880,7 @@
       <!-- Q1: Driving distribution -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">Where do you travel and how <span class="question-end">often?<button class="info-btn" aria-label="More info">
+          <span class="question-text"><span id="q-distr-lead">Where do you travel and how </span><span class="question-end"><span id="q-distr-tail">often?</span><button type="button" class="info-btn" aria-label="More information about your driving profile" data-layer="profile">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
             </button></span></span>
         </div>
@@ -767,8 +888,8 @@
         <div class="slider-distr">
           <div class="distr-outer">
             <div class="distr-segments" id="distrSegments">
-              <div class="distr-divider" id="distr-divider-1" style="left:33.33%"></div>
-              <div class="distr-divider" id="distr-divider-2" style="left:66.67%"></div>
+              <div class="distr-divider" id="distr-divider-1" style="left:34%"></div>
+              <div class="distr-divider" id="distr-divider-2" style="left:65%"></div>
               <!-- City -->
               <div class="distr-seg" id="seg-city"></div>
               <!-- Country road -->
@@ -786,8 +907,8 @@
                 <img src="assets/icons/motorway.svg" width="23" height="22" alt="">
               </div>
               <!-- Handle 1 -->
-              <div class="distr-handle distr-handle-top" id="handle1" style="left:33.33%">
-                <div class="distr-thumb">
+              <div class="distr-handle distr-handle-top" id="handle1" style="left:34%">
+                <div class="distr-thumb" role="slider" tabindex="0" aria-labelledby="q-distr-lead q-distr-tail" aria-describedby="distr-values" aria-valuemin="0" aria-valuemax="100" aria-valuenow="34" aria-valuetext="">
                   <div class="distr-thumb-arrows">
                     <img src="assets/icons/arrow-left.svg" width="7" height="13" alt="">
                     <img src="assets/icons/arrow-right.svg" width="7" height="13" alt="" style="transform:scaleX(-1)">
@@ -795,8 +916,8 @@
                 </div>
               </div>
               <!-- Handle 2 -->
-              <div class="distr-handle distr-handle-bottom" id="handle2" style="left:66.67%">
-                <div class="distr-thumb">
+              <div class="distr-handle distr-handle-bottom" id="handle2" style="left:65%">
+                <div class="distr-thumb" role="slider" tabindex="0" aria-labelledby="q-distr-lead q-distr-tail" aria-describedby="distr-values" aria-valuemin="0" aria-valuemax="100" aria-valuenow="65" aria-valuetext="">
                   <div class="distr-thumb-arrows">
                     <img src="assets/icons/arrow-left.svg" width="7" height="13" alt="">
                     <img src="assets/icons/arrow-right.svg" width="7" height="13" alt="" style="transform:scaleX(-1)">
@@ -805,7 +926,7 @@
               </div>
             </div>
           </div>
-          <div class="distr-labels">
+          <div class="distr-labels" id="distr-values">
             <div class="distr-label-col">
               <span class="distr-pct" id="pct-city">33%</span>
               <span class="distr-name">City</span>
@@ -825,7 +946,7 @@
       <!-- Q2: Speed on motorway -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">Do you often drive faster than 120 km/h on the <span class="question-end">motorway?<button class="info-btn" aria-label="More info">
+          <span class="question-text">Do you often drive faster than 120 km/h on the <span class="question-end">motorway?<button type="button" class="info-btn" aria-label="More information about driving faster on the motorway" data-layer="speed">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
             </button></span></span>
         </div>
@@ -850,7 +971,7 @@
       <!-- Q3: Tyre size -->
       <div class="combo combo--select">
         <div class="question">
-          <span class="question-text">What size tyres does your vehicle <span class="question-end">have?<button class="info-btn" aria-label="More info">
+          <span class="question-text">What size tyres does your vehicle <span class="question-end">have?<button type="button" class="info-btn" aria-label="More information about tyre selection" data-layer="tyres">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
             </button></span></span>
         </div>
@@ -871,7 +992,7 @@
       <!-- Q4: Temperature -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">What is the outside <span class="question-end">temperature?<button class="info-btn" aria-label="More info">
+          <span class="question-text">What is the outside <span class="question-end">temperature?<button type="button" class="info-btn" aria-label="More information about the outside temperature" data-layer="temp">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
             </button></span></span>
         </div>
@@ -894,7 +1015,7 @@
       <!-- Q5: Heating / A/C -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">Is the heating or air conditioning <span class="question-end">on?<button class="info-btn" aria-label="More info">
+          <span class="question-text">Is the heating or air conditioning <span class="question-end">on?<button type="button" class="info-btn" aria-label="More information about heating or air conditioning" data-layer="hvac">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
             </button></span></span>
         </div>
@@ -919,21 +1040,21 @@
       <!-- Q6: Vehicle load -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">How is the vehicle <span class="question-end">loaded?<button class="info-btn" aria-label="More info">
+          <span class="question-text">How is the vehicle <span class="question-end">loaded?<button type="button" class="info-btn" aria-label="More information about the vehicle load" data-layer="load">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
             </button></span></span>
         </div>
         <div class="radio-group">
           <label class="radio-option">
             <div class="radio-control">
-              <input type="radio" name="load" value="normal" checked>
+              <input type="radio" name="load" value="normal">
               <span class="radio-visual"></span>
             </div>
             <span class="radio-label">Normal</span>
           </label>
           <label class="radio-option">
             <div class="radio-control">
-              <input type="radio" name="load" value="full">
+              <input type="radio" name="load" value="full" checked>
               <span class="radio-visual"></span>
             </div>
             <span class="radio-label">Full</span>
@@ -944,7 +1065,7 @@
       <!-- Q7: Battery condition -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">What is the condition of the vehicle <span class="question-end">battery?<button class="info-btn" aria-label="More info">
+          <span class="question-text">What is the condition of the vehicle <span class="question-end">battery?<button type="button" class="info-btn" aria-label="More information about the battery condition" data-layer="battery">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
             </button></span></span>
         </div>
@@ -1031,7 +1152,7 @@
             <img id="car-img" src="assets/media/a6-etron/a6-sportback.png" alt="Audi A6 Sportback e-tron">
           </div>
           <p class="cons-data">Power consumption (combined): 15.4 - 13.4 kWh/100 km²; CO₂ emissions (combined): 0 g/km²</p>
-          <button type="button" class="cons-link">Show all values</button>
+          <button type="button" class="cons-link"><span>Show all values</span></button>
         </div>
       </div>
 
@@ -1040,7 +1161,7 @@
         <div id="label-group">
           <div class="result-headline">
             <span class="result-label">Estimated Range<sup class="fn-ref">1</sup></span>
-            <button class="info-btn" aria-label="More info">
+            <button type="button" class="info-btn" aria-label="More information about the range indication" data-layer="result">
               <img src="assets/icons/info.svg" width="16" height="16" alt="">
             </button>
           </div>
@@ -1059,12 +1180,12 @@
 
   <!-- ── FAQ ─────────────────────────────────────────────────────────── -->
   <section class="faq" aria-labelledby="faq-heading">
-    <h2 class="faq-heading" id="faq-heading">Find explanations and tricks here to get the most out of your range</h2>
+    <h2 class="faq-heading" id="faq-heading" tabindex="-1">Find explanations and tricks here to get the most out of your range</h2>
     <div class="faq-list">
       <div class="faq-item">
         <button type="button" class="faq-q" id="faq-q-1" aria-expanded="false" aria-controls="faq-a-1">
           <span>What influence does the driving speed have on the range of my e-vehicle?</span>
-          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
         <div class="faq-panel" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
           <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
@@ -1073,7 +1194,7 @@
       <div class="faq-item">
         <button type="button" class="faq-q" id="faq-q-2" aria-expanded="false" aria-controls="faq-a-2">
           <span>What influence do temperature fluctuations in the vehicle interior have on the range?</span>
-          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
         <div class="faq-panel" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
           <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
@@ -1082,7 +1203,7 @@
       <div class="faq-item">
         <button type="button" class="faq-q" id="faq-q-3" aria-expanded="false" aria-controls="faq-a-3">
           <span>How should I best use the interior heating so that my electric vehicle does not lose too much range?</span>
-          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
         <div class="faq-panel" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
           <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
@@ -1091,7 +1212,7 @@
       <div class="faq-item">
         <button type="button" class="faq-q" id="faq-q-4" aria-expanded="false" aria-controls="faq-a-4">
           <span>What influence does my individual driving style have on the range of my e-vehicle?</span>
-          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
         <div class="faq-panel" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
           <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
@@ -1100,7 +1221,7 @@
       <div class="faq-item">
         <button type="button" class="faq-q" id="faq-q-5" aria-expanded="false" aria-controls="faq-a-5">
           <span>How can I use braking processes while driving positively for my range?</span>
-          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
         <div class="faq-panel" id="faq-a-5" role="region" aria-labelledby="faq-q-5">
           <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
@@ -1109,7 +1230,7 @@
       <div class="faq-item">
         <button type="button" class="faq-q" id="faq-q-6" aria-expanded="false" aria-controls="faq-a-6">
           <span>What influence does the interior air conditioning have on the range of my e-vehicle?</span>
-          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
         <div class="faq-panel" id="faq-a-6" role="region" aria-labelledby="faq-q-6">
           <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
@@ -1118,7 +1239,7 @@
       <div class="faq-item">
         <button type="button" class="faq-q" id="faq-q-7" aria-expanded="false" aria-controls="faq-a-7">
           <span>What influence does the interior heating have on the range of my electric vehicle?</span>
-          <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
         </button>
         <div class="faq-panel" id="faq-a-7" role="region" aria-labelledby="faq-q-7">
           <div class="faq-panel-clip"><div class="faq-panel-inner"><p>Answer copy to be added.</p></div></div>
@@ -1127,6 +1248,18 @@
     </div>
   </section>
 </div><!-- /page-layout -->
+
+<!-- Info layer (modal): shared by all info buttons -->
+<div class="layer" id="info-layer" hidden>
+  <div class="layer-shader"></div>
+  <div class="layer-dialog" role="dialog" aria-modal="true" aria-label="Opened layer" tabindex="-1">
+    <p class="layer-text" id="layer-text"></p>
+    <a class="layer-link" id="layer-link" href="#faq-heading">For more information, see the FAQ below.</a>
+    <button type="button" class="layer-close" id="layer-close" aria-label="Close layer">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7L17 17M17 7L7 17" stroke="currentColor"/></svg>
+    </button>
+  </div>
+</div>
 
 <!-- Sticky result bar (below 1024px) -->
 <div class="result-bar is-hidden" id="result-bar" aria-hidden="true">
@@ -1221,8 +1354,8 @@
     'q4-sportback': { '40etron': 270, '45etron': 347, '55quattro': 355 },
   };
 
-  let cityPct = 33.33;
-  let countryPct = 33.33;
+  let cityPct = 34;
+  let countryPct = 31;
   function mwPct() { return Math.max(0, 100 - cityPct - countryPct); }
 
   function updateConsumption() {
@@ -1341,8 +1474,6 @@
     container.querySelectorAll('.slot-digit').forEach((col, i) => {
       const d = parseInt(digits[i]);
       const reel = col.querySelector('.slot-reel');
-      const delay = (digits.length - 1 - i) * 60;
-      reel.style.transitionDelay = delay + 'ms';
       reel.style.transform = `translateY(-${d}em)`;
     });
   }
@@ -1370,6 +1501,11 @@
     return pct < 4 ? 0 : Math.min(1, (pct - 4) / 4);
   }
 
+  const thumb1El = handle1El.querySelector('.distr-thumb');
+  const thumb2El = handle2El.querySelector('.distr-thumb');
+
+  /* Whole-percent model (as on the live tool): h1 = city, h2 = city + country road, the rest is motorway.
+     Left handle runs from 0 to the right handle's value, right handle from the left handle's value to 100. */
   function setHandles(h1, h2) {
     handle1El.style.left = h1 + '%';
     handle2El.style.left = h2 + '%';
@@ -1377,9 +1513,19 @@
     document.getElementById('distr-divider-2').style.left = h2 + '%';
     cityPct    = h1;
     countryPct = h2 - h1;
-    document.getElementById('pct-city').textContent     = Math.round(cityPct) + '%';
-    document.getElementById('pct-country').textContent  = Math.round(countryPct) + '%';
-    document.getElementById('pct-motorway').textContent = Math.round(mwPct()) + '%';
+    document.getElementById('pct-city').textContent     = cityPct + '%';
+    document.getElementById('pct-country').textContent  = countryPct + '%';
+    document.getElementById('pct-motorway').textContent = mwPct() + '%';
+
+    /* slider semantics */
+    thumb1El.setAttribute('aria-valuemin', '0');
+    thumb1El.setAttribute('aria-valuemax', String(h2));
+    thumb1El.setAttribute('aria-valuenow', String(h1));
+    thumb1El.setAttribute('aria-valuetext', `${cityPct}% City ${countryPct}% Country road`);
+    thumb2El.setAttribute('aria-valuemin', String(h1));
+    thumb2El.setAttribute('aria-valuemax', '100');
+    thumb2El.setAttribute('aria-valuenow', String(h2));
+    thumb2El.setAttribute('aria-valuetext', `${countryPct}% Country road ${mwPct()}% Motorway`);
 
     /* resize segment widths */
     document.getElementById('seg-city').style.flex     = cityPct + ' 0 0%';
@@ -1402,38 +1548,58 @@
 
   let dragging = null, dragStartX = 0, dragStartPct = 0;
 
+  /* mouse: the browser focuses the handle itself (pointer focus, so no focus-visible fill); touch: no emulated mouse events */
   function dragStart(e, which) {
     dragging = which;
     dragStartX   = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
     dragStartPct = which === 1 ? cityPct : cityPct + countryPct;
-    e.preventDefault();
+    document.body.classList.add('is-dragging');
+    if (e.type === 'touchstart') e.preventDefault();
   }
 
-  document.addEventListener('mousemove', e => {
-    if (!dragging) return;
+  function dragMove(clientX) {
     const rect  = segments.getBoundingClientRect();
-    const dxPct = ((e.clientX - dragStartX) / rect.width) * 100;
-    const newP  = clamp(dragStartPct + dxPct, 0, 100);
+    const dxPct = ((clientX - dragStartX) / rect.width) * 100;
+    const newP  = Math.round(clamp(dragStartPct + dxPct, 0, 100));
     const h2    = cityPct + countryPct;
     if (dragging === 1) setHandles(clamp(newP, 0, h2), h2);
     else                setHandles(cityPct, clamp(newP, cityPct, 100));
-  });
+  }
+
+  document.addEventListener('mousemove', e => { if (dragging) dragMove(e.clientX); });
   document.addEventListener('touchmove', e => {
     if (!dragging) return;
-    const rect  = segments.getBoundingClientRect();
-    const dxPct = ((e.touches[0].clientX - dragStartX) / rect.width) * 100;
-    const newP  = clamp(dragStartPct + dxPct, 0, 100);
-    const h2    = cityPct + countryPct;
-    if (dragging === 1) setHandles(clamp(newP, 0, h2), h2);
-    else                setHandles(cityPct, clamp(newP, cityPct, 100));
+    dragMove(e.touches[0].clientX);
   }, { passive: false });
-  document.addEventListener('mouseup',  () => { dragging = null; });
-  document.addEventListener('touchend', () => { dragging = null; });
+  const dragEnd = () => { dragging = null; document.body.classList.remove('is-dragging'); };
+  document.addEventListener('mouseup',  dragEnd);
+  document.addEventListener('touchend', dragEnd);
 
   handle1El.addEventListener('mousedown',  e => dragStart(e, 1));
   handle2El.addEventListener('mousedown',  e => dragStart(e, 2));
   handle1El.addEventListener('touchstart', e => dragStart(e, 1), { passive: false });
   handle2El.addEventListener('touchstart', e => dragStart(e, 2), { passive: false });
+
+  /* keyboard: Arrow Right/Up +1, Arrow Left/Down -1, Page Up +10, Page Down -10, Home = minimum, End = maximum */
+  [[thumb1El, 1], [thumb2El, 2]].forEach(([thumb, which]) => {
+    thumb.addEventListener('keydown', e => {
+      const h1 = cityPct, h2 = cityPct + countryPct;
+      const [lo, hi] = which === 1 ? [0, h2] : [h1, 100];
+      let v = which === 1 ? h1 : h2;
+      switch (e.key) {
+        case 'ArrowRight': case 'ArrowUp':   v += 1;  break;
+        case 'ArrowLeft':  case 'ArrowDown': v -= 1;  break;
+        case 'PageUp':   v += 10; break;
+        case 'PageDown': v -= 10; break;
+        case 'Home': v = lo; break;
+        case 'End':  v = hi; break;
+        default: return;
+      }
+      e.preventDefault();
+      v = clamp(v, lo, hi);
+      if (which === 1) setHandles(v, h2); else setHandles(h1, v);
+    });
+  });
 
   /* ── TEMPERATURE SLIDER ── */
   const tempSlider  = document.getElementById('temp-slider');
@@ -1445,7 +1611,7 @@
     const val = parseInt(tempSlider.value);
     const pct = ((val - (-20)) / 50) * 100;
     tempFill.style.width = pct + '%';
-    tempDisplay.style.left = `calc(12px + (100% - 24px) * ${pct / 100})`;
+    tempDisplay.style.left = `calc(var(--sys-space-fixed-150) + (100% - 2 * var(--sys-space-fixed-150)) * ${pct / 100})`;
     tempDisplay.style.transform = 'translateX(-50%)';
     tempDisplay.textContent = (val > 0 ? '+' : '') + val + ' °C';
     if (!heatingManuallySet) {
@@ -1471,7 +1637,7 @@
 
   /* ── INIT ── */
   updateModelConfig();
-  setHandles(33.33, 66.67);
+  setHandles(34, 65);
   updateTemp();
 
   /* ── FAQ ACCORDION ── */
@@ -1481,6 +1647,63 @@
       btn.setAttribute('aria-expanded', String(!open));
       document.getElementById(btn.getAttribute('aria-controls')).classList.toggle('is-open', !open);
     });
+  });
+
+  /* ── INFO LAYER (modal) ──
+     Click on an info button opens one shared dialog: shader fades in, focus moves to the dialog, Tab cycles link -> Close,
+     Escape / click on the shader / Close button close it and focus returns to the info button. No page scroll lock. */
+  const LAYERS = {
+    profile: { faq: true,  text: 'Define your personal driving profile here and find out how the combination of driving scenarios you choose affects the range of your electric vehicle. Depending on the profile you define, there are direct implications for the range of your vehicle. For example, driving at high speed on the motorway uses considerably more energy than using the vehicle in city traffic.' },
+    speed:   { faq: true,  text: 'Driving faster than 120 km/h on the motorway considerably increases air resistance and therefore energy consumption. Select Yes if you regularly drive at these speeds to see how this affects the range of your electric vehicle.' },
+    tyres:   { faq: false, text: 'Find out here how the choice of wheel size and tyre type affects the consumption and range of your electric vehicle. In general, summer tyres have better rolling properties than winter tyres because of their tread, rubber compound and so on. The range effects shown here are based on a label A summer tyre and a label C winter tyre. Other tyres can lead to different effects on the range of the vehicle. When choosing the wheel size, it is mainly its aerodynamic properties that affect the range.' },
+    temp:    { faq: true,  text: 'The outside temperature has a considerable effect on the range. In cold weather the battery can deliver less energy and more energy is needed for heating, so the range falls. Mild temperatures give the longest range.' },
+    hvac:    { faq: false, text: 'Experience the effect of heating and air conditioning on the range of your electric vehicle. In contrast to the combustion vehicle, these secondary consumers are served exclusively from the high-voltage battery and thus have a strong influence on the possible range of the e-vehicle with high heating or cooling outputs.' },
+    load:    { faq: true,  text: 'The load changes the weight of the vehicle and therefore its energy consumption. A fully loaded vehicle needs more energy to drive, which reduces the range.' },
+    battery: { faq: false, text: 'The state of health (SoH) describes the ageing of the high-voltage battery. Over time its usable capacity decreases slightly, which reduces the range compared with a new vehicle.' },
+    result:  { faq: true,  text: 'The estimated range is calculated from the WLTP range of the selected model and the influence of the settings you have made. The actual range may vary.' },
+  };
+  const layerEl    = document.getElementById('info-layer');
+  const dialogEl   = layerEl.querySelector('.layer-dialog');
+  const layerText  = document.getElementById('layer-text');
+  const layerLink  = document.getElementById('layer-link');
+  const layerClose = document.getElementById('layer-close');
+  let layerOpener  = null;
+
+  function openLayer(btn) {
+    const cfg = LAYERS[btn.dataset.layer];
+    if (!cfg) return;
+    layerOpener = btn;
+    layerText.textContent = cfg.text;
+    layerLink.hidden = !cfg.faq;
+    layerEl.hidden = false;
+    dialogEl.focus();
+  }
+  function closeLayer(returnFocus = true) {
+    if (layerEl.hidden) return;
+    layerEl.hidden = true;
+    const opener = layerOpener;
+    layerOpener = null;
+    if (returnFocus && opener) opener.focus();
+  }
+  document.querySelectorAll('.info-btn[data-layer]').forEach(b => b.addEventListener('click', () => openLayer(b)));
+  layerClose.addEventListener('click', () => closeLayer());
+  layerEl.addEventListener('click', e => { if (!dialogEl.contains(e.target)) closeLayer(); });
+  layerLink.addEventListener('click', e => {
+    e.preventDefault();
+    closeLayer(false);
+    const h = document.getElementById('faq-heading');
+    h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    h.focus({ preventScroll: true });
+  });
+  document.addEventListener('keydown', e => {
+    if (layerEl.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeLayer(); return; }
+    if (e.key !== 'Tab') return;
+    const tabbables = [layerLink, layerClose].filter(el => !el.hidden);
+    const first = tabbables[0], last = tabbables[tabbables.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey) { if (active === first || active === dialogEl || !dialogEl.contains(active)) { e.preventDefault(); last.focus(); } }
+    else if (active === last || !dialogEl.contains(active)) { e.preventDefault(); first.focus(); }
   });
 
   /* ── STICKY RESULT BAR (below 1024px): visible while the end of the input card is still below the viewport ── */
