@@ -447,8 +447,12 @@
       font-variation-settings: 'wdth' 105, 'wght' 400;
       font-size: 16px; line-height: 24px; color: var(--text-primary);
     }
-    .select-group { display: flex; gap: 16px; }
-    .select-group > div { flex: 1 1 calc(50% - 8px); min-width: 0; }
+    /* live layout: three columns (1fr, 4% gap, 1fr); Model is always the first column and Powertrain the third,
+       so a lone Model select keeps its half width exactly like the live page */
+    .select-group { display: grid; grid-template-columns: minmax(0, 1fr) 4% minmax(0, 1fr); }
+    .select-group > div { min-width: 0; }
+    .select-group > div:first-child { grid-column: 1; }
+    .select-group > div:last-child { grid-column: 3; }
     .select-sub-label {
       font-family: var(--font-copy);
       font-variation-settings: 'wdth' 105, 'wght' 400;

@@ -543,12 +543,12 @@
       font-variation-settings: var(--fvs-copy-normal);
       font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
     }
-    .select-group { display: flex; gap: var(--sys-space-fixed-150); }
-    .select-group > div { flex: 1 1 0; min-width: 0; }
-    @media (min-width: 768px) { .select-group { gap: var(--sys-space-relative-xl); } }
-    @media (min-width: 1024px) { .select-group { gap: var(--sys-space-fixed-150); } }
-    @media (min-width: 1440px) { .select-group { gap: var(--sys-space-fixed-200); } }
-    @media (min-width: 1920px) { .select-group { gap: var(--sys-space-fixed-300); } }
+    /* live layout: three columns (1fr, 4% gap, 1fr); Model is always the first column and Powertrain the third,
+       so a lone Model select keeps its half width exactly like the live page */
+    .select-group { display: grid; grid-template-columns: minmax(0, 1fr) 4% minmax(0, 1fr); }
+    .select-group > div { min-width: 0; }
+    .select-group > div:first-child { grid-column: 1; }
+    .select-group > div:last-child { grid-column: 3; }
     .select-sub-label {
       font-family: var(--font-copy);
       font-variation-settings: var(--fvs-copy-normal);
