@@ -34,6 +34,7 @@
       --surface-input:     rgba(24,29,37,0.6);
       --text-primary:      #fcfcfd;
       --text-muted:        rgba(252,252,253,0.7);
+      --surface-topbar:         #020203;
       --border-card:       rgba(252,252,253,0.2);
       --border-input:      rgba(219,223,230,0.6);
       --border-distr:      #4d5766;
@@ -95,6 +96,7 @@
       --sys-fs-headline-order2: 24px;  --sys-lh-headline-order2: 36px;
       --sys-fs-headline-order3: 20px;  --sys-lh-headline-order3: 32px;
       --sys-fs-headline-order4: 16px;  --sys-lh-headline-order4: 24px;
+      --sys-fs-copy-order2:  0.875rem;
     }
 
     @media (min-width: 768px) {
@@ -185,32 +187,28 @@
 
     /* ── TOPBAR ─────────────────────────────────────────────────────────── */
     .topbar {
-      height: 72px; background: #020203;
+      height: var(--sys-space-fixed-900); background: var(--surface-topbar);
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 var(--sys-page-margin);
     }
-    .topbar-mobile-left { display: flex; align-items: center; gap: 12px; flex: 1 0 0; }
-    .topbar-menu-label {
-      font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px;
-      color: var(--text-primary); white-space: nowrap;
-    }
+    .topbar-mobile-left { display: flex; align-items: center; flex: 1 0 0; }
     .topbar-rings { display: flex; align-items: center; flex-shrink: 0; }
-    .topbar-rings svg { width: 69px; height: 24px; }
-    .topbar-nav { display: none; align-items: center; gap: 24px; flex: 1 0 0; }
+    .topbar-rings img { width: 69px; height: var(--sys-space-fixed-300); }
+    .topbar-nav { display: none; align-items: center; gap: var(--sys-space-fixed-300); flex: 1 0 0; }
     .topbar-nav-item {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 100, 'wght' 500;
-      font-size: 14px; line-height: 20px;
-      color: rgba(252, 252, 253, 0.7);
+      font-variation-settings: normal;
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-space-fixed-250);
+      color: var(--text-muted);
       display: flex; justify-content: space-between; flex-flow: row;
       text-decoration: none; white-space: nowrap; cursor: pointer;
     }
-    .topbar-right { display: flex; align-items: center; gap: 24px; flex: 1 0 0; justify-content: flex-end; }
-    .topbar-right .nav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .nav-icon img { display: block; width: 24px; height: 24px; object-fit: contain; }
-    .topbar-search-icon { display: none; }
+    .topbar-right { display: flex; align-items: center; flex: 1 0 0; justify-content: flex-end; }
+    .nav-icon { width: var(--sys-space-fixed-600); height: var(--sys-space-fixed-600); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+    .nav-icon img { display: block; object-fit: contain; }
+    /* hamburger button as live: 33x22 (no DS3 size token) with the 18px glyph inset 3px */
+    .topbar-menu-icon { width: 33px; height: 22px; justify-content: flex-start; padding-left: 3px; box-sizing: border-box; }
+    .topbar-search-right { display: none; }
 
     /* ── PAGE ───────────────────────────────────────────────────────────── */
     .page-layout { padding: 36px var(--sys-page-margin) 48px; display: flex; flex-direction: column; gap: 28px; }
@@ -568,12 +566,16 @@
     .sys-type-headline-order4-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
 
     /* ── RESPONSIVE: TOPBAR ─────────────────────────────────────────────── */
+    /* Live: search sits left of the logo below 1024px and in the right group from 1024px; the desktop nav (logo + links left) starts at 1497px */
     @media (min-width: 1024px) {
-      .topbar { gap: 28px; }
+      .topbar-search-left { display: none; }
+      .topbar-search-right { display: flex; }
+    }
+    @media (min-width: 1497px) {
+      .topbar { gap: var(--sys-space-fixed-400); }
       .topbar-mobile-left { display: none; }
       .topbar-nav { display: flex; }
       .topbar-right { flex: initial; flex-shrink: 0; }
-      .topbar-search-icon { display: flex; }
     }
 
     /* ── RESPONSIVE: LAYOUT ─────────────────────────────────────────────── */
@@ -608,20 +610,25 @@
 
 <!-- ── TOPBAR ─────────────────────────────────────────────────────────── -->
 <nav class="topbar">
-  <!-- Mobile left: hamburger + Menu (hidden on desktop) -->
+  <!-- Left below 1497px: hamburger, then search below 1024px -->
   <div class="topbar-mobile-left">
-    <div class="nav-icon">
-      <img src="assets/icons/menu.svg" width="24" height="24" alt="">
+    <div class="nav-icon topbar-menu-icon">
+      <img src="assets/icons/menu.svg" width="18" height="9" alt="">
     </div>
-    <span class="topbar-menu-label">Menu</span>
+    <div class="nav-icon topbar-search-left">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+      <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="#DBDFE6"/>
+      </svg>
+    </div>
   </div>
 
-  <!-- Audi rings: centered on mobile, left on desktop -->
+  <!-- Audi rings: centered below 1497px, left from 1497px -->
   <div class="topbar-rings">
     <img src="assets/logo-audi.svg" width="69" height="24" alt="Audi">
   </div>
 
-  <!-- Nav links (desktop only) -->
+  <!-- Nav links (from 1497px) -->
   <div class="topbar-nav">
     <span class="topbar-nav-item">Models</span>
     <span class="topbar-nav-item">Find &amp; Buy</span>
@@ -630,23 +637,23 @@
     <span class="topbar-nav-item">Discover Audi</span>
   </div>
 
-  <!-- Right icons -->
+  <!-- Right icons (search from 1024px) -->
   <div class="topbar-right">
-    <div class="nav-icon topbar-search-icon">
+    <div class="nav-icon topbar-search-right">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
-        <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="#DBDFE6"/>
+      <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+      <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="#DBDFE6"/>
       </svg>
     </div>
     <div class="nav-icon">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M2.11091 4.61091C4.2588 2.46303 7.7412 2.46303 9.88909 4.61091L12 6.72183L14.1109 4.61091C16.2588 2.46303 19.7412 2.46303 21.8891 4.61091C24.037 6.7588 24.037 10.2412 21.8891 12.3891L12 22.2782L2.11091 12.3891C-0.036971 10.2412 -0.036971 6.7588 2.11091 4.61091Z" stroke="#DBDFE6" stroke-linecap="round"/>
+      <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.11091 4.61091C4.2588 2.46303 7.7412 2.46303 9.88909 4.61091L12 6.72183L14.1109 4.61091C16.2588 2.46303 19.7412 2.46303 21.8891 4.61091C24.037 6.7588 24.037 10.2412 21.8891 12.3891L12 22.2782L2.11091 12.3891C-0.036971 10.2412 -0.036971 6.7588 2.11091 4.61091Z" stroke="#DBDFE6" stroke-linecap="round"/>
       </svg>
     </div>
     <div class="nav-icon">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M17.5 13.5C18.1 13.5 18.5 13.9 18.5 14.5V21.5H5.5V14.5C5.5 13.9 5.9 13.5 6.5 13.5H17.5ZM13.5 3.5C14.6 3.5 15.5 4.4 15.5 5.5V8.5C15.5 9.6 14.6 10.5 13.5 10.5H10.5C9.4 10.5 8.5 9.6 8.5 8.5V5.5C8.5 4.4 9.4 3.5 10.5 3.5H13.5Z" stroke="#DBDFE6"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M17.5 13.5C18.1 13.5 18.5 13.9 18.5 14.5V21.5H5.5V14.5C5.5 13.9 5.9 13.5 6.5 13.5H17.5ZM13.5 3.5C14.6 3.5 15.5 4.4 15.5 5.5V8.5C15.5 9.6 14.6 10.5 13.5 10.5H10.5C9.4 10.5 8.5 9.6 8.5 8.5V5.5C8.5 4.4 9.4 3.5 10.5 3.5H13.5Z" stroke="#DBDFE6"/>
       </svg>
     </div>
   </div>
