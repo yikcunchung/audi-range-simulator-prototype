@@ -24,8 +24,9 @@
 
     /* ── RESET ──────────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    *:focus { outline: none; }
-    *:focus-visible { outline: none; }
+    /* DS3 focus: browser focus ring (outline: auto) in the DS3 focus colour, keyboard focus only */
+    :focus:not(:focus-visible) { outline: none; }
+    :focus-visible { outline: auto var(--sys-border-width-sm) var(--border-focus); }
 
     /* ── TOKENS ─────────────────────────────────────────────────────────── */
     :root {
@@ -34,15 +35,35 @@
       --surface-input:     rgba(24,29,37,0.6);
       --text-primary:      #fcfcfd;
       --text-muted:        rgba(252,252,253,0.7);
-      --surface-topbar:         #020203;
       --border-card:       rgba(252,252,253,0.2);
       --border-input:      rgba(219,223,230,0.6);
       --border-distr:      #4d5766;
       --slider-track:      rgba(252,252,253,0.2);
       --slider-progress:   #fcfcfd;
+      /* interaction surfaces / borders (DS3 Dark theme, measured on the live tool) */
+      --surface-topbar:         #020203;
+      --surface-shader:         rgba(2,2,3,0.7);
+      --surface-hover:          #2c343f;
+      --surface-selected:       #404a59;
+      --surface-selected-hover: #37404e;
+      --surface-action:           #657081;   /* primary button fill (Sem/Color/Action/Primary/Surface/Fill/Default) */
+      --surface-action-hover:     #758292;   /* primary button fill on hover */
+      --surface-raised:         #232a34;
+      --surface-input-hover:    rgba(44,52,63,0.6);
+      --surface-segment:        rgba(24,29,37,0.8);
+      --surface-option:         #1e2433;
+      --border-subtle:          rgba(219,223,230,0.2);
+      --border-input-focus:     #dbdfe6;
+      --border-focus:           #005fcc;
+      --surface-transparent:    rgba(154,163,177,0);   /* idle state of tinted surfaces (colour kept so it can transition) */
+      --border-subtle-0:        rgba(219,223,230,0);   /* idle state of the light border */
+      --border-layer:           #37404e;               /* info layer dialog border */
+      --border-sticky:          #dfe4e8;               /* top border of the mobile sticky result bar */
+      --gradient-layer:         linear-gradient(134deg, var(--surface-hover) 0%, var(--surface-raised) 100%);
       --radius-card:       20px;
       --radius-input:      10px;
       --radius-pill:       999px;
+      --radius-media:      4px;
       --max-content-width: 1920px;
       --page-width:        320px;
       --sys-page-margin:       16px;
@@ -89,6 +110,36 @@
       --font-headline:     'Audi Type Variable', sans-serif;
       --wdth-wide:         105;
       --wdth-extended:     130;
+      --wght-normal:       400;
+      --wght-bold:         700;
+      --fvs-copy-normal:     'wdth' var(--wdth-wide),     'wght' var(--wght-normal);
+      --fvs-copy-bold:       'wdth' var(--wdth-wide),     'wght' var(--wght-bold);
+      --fvs-headline-normal: 'wdth' var(--wdth-extended), 'wght' var(--wght-normal);
+      --fvs-headline-bold:   'wdth' var(--wdth-extended), 'wght' var(--wght-bold);
+      /* borders, motion, stacking, blur */
+      --sys-border-width-sm: 1px;
+      --sys-border-width-md: 2px;
+      --sys-motion-duration-fast:  0.2s;
+      --sys-motion-duration-base:  0.25s;
+      --sys-motion-duration-layer: 0.24s;
+      --sys-motion-duration-layer-slide: 0.42s;
+      --sys-motion-duration-faq-inner: 0.32s;   /* FAQ answer fade / padding / visibility (the grid rows run --sys-motion-duration-base) */
+      --sys-motion-easing-faq-inner: ease-in;
+      --sys-motion-duration-reel:  1s;
+      --sys-motion-easing-standard: cubic-bezier(0.75, 0.02, 0.5, 1);
+      --sys-z-sticky: 10;
+      --sys-z-layer:  1000;
+      --sys-z-layer-close: 100;   /* Close button wrapper inside the info layer dialog */
+      --sys-blur-surface: 60px;
+      --layer-text-gap: 15px;   /* paragraph -> link line inside the info layer (measured on the live layer; no DS3 spacing token has 15px) */
+      /* fixed type: copy (16/24, 14/24, 12/20) and label (16/20, 14/20, 12/16, 10/12) */
+      --sys-fs-copy-order1:  1rem;      --sys-lh-copy-order1:  1.5rem;
+      --sys-fs-copy-order2:  0.875rem;  --sys-lh-copy-order2:  1.5rem;
+      --sys-fs-copy-order3:  0.75rem;   --sys-lh-copy-order3:  1.25rem;
+      --sys-fs-label-order1: 1rem;      --sys-lh-label-order1: 1.25rem;
+      --sys-fs-label-order2: 0.875rem;  --sys-lh-label-order2: 1.25rem;
+      --sys-fs-label-order3: 0.75rem;   --sys-lh-label-order3: 1rem;
+      --sys-fs-label-order4: 0.625rem;  --sys-lh-label-order4: 0.75rem;
       --sys-fs-display-order1:  40px;  --sys-lh-display-order1:  60px;
       --sys-fs-display-order2:  36px;  --sys-lh-display-order2:  52px;
       --sys-fs-display-order3:  32px;  --sys-lh-display-order3:  48px;
@@ -96,15 +147,6 @@
       --sys-fs-headline-order2: 24px;  --sys-lh-headline-order2: 36px;
       --sys-fs-headline-order3: 20px;  --sys-lh-headline-order3: 32px;
       --sys-fs-headline-order4: 16px;  --sys-lh-headline-order4: 24px;
-      --sys-fs-copy-order2:  0.875rem;
-
-      /* colour tokens added for the colour clean-up (values identical to the old literals) */
-      --surface-segment:          rgba(24,29,37,0.8);
-      --surface-selected:         #404a59;
-      --surface-option:           #1e2433;
-      --surface-hover:            #2c343f;
-      --surface-action:           #657081;   /* primary button fill (Sem/Color/Action/Primary/Surface/Fill/Default) */
-      --surface-action-hover:     #758292;   /* primary button fill on hover */
     }
 
     /* ── CUSTOM MEDIA (CSS MQ Level 5 — postcss-custom-media compatible) ─── */
@@ -194,7 +236,7 @@
       min-height: 100%;
       background: var(--canvas);
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
+      font-variation-settings: var(--fvs-copy-normal);
       color: var(--text-primary);
     }
     body {
@@ -228,57 +270,79 @@
     .topbar-search-right { display: none; }
 
     /* ── PAGE ───────────────────────────────────────────────────────────── */
-    .page-layout { padding: 36px var(--sys-page-margin) 48px; display: flex; flex-direction: column; gap: 40px; }
+    .page-layout { padding: var(--sys-space-relative-2xl) var(--sys-page-margin) 41px; display: flex; flex-direction: column; gap: 0; }
 
     /* ── HEADER ─────────────────────────────────────────────────────────── */
-    .header { display: flex; align-items: flex-end; gap: 20px; max-width: 766px; }
-    .header-icon { flex-shrink: 0; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+    .header { display: flex; align-items: flex-end; gap: var(--sys-space-fixed-250); max-width: 766px; }
+    .header-icon { flex-shrink: 0; width: var(--sys-space-fixed-600); height: var(--sys-space-fixed-600); display: flex; align-items: center; justify-content: center; }
     .header h1 {
       font-family: var(--font-headline);
-      font-variation-settings: 'wdth' 130, 'wght' 400;
-      font-size: 24px; line-height: 36px; font-weight: 400;
+      font-variation-settings: var(--fvs-headline-normal);
+      font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); font-weight: var(--wght-normal);
       letter-spacing: 0; color: var(--text-primary);
     }
 
     /* ── LAYOUT ─────────────────────────────────────────────────────────── */
-    .section-group { display: flex; flex-direction: column; gap: 36px; align-items: flex-start; }
+    .section-group { display: flex; flex-direction: column; gap: var(--sys-space-relative-2xl); align-items: flex-start; }
 
     /* ── INPUT PANEL ────────────────────────────────────────────────────── */
     .section-input {
       flex: 1; min-width: 0; width: 100%;
       background: var(--canvas);
       border: none;
-      border-radius: 28px;
       padding: 0;
-      display: flex; flex-direction: column; gap: 28px;
+      display: flex; flex-direction: column; gap: var(--sys-space-relative-xl);
     }
 
     /* ── COMBO ───────────────────────────────────────────────────────────── */
-    .combo { display: flex; flex-direction: column; gap: 8px; }
-    .question { display: flex; align-items: center; gap: 4px; }
+    .combo { display: flex; flex-direction: column; gap: var(--sys-space-fixed-100); }
+    /* The info icon sits inline at the end of the label so it wraps together with the text */
+    .question { display: flex; align-items: center; min-height: var(--sys-space-fixed-450); }
     .question-text {
+      display: block;
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-size: 16px; line-height: 24px; letter-spacing: 0px;
-      font-stretch: 105%; font-weight: 600;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0;
+      font-stretch: calc(var(--wdth-wide) * 1%); font-weight: var(--wght-normal);
       color: var(--text-muted); text-decoration: none;
     }
+    .question-end { white-space: nowrap; }
 
-    .info-btn {
-      width: 36px; height: 36px;
+    /* Info button (36x36, round). Hover/pressed: DS3 hover surface + subtle border. Keyboard focus: DS3 focus ring. */
+    .info-btn, .layer-close {
+      width: var(--sys-space-fixed-450); height: var(--sys-space-fixed-450);
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; background: none; border: none; cursor: pointer; padding: 0;
+      flex-shrink: 0; padding: 0; cursor: pointer;
+      color: var(--text-primary);
+      background-color: var(--surface-transparent);
+      border: var(--sys-border-width-sm) solid var(--border-subtle-0);
+      border-radius: var(--radius-pill);
+      transition-property: color, box-shadow, border-color, background-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
     }
-    .info-btn svg { width: 16px; height: 16px; }
+    .info-btn:hover, .info-btn:active,
+    .layer-close:hover, .layer-close:active {
+      background-color: var(--surface-hover);
+      border-color: var(--border-subtle);
+    }
+    .question-end .info-btn {
+      display: inline-flex; vertical-align: middle;
+      /* 36px hit area, but only the 16px icon counts towards the line width (as in the design) */
+      height: var(--sys-space-fixed-450); margin-left: var(--sys-space-fixed-50); margin-right: calc(-1 * var(--sys-space-fixed-150));
+    }
+    /* 16x16 inline svg icons (<use> of the sprite at the top of <body>): same box as the live icons, drawn crisp at the button's pixel grid */
+    .icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .info-btn svg, .layer-close svg { display: block; width: var(--sys-space-fixed-200); height: var(--sys-space-fixed-200); }
 
     /* ── DISTRIBUTION SLIDER ────────────────────────────────────────────── */
-    .slider-distr { padding-top: 12px; }
+    .slider-distr { padding-top: 0; }
     .distr-outer { position: relative; }
     .distr-segments {
       display: flex;
-      border: 1px solid var(--border-distr);
+      border: var(--sys-border-width-sm) solid var(--border-distr);
       border-radius: var(--radius-input);
-      position: relative; height: 80px; overflow: visible;
+      position: relative; height: var(--sys-space-fixed-1000); overflow: visible;
     }
     .distr-seg {
       flex: 1; display: flex;
@@ -288,7 +352,7 @@
     .distr-seg:nth-child(2) {
       background: var(--surface-segment);
     }
-    .distr-seg svg { width: 24px; height: 24px; }
+    .distr-seg svg { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); }
     .distr-icon {
       position: absolute; top: 50%;
       transform: translate(-50%, -50%);
@@ -297,29 +361,38 @@
     }
     .distr-divider {
       position: absolute; top: 0; bottom: 0; width: 0;
-      border-left: 1px dashed var(--border-card);
+      border-left: var(--sys-border-width-sm) dashed var(--border-card);
       pointer-events: none; z-index: 1;
     }
     .distr-handle {
       position: absolute;
       transform: translateX(-50%);
-      cursor: ew-resize; z-index: 10; user-select: none;
+      z-index: 10; user-select: none;
     }
     .distr-handle-top    { top: 0; }
     .distr-handle-bottom { bottom: 0; }
-    .distr-handle-top .distr-thumb    { top: -14px; }
-    .distr-handle-bottom .distr-thumb { bottom: -14px; }
+    .distr-handle-top .distr-thumb    { top: calc(var(--distr-thumb-size) / -2); }
+    .distr-handle-bottom .distr-thumb { bottom: calc(var(--distr-thumb-size) / -2); }
+    /* The handle is a real slider (role=slider, tabindex=0). Focus-visible: DS3 fills it with the muted text colour. */
     .distr-thumb {
+      --distr-thumb-size: 28px;
       display: flex; position: absolute; z-index: 1;
-      left: -14px;
+      left: calc(var(--distr-thumb-size) / -2);
       box-sizing: border-box;
       align-items: center; justify-content: center;
-      width: 28px; height: 28px;
-      border: 1px solid var(--border-distr); border-radius: 100%;
+      width: var(--distr-thumb-size); height: var(--distr-thumb-size);
+      border: var(--sys-border-width-sm) solid var(--border-distr); border-radius: 100%;
       background-color: var(--canvas);
       color: var(--text-muted);
       cursor: grab;
       overflow: hidden;
+      touch-action: none;
+    }
+    body.is-dragging { user-select: none; -webkit-user-select: none; }
+    .distr-thumb:focus-visible {
+      outline: none;
+      background-color: var(--text-muted);
+      border-color: var(--text-muted);
     }
     .distr-thumb-arrows {
       display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -327,30 +400,33 @@
     }
     .distr-labels {
       display: flex; justify-content: space-between;
-      padding: 24px 0 0;
+      padding: var(--sys-space-fixed-300) 0 0;
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1);
       color: var(--text-primary);
     }
-    .distr-label-col { flex: 1; display: flex; flex-direction: column; gap: 4px; align-items: center; }
-    .distr-pct { font-size: 16px; line-height: 24px; font-variation-settings: 'wdth' 105, 'wght' 600; font-weight: 600; }
-    .distr-name { font-size: 16px; line-height: 24px; font-variation-settings: 'wdth' 105, 'wght' 600; font-weight: 600; color: var(--text-muted); }
+    .distr-label-col { flex: 1; display: flex; flex-direction: column; gap: var(--sys-space-fixed-50); align-items: center; }
+    .distr-pct { font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); font-variation-settings: var(--fvs-copy-normal); font-weight: var(--wght-normal); color: var(--text-muted); }
+    .distr-name { font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); font-variation-settings: var(--fvs-copy-normal); font-weight: var(--wght-normal); color: var(--text-muted); }
 
     /* ── RADIO GROUP ────────────────────────────────────────────────────── */
-    .radio-group { display: flex; gap: 24px; align-items: center; }
-    .radio-option { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-    .radio-control { width: 24px; height: 24px; flex-shrink: 0; position: relative; cursor: pointer; }
+    .radio-group { display: flex; gap: var(--sys-space-fixed-300); align-items: center; }
+    .radio-option { display: flex; align-items: flex-start; gap: var(--sys-space-fixed-150); cursor: pointer; }
+    .radio-control { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); flex-shrink: 0; position: relative; cursor: pointer; }
     .radio-control input[type="radio"] {
       position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 2; margin: 0;
     }
     /* visual circle — CSS-driven, no SVG mask issues */
     .radio-visual {
-      display: block; width: 24px; height: 24px;
+      display: block; width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300);
       border-radius: 50%;
       background: var(--surface-input);
-      border: 1px solid var(--border-input);
+      border: var(--sys-border-width-sm) solid var(--border-input);
       position: relative; flex-shrink: 0; pointer-events: none;
+      transition-property: border-color, color, background-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: ease;
     }
     .radio-control input[type="radio"]:checked ~ .radio-visual {
       background: var(--surface-selected);
@@ -359,56 +435,68 @@
       content: '';
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 12px; height: 12px;
+      width: var(--sys-space-fixed-150); height: var(--sys-space-fixed-150);
       border-radius: 50%;
       background: var(--text-muted);
     }
     .radio-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-weight: 600;
-      font-size: 16px; line-height: 20px;
-      color: var(--text-muted); padding-top: 2px;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1);
+      color: var(--text-muted); padding-top: var(--sys-space-fixed-25);
+      transition: color var(--sys-motion-duration-base) ease;
     }
+    /* hover (enabled): label text to 100%, checked circle to the DS3 selected-hover surface */
+    .radio-option:hover .radio-label { color: var(--text-primary); }
+    .radio-option:hover .radio-control input[type="radio"]:checked ~ .radio-visual { background: var(--surface-selected-hover); }
+    /* keyboard focus: DS3 focus ring on the hidden input and a solid 2px ring on the visual circle */
+    .radio-control input[type="radio"]:focus-visible { outline: auto var(--sys-border-width-sm) var(--border-focus); outline-offset: var(--sys-space-fixed-25); }
+    .radio-control input[type="radio"]:focus-visible ~ .radio-visual { outline: solid var(--sys-border-width-md) var(--border-focus); }
 
     /* ── SELECT ─────────────────────────────────────────────────────────── */
     .select-wrapper { position: relative; width: 100%; }
     .select-field {
-      width: 100%; min-height: 48px;
+      width: 100%; min-height: var(--sys-space-fixed-600);
       background: var(--surface-input);
-      border: 1px solid var(--border-input);
+      border: 0;
+      box-shadow: 0 0 0 var(--sys-border-width-sm) var(--border-input);
       border-radius: var(--radius-input);
-      padding: 12px 40px 12px 12px;
+      padding: var(--sys-space-fixed-150) var(--sys-space-fixed-600) var(--sys-space-fixed-150) var(--sys-space-fixed-150);
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-weight: 600;
-      font-size: 16px; line-height: 20px;
-      color: var(--text-muted);
-      appearance: none; -webkit-appearance: none; cursor: pointer;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1);
+      color: var(--text-primary);
+      appearance: none; -webkit-appearance: none; cursor: default;
+      transition-property: background, box-shadow;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
     }
-    .select-field:focus { outline: none; }
+    .select-field:hover { background: var(--surface-input-hover); }
+    .select-field:focus-visible { box-shadow: 0 0 0 var(--sys-border-width-sm) var(--border-input-focus); }
     .select-field option { background: var(--surface-option); color: var(--text-primary); }
     .select-field optgroup { background: var(--surface-option); color: var(--text-muted); font-style: normal; font-size: 13px; }
     .select-chevron {
-      position: absolute; right: 12px; top: 50%;
+      position: absolute; right: var(--sys-space-fixed-150); top: 50%;
       transform: translateY(-50%);
-      width: 24px; height: 24px; pointer-events: none;
+      width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); pointer-events: none;
       display: flex; align-items: center; justify-content: center;
     }
-    .select-chevron svg { width: 24px; height: 24px; }
+    .select-chevron svg { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); }
 
     /* ── TEMPERATURE SLIDER ─────────────────────────────────────────────── */
     .slider-temp { display: flex; flex-direction: column; width: 100%; }
-    .slider-value-row { position: relative; height: 32px; }
+    .slider-value-row { position: relative; height: var(--sys-space-fixed-400); }
     .slider-value-display {
-      position: absolute; bottom: 2px;
+      position: absolute; bottom: var(--sys-space-fixed-25);
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-weight: 600;
-      font-size: 16px; line-height: 20px;
-      color: var(--text-muted); white-space: nowrap; padding: 0 4px;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1);
+      color: var(--text-muted); white-space: nowrap; padding: 0 var(--sys-space-fixed-100);
     }
-    .slider-track-row { position: relative; height: 24px; display: flex; align-items: center; }
+    .slider-track-row { position: relative; height: var(--sys-space-fixed-300); display: flex; align-items: center; }
     .slider-track-bg {
       position: absolute; left: 0; right: 0;
       height: 6px; background: var(--slider-track);
@@ -419,41 +507,40 @@
       background: var(--slider-progress);
       border-radius: var(--radius-pill); pointer-events: none;
     }
+    /* native range input, 24px tall like the live control so the keyboard focus ring hugs the track row */
     input[type="range"].temp-slider {
       position: absolute; left: 0; right: 0; width: 100%;
-      height: 6px; background: transparent;
+      height: var(--sys-space-fixed-300); background: transparent;
       appearance: none; -webkit-appearance: none;
-      cursor: pointer; z-index: 2; margin: 0;
+      cursor: default; z-index: 2; margin: 0;
     }
     input[type="range"].temp-slider::-webkit-slider-thumb {
       appearance: none; -webkit-appearance: none;
-      width: 24px; height: 12px;
-      border-radius: 999px;
-      background: var(--slider-progress); border: 1px solid var(--surface-hover);
-      cursor: ew-resize;
+      width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-150);
+      border-radius: var(--radius-pill);
+      background: var(--slider-progress); border: var(--sys-border-width-sm) solid var(--surface-hover);
     }
     input[type="range"].temp-slider::-moz-range-thumb {
-      width: 24px; height: 12px;
-      border-radius: 999px;
-      background: var(--slider-progress); border: 1px solid var(--surface-hover);
-      cursor: ew-resize;
+      width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-150);
+      border-radius: var(--radius-pill);
+      background: var(--slider-progress); border: var(--sys-border-width-sm) solid var(--surface-hover);
     }
     .slider-range-row {
-      display: flex; justify-content: space-between; padding-top: 8px;
+      display: flex; justify-content: space-between; padding-top: var(--sys-space-fixed-100);
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-weight: 600;
-      font-size: 14px; line-height: 20px; color: var(--text-muted);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); color: var(--text-muted);
     }
 
     /* ── OUTPUT PANEL ───────────────────────────────────────────────────── */
-    .section-output { display: flex; flex-direction: column; gap: 28px; width: 100%; }
-    .section-model { display: flex; flex-direction: column; gap: 40px; }
-    .model-combo { display: flex; flex-direction: column; gap: 12px; }
+    .section-output { display: flex; flex-direction: column; gap: 28px; width: 100%; padding-inline: var(--sys-space-fixed-50); }
+    .section-model { display: flex; flex-direction: column; gap: var(--sys-space-fixed-600); }
+    .model-combo { display: flex; flex-direction: column; gap: var(--sys-space-fixed-150); }
     .model-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 16px; line-height: 24px; color: var(--text-primary);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
     }
     /* live layout: three columns (1fr, 4% gap, 1fr); Model is always the first column and Powertrain the third,
        so a lone Model select keeps its half width exactly like the live page */
@@ -463,54 +550,58 @@
     .select-group > div:last-child { grid-column: 3; }
     .select-sub-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 400;
-      font-size: 14px; line-height: 20px; color: var(--text-muted);
-      padding-bottom: 8px; display: block;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); color: var(--text-muted);
+      padding-bottom: var(--sys-space-fixed-100); display: block;
     }
 
     /* ── CAR + DISCLAIMER ───────────────────────────────────────────────── */
-    .car-wrapper { display: flex; flex-direction: column; gap: 4px; }
-    .car-img-box { aspect-ratio: 260/110; width: 100%; position: relative; overflow: hidden; border-radius: 4px; }
+    .car-wrapper { display: flex; flex-direction: column; gap: var(--sys-space-fixed-50); }
+    .car-img-box { aspect-ratio: 260/110; width: 100%; position: relative; overflow: hidden; border-radius: var(--radius-media); }
     .car-img-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .cons-data {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-size: 14px; line-height: 20px; letter-spacing: 0;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0;
       color: var(--text-muted);
     }
 
     /* ── RESULT CARD ────────────────────────────────────────────────────── */
-    .result-cta-group { display: flex; flex-direction: column; gap: 20px; }
     .section-result {
       background: var(--surface-card);
       border-radius: var(--radius-card);
-      padding: 24px;
-      display: flex; flex-direction: column; gap: 32px;
+      padding: var(--sys-space-fixed-300);
+      display: flex; flex-direction: column; gap: var(--sys-space-fixed-100);
     }
-    .result-headline { display: flex; align-items: center; gap: 4px; }
+    #label-group { display: flex; flex-direction: column; gap: 0; }
+    .result-headline { display: flex; align-items: center; gap: var(--sys-space-fixed-50); height: var(--sys-space-fixed-300); margin-top: 5px; margin-bottom: calc(-1 * var(--sys-space-fixed-25)); }
     .result-label {
       font-family: var(--font-copy);
-      font-variation-settings: 'wdth' 105, 'wght' 600;
-      font-size: 16px; line-height: 24px; letter-spacing: 0px;
-      font-stretch: 105%; font-weight: 600;
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0;
+      font-stretch: calc(var(--wdth-wide) * 1%); font-weight: var(--wght-normal);
       color: var(--text-muted); text-decoration: none;
     }
     .result-value {
       font-family: var(--font-headline);
-      font-variation-settings: 'wdth' 130, 'wght' 400;
+      font-variation-settings: var(--fvs-headline-normal);
       font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2);
       color: var(--text-primary); letter-spacing: 0;
-      display: flex; align-items: baseline;
+      display: flex; flex-wrap: wrap; align-items: baseline;
     }
     .slot-digit { display: inline-block; overflow: hidden; height: 1em; vertical-align: top; }
-    .slot-reel { display: flex; flex-direction: column; transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+    /* result digits are reels (0-9) that all slide at the same moment: transform 1s ease, no stagger (as on the live tool) */
+    .slot-reel { display: flex; flex-direction: column; transition: transform var(--sys-motion-duration-reel) ease; }
     .slot-reel span { display: block; height: 1em; line-height: 1; text-align: center; }
     .range-unit {
       font-family: var(--font-headline);
-      font-variation-settings: 'wdth' 130, 'wght' 400;
+      font-variation-settings: var(--fvs-headline-normal);
       font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2);
       color: var(--text-primary);
     }
+
+    /* ── RESULT + CTA GROUP ─────────────────────────────────────────────── */
+    .result-cta-group { display: flex; flex-direction: column; gap: 20px; }
 
     /* ── BUTTON ─────────────────────────────────────────────────────────── */
     .btn-group { display: flex; flex-direction: column; gap: 24px; align-items: center; width: 100%; }
@@ -556,41 +647,41 @@
 
     /* ── TYPOGRAPHY TOKENS ─────────────────────────────────────────────── */
     /* Fixed: Copy */
-    .sys-type-copy-order1-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 1rem;      line-height: 1.5rem;  letter-spacing: 0; }
-    .sys-type-copy-order1-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 1rem;      line-height: 1.5rem;  letter-spacing: 0; }
-    .sys-type-copy-order2-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.875rem;  line-height: 1.5rem;  letter-spacing: 0; }
-    .sys-type-copy-order2-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.875rem;  line-height: 1.5rem;  letter-spacing: 0; }
-    .sys-type-copy-order3-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.75rem;   line-height: 1.25rem; letter-spacing: 0; }
-    .sys-type-copy-order3-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.75rem;   line-height: 1.25rem; letter-spacing: 0; }
+    .sys-type-copy-order1-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; }
+    .sys-type-copy-order1-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; }
+    .sys-type-copy-order2-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; }
+    .sys-type-copy-order2-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; }
+    .sys-type-copy-order3-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; }
+    .sys-type-copy-order3-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; }
     /* Fixed: Label */
-    .sys-type-label-order1-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 1rem;     line-height: 1.25rem; letter-spacing: 0; }
-    .sys-type-label-order1-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 1rem;     line-height: 1.25rem; letter-spacing: 0; }
-    .sys-type-label-order2-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0; }
-    .sys-type-label-order2-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.875rem; line-height: 1.25rem; letter-spacing: 0; }
-    .sys-type-label-order3-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.75rem;  line-height: 1rem;    letter-spacing: 0; }
-    .sys-type-label-order3-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.75rem;  line-height: 1rem;    letter-spacing: 0; }
-    .sys-type-label-order4-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.625rem; line-height: 0.75rem; letter-spacing: 0; }
-    .sys-type-label-order4-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.625rem; line-height: 0.75rem; letter-spacing: 0; }
+    .sys-type-label-order1-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1); letter-spacing: 0; }
+    .sys-type-label-order1-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1); letter-spacing: 0; }
+    .sys-type-label-order2-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); letter-spacing: 0; }
+    .sys-type-label-order2-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); letter-spacing: 0; }
+    .sys-type-label-order3-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order3); line-height: var(--sys-lh-label-order3); letter-spacing: 0; }
+    .sys-type-label-order3-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order3); line-height: var(--sys-lh-label-order3); letter-spacing: 0; }
+    .sys-type-label-order4-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order4); line-height: var(--sys-lh-label-order4); letter-spacing: 0; }
+    .sys-type-label-order4-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order4); line-height: var(--sys-lh-label-order4); letter-spacing: 0; }
     /* Fixed: Link */
-    .sys-type-link-order1-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 1rem;     line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
-    .sys-type-link-order1-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 1rem;     line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
-    .sys-type-link-order2-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.875rem; line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
-    .sys-type-link-order2-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.875rem; line-height: 1.5rem;  letter-spacing: 0; text-decoration: underline; }
-    .sys-type-link-order3-normal { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 400; font-size: 0.75rem;  line-height: 1.25rem; letter-spacing: 0; text-decoration: underline; }
-    .sys-type-link-order3-bold   { font-family: var(--font-copy); font-variation-settings: 'wdth' 105, 'wght' 700; font-size: 0.75rem;  line-height: 1.25rem; letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order1-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order1-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order2-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order2-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order3-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order3-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; text-decoration: underline; }
     /* Responsive: Display */
-    .sys-type-display-order1-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1); letter-spacing: 0; }
-    .sys-type-display-order2-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); letter-spacing: 0; }
-    .sys-type-display-order3-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-display-order3); line-height: var(--sys-lh-display-order3); letter-spacing: 0; }
+    .sys-type-display-order1-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1); letter-spacing: 0; }
+    .sys-type-display-order2-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); letter-spacing: 0; }
+    .sys-type-display-order3-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-display-order3); line-height: var(--sys-lh-display-order3); letter-spacing: 0; }
     /* Responsive: Headline */
-    .sys-type-headline-order1-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
-    .sys-type-headline-order1-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
-    .sys-type-headline-order2-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
-    .sys-type-headline-order2-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
-    .sys-type-headline-order3-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
-    .sys-type-headline-order3-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
-    .sys-type-headline-order4-normal { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 400; font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
-    .sys-type-headline-order4-bold   { font-family: var(--font-headline); font-variation-settings: 'wdth' 130, 'wght' 700; font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
+    .sys-type-headline-order1-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
+    .sys-type-headline-order1-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
+    .sys-type-headline-order2-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
+    .sys-type-headline-order2-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
+    .sys-type-headline-order3-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
+    .sys-type-headline-order3-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
+    .sys-type-headline-order4-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
+    .sys-type-headline-order4-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
 
     /* ── RESPONSIVE: TOPBAR ─────────────────────────────────────────────── */
     /* Live: search sits left of the logo below 1024px and in the right group from 1024px; the desktop nav (logo + links left) starts at 1497px */
@@ -607,33 +698,221 @@
 
     /* ── RESPONSIVE: LAYOUT ─────────────────────────────────────────────── */
     @media (min-width: 1024px) {
-      .page-layout { padding-top: 40px; padding-bottom: 40px; }
-      .header h1 { font-size: 28px; line-height: 40px; }
-      .section-group { display: grid; grid-template-columns: 4fr 2.2fr; gap: var(--sys-space-relative-2xl); }
+      .section-group { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 2.2fr); gap: var(--sys-space-relative-2xl); }
       .section-input {
         width: auto;
-        border: 1px solid var(--border-card);
+        border: var(--sys-border-width-sm) solid var(--border-card);
         border-radius: var(--radius-card);
-        padding: 40px;
+        padding: var(--sys-space-fixed-500);
       }
       .section-output { width: auto; }
     }
     @media (min-width: 1440px) {
       .header { max-width: none; }
-      .header h1 { font-size: 32px; line-height: 44px; }
-      .section-input { padding: 56px; }
+      .section-input { padding: var(--sys-space-fixed-700); }
     }
     @media (min-width: 1920px) {
-      .page-layout { padding-top: 72px; padding-bottom: 72px; }
-      .header h1 { font-size: 36px; line-height: 52px; }
-      .section-group { display: grid; grid-template-columns: 4fr 2.2fr; gap: var(--sys-space-relative-2xl); }
-      .section-input { flex: none; width: auto; padding: 72px; }
+      .section-group { gap: var(--sys-space-fixed-700); }
+      .section-input { flex: none; width: auto; padding: var(--sys-space-fixed-700); gap: var(--sys-space-fixed-400); }
       .section-output { width: auto; }
     }
 
+
+    /* ── LIVE ALIGNMENT: header gap, extra live elements, footnote, FAQ, sticky bar ────────────────── */
+    /* Residual px values below (51, 49, 47, 73, 30, 34, ...) are measured offsets of the live page; no DS3 spacing token has these values. */
+    @media (min-width: 1024px) and (max-width: 1439px) { .section-group { grid-template-columns: minmax(0, 4fr) minmax(0, 2.526fr); } }
+    .header { margin-bottom: var(--sys-space-fixed-500); }
+    @media (min-width: 768px)  { .header { margin-bottom: 51px; } }
+    @media (min-width: 1024px) { .header { margin-bottom: 49px; } }
+    @media (min-width: 1440px) { .header { margin-bottom: 47px; } }
+    @media (min-width: 1920px) { .header { margin-bottom: 73px; } }
+    .combo--select { padding-bottom: var(--sys-space-fixed-100); }
+    .model-combo .question { min-height: var(--sys-space-fixed-300); }
+    /* Text button (Show all values): button is 100% white and underlined, its label is 70%; hover/pressed fade the underline to 70% */
+    .cons-link {
+      display: block; align-self: flex-start; background: none; border: 0; padding: 0; text-align: left; cursor: pointer;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); color: var(--text-primary);
+      text-decoration: underline; text-underline-offset: var(--sys-space-fixed-50);
+      transition-property: color, text-decoration-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
+    }
+    .cons-link > span { display: block; color: var(--text-muted); }
+    .cons-link:hover, .cons-link:active { color: var(--text-muted); }
+    .fn-ref { font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); vertical-align: top; margin-left: var(--sys-space-fixed-25); }
+    .section-input { position: relative; }
+    #input-end { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; pointer-events: none; }
+
+    /* footnote */
+    .footnote {
+      display: flex; gap: 19px; padding-inline: var(--sys-space-fixed-200); margin-top: 30px;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); color: var(--text-muted);
+    }
+    .footnote-mark { flex: 0 0 var(--sys-space-fixed-100); }
+    .footnote-text { margin: 0; }
+    @media (min-width: 375px)  { .footnote { padding-inline: 19px; } }
+    @media (min-width: 768px)  { .footnote { padding-inline: 35px; } }
+    @media (min-width: 1024px) { .footnote { padding-inline: 3px; } }
+    @media (min-width: 1440px) { .footnote { margin-top: 34px; } }
+
+    /* FAQ accordion */
+    .faq { display: flex; flex-direction: column; }
+    /* heading: text is always left-aligned inside a box that shrinks to fit and is centred (as on the live pages) */
+    .faq-heading {
+      width: fit-content; max-width: 100%; margin: 31px auto 0; text-align: left;
+      font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); color: var(--text-primary);
+    }
+    @media (min-width: 1024px) { .faq-heading { margin-top: 39px; } }
+    @media (min-width: 1920px) { .faq-heading { margin-top: 83px; } }
+    .faq-list { width: min(62.5vw, 1200px); align-self: center; margin-top: 13px; border-bottom: var(--sys-border-width-sm) solid var(--border-card); }
+    @media (min-width: 375px)  { .faq-list { margin-top: 15px; } }
+    @media (min-width: 768px)  { .faq-list { margin-top: var(--sys-space-fixed-400); } }
+    @media (min-width: 1024px) { .faq-list { margin-top: 42px; } }
+    @media (min-width: 1440px) { .faq-list { margin-top: 60px; } }
+    @media (min-width: 1920px) { .faq-list { margin-top: var(--sys-space-fixed-1000); } }
+    .faq-item { border-top: var(--sys-border-width-sm) solid var(--border-card); }
+    /* Row states (DS3): hover/pressed = hover surface + 70% text; focused (after click or keyboard) = selected surface + 70% text, focus wins over hover */
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between; gap: var(--sys-space-fixed-100);
+      width: 100%; padding: var(--sys-space-fixed-200); background-color: transparent; border: 0; text-align: left; cursor: pointer;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1); color: var(--text-primary);
+      transition: color var(--sys-motion-duration-base) ease, background-color var(--sys-motion-duration-base) ease;
+    }
+    .faq-q:hover, .faq-q:active { background-color: var(--surface-hover); color: var(--text-muted); }
+    .faq-q:focus:not(:active) { background-color: var(--surface-selected); color: var(--text-muted); }
+    .faq-q svg { flex: 0 0 var(--sys-space-fixed-300); width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); transition: transform var(--sys-motion-duration-fast) ease-in; }
+    .faq-q[aria-expanded="true"] svg { transform: rotate(180deg); }
+    /* Answer panel (as on the live page): the grid rows run 0fr -> 1fr over 0.25s, the inner (grid item, overflow hidden) fades in,
+       pads from 0 16px to 16px and turns visible over 0.32s ease-in, in both directions. Only one item is open at a time. */
+    .faq-panel { display: grid; grid-template-rows: 0fr; transition: all var(--sys-motion-duration-base) ease; }
+    .faq-panel.is-open { grid-template-rows: 1fr; }
+    .faq-panel-inner {
+      overflow: hidden; padding: 0 var(--sys-space-fixed-200); opacity: 0; visibility: hidden;
+      transition-property: transform, opacity, padding, visibility;
+      transition-duration: var(--sys-motion-duration-faq-inner);
+      transition-timing-function: var(--sys-motion-easing-faq-inner);
+    }
+    .faq-panel.is-open .faq-panel-inner { padding: var(--sys-space-fixed-200); opacity: 1; visibility: visible; }
+    .faq-panel-inner p {
+      margin: 0; font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
+    }
+
+    /* page bottom spacing (end of FAQ list to end of page, from the live page) */
+    @media (min-width: 375px)  { .page-layout { padding-bottom: 44px; } }
+    @media (min-width: 768px)  { .page-layout { padding-bottom: 60px; } }
+    @media (min-width: 1024px) { .page-layout { padding-bottom: 71px; } }
+    @media (min-width: 1440px) { .page-layout { padding-bottom: 92px; } }
+    @media (min-width: 1920px) { .page-layout { padding-bottom: 111px; } }
+
+    /* Sticky result bar (below 1024px only), as on the live page: fixed to the bottom, 64px wider than the viewport on the right,
+       10% tinted blurred surface with an opaque 1px top border; slides away (transform 0.2s) while the end of the input card is in view. */
+    .result-bar { display: none; }
+    @media (max-width: 1023px) {
+      .result-bar {
+        display: block; position: fixed; left: 0; right: calc(var(--sys-space-fixed-800) * -1); bottom: 0; z-index: var(--sys-z-sticky);
+        padding: var(--sys-space-fixed-200) var(--sys-space-fixed-400);
+        background-color: var(--surface-card);
+        border-top: var(--sys-border-width-sm) solid var(--border-sticky);
+        -webkit-backdrop-filter: blur(var(--sys-blur-surface)); backdrop-filter: blur(var(--sys-blur-surface));
+        transform: translateY(0);
+        transition: transform var(--sys-motion-duration-fast);
+      }
+      .result-bar.is-hidden { transform: translateY(100%); }
+    }
+    .result-bar-label {
+      display: block;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
+    }
+    .result-bar-value {
+      display: block;
+      font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal);
+      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); color: var(--text-primary);
+    }
+
+    /* ── INFO LAYER (modal) ─────────────────────────────────────────────── */
+    /* Same structure and motion as the live one-layer. Two fixed siblings (shader, then outer, both z-index 1000);
+       outer > width wrapper > open-animation wrapper > native <dialog open> > scroll container > content, plus the Close button.
+       Below 768px: bottom sheet that slides up (no fade). From 768px: centred dialog that rises 40px and fades in.
+       The layer is shown/hidden as a whole (#info-layer[hidden]): closing removes it at once, there is no exit animation. */
+    #info-layer { display: contents; }
+    #info-layer[hidden] { display: none; }
+    .layer-shader {
+      position: fixed; inset: 0; z-index: var(--sys-z-layer);
+      background-color: var(--surface-shader);
+      animation: layer-fade-in var(--sys-motion-duration-layer) var(--sys-motion-easing-standard);
+    }
+    .layer-outer {
+      position: fixed; inset: 0; z-index: var(--sys-z-layer);
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    }
+    .layer-width { width: min(100%, var(--sys-breakpoint-lg)); max-height: 100%; }
+    .layer-open {
+      display: flex; justify-content: center; max-height: 100%;
+      animation: layer-sheet-in var(--sys-motion-duration-layer-slide) var(--sys-motion-easing-standard) forwards;
+    }
+    .layer-dialog {
+      display: flex; flex-direction: column; justify-content: center; position: relative; inset: 0;
+      width: 100%; max-height: 100%; margin: 0; padding: 0; overflow: visible;
+      border: var(--sys-border-width-sm) solid var(--border-layer);
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
+      background: var(--gradient-layer);
+    }
+    .layer-scroll { max-height: 100vh; overflow: auto; }
+    .layer-content { padding: var(--sys-space-relative-xl); }
+    .layer-copy { padding-bottom: var(--sys-space-fixed-600); }   /* bottom sheet: extra space below the copy (as on the live layer) */
+    .layer-text {
+      margin: 0; font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
+    }
+    .layer-link {
+      display: block; width: fit-content; margin-top: var(--layer-text-gap);
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2);
+      color: var(--text-primary); text-decoration: underline; cursor: pointer;
+      transition-property: color, text-decoration-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
+    }
+    .layer-link:hover, .layer-link:active { color: var(--text-muted); }
+    .layer-link[hidden] { display: none; }
+    .layer-close-wrap {
+      position: absolute; top: var(--sys-space-fixed-100); right: var(--sys-space-fixed-100); z-index: var(--sys-z-layer-close);
+      display: flex; justify-content: flex-end;
+    }
+    @keyframes layer-fade-in  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes layer-slide-in { from { transform: translateY(var(--sys-space-fixed-500)); } to { transform: translateY(0); } }
+    @keyframes layer-sheet-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @media (min-width: 768px) {
+      .layer-outer { justify-content: center; }
+      .layer-open {
+        animation: layer-slide-in var(--sys-motion-duration-layer-slide) var(--sys-motion-easing-standard) forwards,
+                   layer-fade-in var(--sys-motion-duration-layer) var(--sys-motion-easing-standard) forwards;
+      }
+      .layer-content { padding: var(--sys-space-fixed-600); }
+      .layer-copy { padding-bottom: 0; }
+    }
+    @media (min-width: 1024px) {
+      .layer-dialog { border-radius: var(--radius-card); }
+      .layer-content { padding: var(--sys-space-fixed-700); }
+    }
+    @media (min-width: 1440px) {
+      .layer-content { padding: var(--sys-space-fixed-800); }
+    }
   </style>
 </head>
 <body>
+
+<!-- Icon sprite: 16x16 stroke icons (info-circle-xs, close-xs) referenced with <use>; colour follows currentColor -->
+<svg class="icon-sprite" aria-hidden="true" focusable="false">
+  <symbol id="icon-info-circle-xs" viewBox="0 0 16 16"><path d="M8 12.5V7M8 5.5V3.5M8 .5a7.5 7.5 0 1 1 0 15a7.5 7.5 0 1 1 0-15Z" stroke="currentColor"/></symbol>
+  <symbol id="icon-close-xs" viewBox="0 0 16 16"><path d="M3 3L13.3 13.3M13.25 3L3.25 13" stroke="currentColor"/></symbol>
+</svg>
 
 <!-- ── TOPBAR ─────────────────────────────────────────────────────────── -->
 <nav class="topbar">
@@ -644,7 +923,7 @@
     </div>
     <div class="nav-icon topbar-search-left">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+      <rect width="24" height="24" fill="currentColor" fill-opacity="0.01"/>
       <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="currentColor"/>
       </svg>
     </div>
@@ -668,13 +947,13 @@
   <div class="topbar-right">
     <div class="nav-icon topbar-search-right">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+      <rect width="24" height="24" fill="currentColor" fill-opacity="0.01"/>
       <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="currentColor"/>
       </svg>
     </div>
     <div class="nav-icon">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+      <rect width="24" height="24" fill="currentColor" fill-opacity="0.01"/>
       <path fill-rule="evenodd" clip-rule="evenodd" d="M2.11091 4.61091C4.2588 2.46303 7.7412 2.46303 9.88909 4.61091L12 6.72183L14.1109 4.61091C16.2588 2.46303 19.7412 2.46303 21.8891 4.61091C24.037 6.7588 24.037 10.2412 21.8891 12.3891L12 22.2782L2.11091 12.3891C-0.036971 10.2412 -0.036971 6.7588 2.11091 4.61091Z" stroke="currentColor" stroke-linecap="round"/>
       </svg>
     </div>
@@ -709,17 +988,16 @@
       <!-- Q1: Driving distribution -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">Where do you travel and how often?</span>
-          <button class="info-btn" aria-label="More info">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+          <span class="question-text"><span id="q-distr-lead">Where do you travel and how </span><span class="question-end"><span id="q-distr-tail">often?</span><button type="button" class="info-btn" aria-label="More information about your driving profile" data-layer="profile">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
         </div>
 
         <div class="slider-distr">
           <div class="distr-outer">
             <div class="distr-segments" id="distrSegments">
-              <div class="distr-divider" id="distr-divider-1" style="left:33.33%"></div>
-              <div class="distr-divider" id="distr-divider-2" style="left:66.67%"></div>
+              <div class="distr-divider" id="distr-divider-1" style="left:34%"></div>
+              <div class="distr-divider" id="distr-divider-2" style="left:65%"></div>
               <!-- City -->
               <div class="distr-seg" id="seg-city"></div>
               <!-- Country road -->
@@ -737,8 +1015,8 @@
                 <img src="assets/icons/motorway.svg" width="23" height="22" alt="">
               </div>
               <!-- Handle 1 -->
-              <div class="distr-handle distr-handle-top" id="handle1" style="left:33.33%">
-                <div class="distr-thumb">
+              <div class="distr-handle distr-handle-top" id="handle1" style="left:34%">
+                <div class="distr-thumb" role="slider" tabindex="0" aria-labelledby="q-distr-lead q-distr-tail" aria-describedby="distr-values" aria-valuemin="0" aria-valuemax="100" aria-valuenow="34" aria-valuetext="">
                   <div class="distr-thumb-arrows">
                     <img src="assets/icons/arrow-left.svg" width="7" height="13" alt="">
                     <img src="assets/icons/arrow-right.svg" width="7" height="13" alt="" style="transform:scaleX(-1)">
@@ -746,8 +1024,8 @@
                 </div>
               </div>
               <!-- Handle 2 -->
-              <div class="distr-handle distr-handle-bottom" id="handle2" style="left:66.67%">
-                <div class="distr-thumb">
+              <div class="distr-handle distr-handle-bottom" id="handle2" style="left:65%">
+                <div class="distr-thumb" role="slider" tabindex="0" aria-labelledby="q-distr-lead q-distr-tail" aria-describedby="distr-values" aria-valuemin="0" aria-valuemax="100" aria-valuenow="65" aria-valuetext="">
                   <div class="distr-thumb-arrows">
                     <img src="assets/icons/arrow-left.svg" width="7" height="13" alt="">
                     <img src="assets/icons/arrow-right.svg" width="7" height="13" alt="" style="transform:scaleX(-1)">
@@ -756,7 +1034,7 @@
               </div>
             </div>
           </div>
-          <div class="distr-labels">
+          <div class="distr-labels" id="distr-values">
             <div class="distr-label-col">
               <span class="distr-pct" id="pct-city">33%</span>
               <span class="distr-name">City</span>
@@ -776,10 +1054,9 @@
       <!-- Q2: Speed on motorway -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">Do you often drive faster than 120 km/h on the motorway?</span>
-          <button class="info-btn" aria-label="More info">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+          <span class="question-text">Do you often drive faster than 120 km/h on the <span class="question-end">motorway?<button type="button" class="info-btn" aria-label="More information about driving faster on the motorway" data-layer="speed">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
         </div>
         <div class="radio-group">
           <label class="radio-option">
@@ -800,20 +1077,19 @@
       </div>
 
       <!-- Q3: Tyre size -->
-      <div class="combo">
+      <div class="combo combo--select">
         <div class="question">
-          <span class="question-text">What size tyres does your vehicle have?</span>
-          <button class="info-btn" aria-label="More info">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+          <span class="question-text">What size tyres does your vehicle <span class="question-end">have?<button type="button" class="info-btn" aria-label="More information about tyre selection" data-layer="tyres">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
         </div>
         <div class="select-wrapper">
           <select class="select-field" id="sel-tyres">
-            <option value="18">18"</option>
-            <option value="19">19"</option>
-            <option value="20" selected>20"</option>
-            <option value="21">21"</option>
-            <option value="22">22"</option>
+            <option value="18">18”</option>
+            <option value="19">19”</option>
+            <option value="20" selected>20”</option>
+            <option value="21">21”</option>
+            <option value="22">22”</option>
           </select>
           <div class="select-chevron">
             <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
@@ -824,10 +1100,9 @@
       <!-- Q4: Temperature -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">What is the outside temperature?</span>
-          <button class="info-btn" aria-label="More info">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+          <span class="question-text">What is the outside <span class="question-end">temperature?<button type="button" class="info-btn" aria-label="More information about the outside temperature" data-layer="temp">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
         </div>
         <div class="slider-temp">
           <div class="slider-value-row">
@@ -848,10 +1123,9 @@
       <!-- Q5: Heating / A/C -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">Is the heating or air conditioning on?</span>
-          <button class="info-btn" aria-label="More info">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+          <span class="question-text">Is the heating or air conditioning <span class="question-end">on?<button type="button" class="info-btn" aria-label="More information about heating or air conditioning" data-layer="hvac">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
         </div>
         <div class="radio-group">
           <label class="radio-option">
@@ -874,28 +1148,29 @@
       <!-- Q6: Vehicle load -->
       <div class="combo">
         <div class="question">
-          <span class="question-text">How is the vehicle loaded?</span>
-          <button class="info-btn" aria-label="More info">
-              <img src="assets/icons/info.svg" width="16" height="16" alt="">
-            </button>
+          <span class="question-text">How is the vehicle <span class="question-end">loaded?<button type="button" class="info-btn" aria-label="More information about the vehicle load" data-layer="load">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
         </div>
         <div class="radio-group">
           <label class="radio-option">
             <div class="radio-control">
-              <input type="radio" name="load" value="normal" checked>
+              <input type="radio" name="load" value="normal">
               <span class="radio-visual"></span>
             </div>
             <span class="radio-label">Normal</span>
           </label>
           <label class="radio-option">
             <div class="radio-control">
-              <input type="radio" name="load" value="full">
+              <input type="radio" name="load" value="full" checked>
               <span class="radio-visual"></span>
             </div>
             <span class="radio-label">Full</span>
           </label>
         </div>
       </div>
+
+      <div id="input-end" aria-hidden="true"></div>
 
     </div><!-- /section-input -->
 
@@ -945,7 +1220,8 @@
           <div class="car-img-box">
             <img id="car-img" src="assets/media/a6-etron/a6-sportback.png" alt="Audi A6 Sportback e-tron">
           </div>
-          <p class="cons-data">Power consumption (combined): 15.4 – 13.4 kWh/100 km²; CO₂ emissions (combined): 0 g/km²</p>
+          <p class="cons-data">Power consumption (combined): 15.4 - 13.4 kWh/100 km²; CO₂ emissions (combined): 0 g/km²</p>
+          <button type="button" class="cons-link"><span>Show all values</span></button>
         </div>
       </div>
 
@@ -954,9 +1230,9 @@
         <div class="section-result">
           <div id="label-group">
             <div class="result-headline">
-              <span class="result-label">Estimated Range</span>
-              <button class="info-btn" aria-label="More info">
-                <img src="assets/icons/info.svg" width="16" height="16" alt="">
+              <span class="result-label">Estimated Range<sup class="fn-ref">1</sup></span>
+              <button type="button" class="info-btn" aria-label="More information about the range indication" data-layer="result">
+                <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
               </button>
             </div>
             <p class="result-value" id="result-value"></p>
@@ -985,7 +1261,115 @@
 
     </div><!-- /section-output -->
   </div><!-- /section-group -->
+
+  <!-- ── FOOTNOTE ────────────────────────────────────────────────────── -->
+  <div class="footnote">
+    <span class="footnote-mark">1</span>
+    <p class="footnote-text">Range indication based on WLTP and the influence of various factors. These can include individual driving style, the selected Audi drive select mode, electrical consumers switched on, vehicle configuration and load, and climatic conditions (weather). The actual range may vary.</p>
+  </div>
+
+  <!-- ── FAQ ─────────────────────────────────────────────────────────── -->
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 class="faq-heading" id="faq-heading" tabindex="-1">Find explanations and tricks here to get the most out of your range</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-1" aria-expanded="false" aria-controls="faq-a-1">
+          <span>What influence does the driving speed have on the range of my e-vehicle?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-1" role="region" aria-labelledby="faq-q-1" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-2" aria-expanded="false" aria-controls="faq-a-2">
+          <span>What influence do temperature fluctuations in the vehicle interior have on the range?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-2" role="region" aria-labelledby="faq-q-2" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-3" aria-expanded="false" aria-controls="faq-a-3">
+          <span>How should I best use the interior heating so that my electric vehicle does not lose too much range?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-3" role="region" aria-labelledby="faq-q-3" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-4" aria-expanded="false" aria-controls="faq-a-4">
+          <span>What influence does my individual driving style have on the range of my e-vehicle?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-4" role="region" aria-labelledby="faq-q-4" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-5" aria-expanded="false" aria-controls="faq-a-5">
+          <span>How can I use braking processes while driving positively for my range?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-5" role="region" aria-labelledby="faq-q-5" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-6" aria-expanded="false" aria-controls="faq-a-6">
+          <span>What influence does the interior air conditioning have on the range of my e-vehicle?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-6" role="region" aria-labelledby="faq-q-6" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-7" aria-expanded="false" aria-controls="faq-a-7">
+          <span>What influence does the interior heating have on the range of my electric vehicle?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-7" role="region" aria-labelledby="faq-q-7" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div><!-- /page-layout -->
+
+<!-- Info layer (modal): shared by all info buttons; shown while open (shader and outer are fixed siblings, like the live one-layer) -->
+<div id="info-layer" hidden>
+  <div class="layer-shader"></div>
+  <div class="layer-outer">
+    <div class="layer-width">
+      <div class="layer-open">
+        <dialog class="layer-dialog" open role="dialog" aria-modal="true" aria-label="Opened layer" tabindex="-1">
+          <div class="layer-scroll" data-scroll-context>
+            <div class="layer-content">
+              <div class="layer-copy">
+                <p class="layer-text" id="layer-text"></p>
+                <a class="layer-link" id="layer-link" href="#faq-heading">For more information, see the FAQ below.</a>
+              </div>
+            </div>
+          </div>
+          <div class="layer-close-wrap">
+            <button type="button" class="layer-close" id="layer-close" aria-label="Close layer">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-close-xs"/></svg>
+            </button>
+          </div>
+        </dialog>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sticky result bar (below 1024px) -->
+<div class="result-bar is-hidden" id="result-bar" aria-hidden="true">
+  <span class="result-bar-label">Estimated Range</span>
+  <span class="result-bar-value" id="result-bar-value"></span>
+</div>
 
 <script>
   /* ── MODEL CONFIG ── */
@@ -1074,8 +1458,8 @@
     'q4-sportback': { '40etron': 270, '45etron': 347, '55quattro': 355 },
   };
 
-  let cityPct = 33.33;
-  let countryPct = 33.33;
+  let cityPct = 34;
+  let countryPct = 31;
   function mwPct() { return Math.max(0, 100 - cityPct - countryPct); }
 
   function updateConsumption() {
@@ -1089,8 +1473,10 @@
       if (ptCfg) consumption = ptCfg.consumption ?? null;
     }
     const el = document.querySelector('.cons-data');
+    // Design format: dot decimals, hyphen range and a footnote marker after the units
+    const fmt = c => c.replace(/,/g, '.').replace(' – ', ' - ');
     if (el) el.textContent = consumption
-      ? `Power consumption (combined): ${consumption}; CO₂ emissions (combined): 0 g/km`
+      ? `Power consumption (combined): ${fmt(consumption)}²; CO₂ emissions (combined): 0 g/km²`
       : '';
   }
 
@@ -1130,7 +1516,7 @@
     // Tyre options
     const tyreSel = document.getElementById('sel-tyres');
     tyreSel.innerHTML = cfg.tyres
-      .map(t => `<option value="${t}"${t === cfg.defaultTyre ? ' selected' : ''}>${t}"</option>`).join('');
+      .map(t => `<option value="${t}"${t === cfg.defaultTyre ? ' selected' : ''}>${t}”</option>`).join('');
 
     // Car image
     const img = document.getElementById('car-img');
@@ -1230,14 +1616,15 @@
     container.querySelectorAll('.slot-digit').forEach((col, i) => {
       const d = parseInt(digits[i]);
       const reel = col.querySelector('.slot-reel');
-      const delay = (digits.length - 1 - i) * 60;
-      reel.style.transitionDelay = delay + 'ms';
       reel.style.transform = `translateY(-${d}em)`;
     });
   }
 
   function updateResult() {
-    buildSlots(document.getElementById('result-value'), calcRange());
+    const value = calcRange();
+    buildSlots(document.getElementById('result-value'), value);
+    const bar = document.getElementById('result-bar-value');
+    if (bar) bar.textContent = value + ' miles';
   }
 
   /* ── DISTRIBUTION SLIDER ── */
@@ -1256,6 +1643,11 @@
     return pct < 4 ? 0 : Math.min(1, (pct - 4) / 4);
   }
 
+  const thumb1El = handle1El.querySelector('.distr-thumb');
+  const thumb2El = handle2El.querySelector('.distr-thumb');
+
+  /* Whole-percent model (as on the live tool): h1 = city, h2 = city + country road, the rest is motorway.
+     Left handle runs from 0 to the right handle's value, right handle from the left handle's value to 100. */
   function setHandles(h1, h2) {
     handle1El.style.left = h1 + '%';
     handle2El.style.left = h2 + '%';
@@ -1263,9 +1655,19 @@
     document.getElementById('distr-divider-2').style.left = h2 + '%';
     cityPct    = h1;
     countryPct = h2 - h1;
-    document.getElementById('pct-city').textContent     = Math.round(cityPct) + '%';
-    document.getElementById('pct-country').textContent  = Math.round(countryPct) + '%';
-    document.getElementById('pct-motorway').textContent = Math.round(mwPct()) + '%';
+    document.getElementById('pct-city').textContent     = cityPct + '%';
+    document.getElementById('pct-country').textContent  = countryPct + '%';
+    document.getElementById('pct-motorway').textContent = mwPct() + '%';
+
+    /* slider semantics */
+    thumb1El.setAttribute('aria-valuemin', '0');
+    thumb1El.setAttribute('aria-valuemax', String(h2));
+    thumb1El.setAttribute('aria-valuenow', String(h1));
+    thumb1El.setAttribute('aria-valuetext', `${cityPct}% City ${countryPct}% Country road`);
+    thumb2El.setAttribute('aria-valuemin', String(h1));
+    thumb2El.setAttribute('aria-valuemax', '100');
+    thumb2El.setAttribute('aria-valuenow', String(h2));
+    thumb2El.setAttribute('aria-valuetext', `${countryPct}% Country road ${mwPct()}% Motorway`);
 
     /* resize segment widths */
     document.getElementById('seg-city').style.flex     = cityPct + ' 0 0%';
@@ -1288,38 +1690,58 @@
 
   let dragging = null, dragStartX = 0, dragStartPct = 0;
 
+  /* mouse: the browser focuses the handle itself (pointer focus, so no focus-visible fill); touch: no emulated mouse events */
   function dragStart(e, which) {
     dragging = which;
     dragStartX   = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
     dragStartPct = which === 1 ? cityPct : cityPct + countryPct;
-    e.preventDefault();
+    document.body.classList.add('is-dragging');
+    if (e.type === 'touchstart') e.preventDefault();
   }
 
-  document.addEventListener('mousemove', e => {
-    if (!dragging) return;
+  function dragMove(clientX) {
     const rect  = segments.getBoundingClientRect();
-    const dxPct = ((e.clientX - dragStartX) / rect.width) * 100;
-    const newP  = clamp(dragStartPct + dxPct, 0, 100);
+    const dxPct = ((clientX - dragStartX) / rect.width) * 100;
+    const newP  = Math.round(clamp(dragStartPct + dxPct, 0, 100));
     const h2    = cityPct + countryPct;
     if (dragging === 1) setHandles(clamp(newP, 0, h2), h2);
     else                setHandles(cityPct, clamp(newP, cityPct, 100));
-  });
+  }
+
+  document.addEventListener('mousemove', e => { if (dragging) dragMove(e.clientX); });
   document.addEventListener('touchmove', e => {
     if (!dragging) return;
-    const rect  = segments.getBoundingClientRect();
-    const dxPct = ((e.touches[0].clientX - dragStartX) / rect.width) * 100;
-    const newP  = clamp(dragStartPct + dxPct, 0, 100);
-    const h2    = cityPct + countryPct;
-    if (dragging === 1) setHandles(clamp(newP, 0, h2), h2);
-    else                setHandles(cityPct, clamp(newP, cityPct, 100));
+    dragMove(e.touches[0].clientX);
   }, { passive: false });
-  document.addEventListener('mouseup',  () => { dragging = null; });
-  document.addEventListener('touchend', () => { dragging = null; });
+  const dragEnd = () => { dragging = null; document.body.classList.remove('is-dragging'); };
+  document.addEventListener('mouseup',  dragEnd);
+  document.addEventListener('touchend', dragEnd);
 
   handle1El.addEventListener('mousedown',  e => dragStart(e, 1));
   handle2El.addEventListener('mousedown',  e => dragStart(e, 2));
   handle1El.addEventListener('touchstart', e => dragStart(e, 1), { passive: false });
   handle2El.addEventListener('touchstart', e => dragStart(e, 2), { passive: false });
+
+  /* keyboard: Arrow Right/Up +1, Arrow Left/Down -1, Page Up +10, Page Down -10, Home = minimum, End = maximum */
+  [[thumb1El, 1], [thumb2El, 2]].forEach(([thumb, which]) => {
+    thumb.addEventListener('keydown', e => {
+      const h1 = cityPct, h2 = cityPct + countryPct;
+      const [lo, hi] = which === 1 ? [0, h2] : [h1, 100];
+      let v = which === 1 ? h1 : h2;
+      switch (e.key) {
+        case 'ArrowRight': case 'ArrowUp':   v += 1;  break;
+        case 'ArrowLeft':  case 'ArrowDown': v -= 1;  break;
+        case 'PageUp':   v += 10; break;
+        case 'PageDown': v -= 10; break;
+        case 'Home': v = lo; break;
+        case 'End':  v = hi; break;
+        default: return;
+      }
+      e.preventDefault();
+      v = clamp(v, lo, hi);
+      if (which === 1) setHandles(v, h2); else setHandles(h1, v);
+    });
+  });
 
   /* ── TEMPERATURE SLIDER ── */
   const tempSlider  = document.getElementById('temp-slider');
@@ -1331,8 +1753,8 @@
     const val = parseInt(tempSlider.value);
     const pct = ((val - (-20)) / 50) * 100;
     tempFill.style.width = pct + '%';
-    tempDisplay.style.left = pct + '%';
-    tempDisplay.style.transform = `translateX(-${pct}%)`;
+    tempDisplay.style.left = `calc(var(--sys-space-fixed-150) + (100% - 2 * var(--sys-space-fixed-150)) * ${pct / 100})`;
+    tempDisplay.style.transform = 'translateX(-50%)';
     tempDisplay.textContent = (val > 0 ? '+' : '') + val + ' °C';
     if (!heatingManuallySet) {
       const autoYes = val !== 10 && val !== 20;
@@ -1357,8 +1779,114 @@
 
   /* ── INIT ── */
   updateModelConfig();
-  setHandles(33.33, 66.67);
+  setHandles(34, 65);
   updateTemp();
+
+  /* ── FAQ ACCORDION (exclusive, as on the live page) ──
+     Only one answer is open at a time: opening a row closes the open one at the same moment, clicking the open row closes it.
+     Enter / Space are the native button click. aria-expanded (button) and aria-hidden (panel) follow. */
+  const faqRows = [...document.querySelectorAll('.faq-q')];
+  const setFaqRow = (btn, open) => {
+    const panel = document.getElementById(btn.getAttribute('aria-controls'));
+    btn.setAttribute('aria-expanded', String(open));
+    panel.setAttribute('aria-hidden', String(!open));
+    panel.classList.toggle('is-open', open);
+  };
+  faqRows.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      faqRows.forEach(other => { if (other !== btn && other.getAttribute('aria-expanded') === 'true') setFaqRow(other, false); });
+      setFaqRow(btn, open);
+    });
+  });
+
+  /* ── INFO LAYER (modal) ──
+     Click on an info button shows the shared layer (CSS plays the open animation): focus moves to the dialog, Tab cycles link -> Close.
+     About 525ms after opening the page is scroll-locked (body position: fixed; top: -scrollY); closing restores it.
+     Escape / click outside the dialog / Close button remove the layer at once (no exit animation) and return focus to the info button. */
+  const LAYERS = {
+    profile: { faq: true,  text: 'Define your personal driving profile here and find out how the combination of driving scenarios you choose affects the range of your electric vehicle. Depending on the profile you define, there are direct implications for the range of your vehicle. For example, driving at high speed on the motorway uses considerably more energy than using the vehicle in city traffic.' },
+    speed:   { faq: true,  text: 'Driving faster than 120 km/h on the motorway considerably increases air resistance and therefore energy consumption. Select Yes if you regularly drive at these speeds to see how this affects the range of your electric vehicle.' },
+    tyres:   { faq: false, text: 'Find out here how the choice of wheel size and tyre type affects the consumption and range of your electric vehicle. In general, summer tyres have better rolling properties than winter tyres because of their tread, rubber compound and so on. The range effects shown here are based on a label A summer tyre and a label C winter tyre. Other tyres can lead to different effects on the range of the vehicle. When choosing the wheel size, it is mainly its aerodynamic properties that affect the range.' },
+    temp:    { faq: true,  text: 'The outside temperature has a considerable effect on the range. In cold weather the battery can deliver less energy and more energy is needed for heating, so the range falls. Mild temperatures give the longest range.' },
+    hvac:    { faq: false, text: 'Experience the effect of heating and air conditioning on the range of your electric vehicle. In contrast to the combustion vehicle, these secondary consumers are served exclusively from the high-voltage battery and thus have a strong influence on the possible range of the e-vehicle with high heating or cooling outputs.' },
+    load:    { faq: true,  text: 'The load changes the weight of the vehicle and therefore its energy consumption. A fully loaded vehicle needs more energy to drive, which reduces the range.' },
+    result:  { faq: true,  text: 'The estimated range is calculated from the WLTP range of the selected model and the influence of the settings you have made. The actual range may vary.' },
+  };
+  const LAYER_LOCK_DELAY_MS = 525;   // measured on the live layer: the scroll lock is applied ~525ms after the click
+  const layerEl    = document.getElementById('info-layer');
+  const dialogEl   = layerEl.querySelector('.layer-dialog');
+  const layerText  = document.getElementById('layer-text');
+  const layerLink  = document.getElementById('layer-link');
+  const layerClose = document.getElementById('layer-close');
+  let layerOpener  = null;
+  let lockTimer    = 0;
+  let lockedAt     = null;   // scroll position while the page is locked
+
+  function lockPageScroll() {
+    lockedAt = window.scrollY;
+    document.body.style.top = '-' + lockedAt + 'px';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  }
+  function unlockPageScroll() {
+    clearTimeout(lockTimer);
+    if (lockedAt === null) return;
+    document.body.style.top = document.body.style.position = document.body.style.width = '';
+    window.scrollTo(0, lockedAt);
+    lockedAt = null;
+  }
+  function openLayer(btn) {
+    const cfg = LAYERS[btn.dataset.layer];
+    if (!cfg) return;
+    layerOpener = btn;
+    layerText.textContent = cfg.text;
+    layerLink.hidden = !cfg.faq;
+    layerEl.hidden = false;
+    dialogEl.focus();
+    clearTimeout(lockTimer);
+    lockTimer = setTimeout(lockPageScroll, LAYER_LOCK_DELAY_MS);
+  }
+  function closeLayer(returnFocus = true) {
+    if (layerEl.hidden) return;
+    layerEl.hidden = true;
+    unlockPageScroll();
+    const opener = layerOpener;
+    layerOpener = null;
+    if (returnFocus && opener) opener.focus({ preventScroll: true });
+  }
+  document.querySelectorAll('.info-btn[data-layer]').forEach(b => b.addEventListener('click', () => openLayer(b)));
+  layerClose.addEventListener('click', () => closeLayer());
+  layerEl.addEventListener('click', e => { if (!dialogEl.contains(e.target)) closeLayer(); });
+  layerLink.addEventListener('click', e => {
+    e.preventDefault();
+    closeLayer(false);
+    const h = document.getElementById('faq-heading');
+    h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    h.focus({ preventScroll: true });
+  });
+  document.addEventListener('keydown', e => {
+    if (layerEl.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeLayer(); return; }
+    if (e.key !== 'Tab') return;
+    const tabbables = [layerLink, layerClose].filter(el => !el.hidden);
+    const first = tabbables[0], last = tabbables[tabbables.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey) { if (active === first || active === dialogEl || !dialogEl.contains(active)) { e.preventDefault(); last.focus(); } }
+    else if (active === last || !dialogEl.contains(active)) { e.preventDefault(); first.focus(); }
+  });
+
+  /* ── STICKY RESULT BAR (below 1024px): visible while the end of the input card is still below the viewport ── */
+  (() => {
+    const bar = document.getElementById('result-bar');
+    const end = document.getElementById('input-end');
+    if (!bar || !end || !('IntersectionObserver' in window)) return;
+    new IntersectionObserver(([e]) => {
+      const hide = e.isIntersecting || e.boundingClientRect.top < 0;
+      bar.classList.toggle('is-hidden', hide);
+      bar.setAttribute('aria-hidden', String(hide));
+    }).observe(end);
+  })();
 </script>
 </body>
 </html>
