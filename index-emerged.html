@@ -97,6 +97,14 @@
       --sys-fs-headline-order3: 20px;  --sys-lh-headline-order3: 32px;
       --sys-fs-headline-order4: 16px;  --sys-lh-headline-order4: 24px;
       --sys-fs-copy-order2:  0.875rem;
+
+      /* colour tokens added for the colour clean-up (values identical to the old literals) */
+      --surface-segment:          rgba(24,29,37,0.8);
+      --surface-selected:         #404a59;
+      --surface-option:           #1e2433;
+      --surface-hover:            #2c343f;
+      --surface-action:           #657081;   /* primary button fill (Sem/Color/Action/Primary/Surface/Fill/Default) */
+      --surface-action-hover:     #758292;   /* primary button fill on hover */
     }
 
     @media (min-width: 375px) {
@@ -181,7 +189,6 @@
       font-family: var(--font-copy);
       font-variation-settings: 'wdth' 105, 'wght' 400;
       color: var(--text-primary);
-      -webkit-font-smoothing: antialiased;
     }
     body {
       max-width: var(--max-content-width);
@@ -247,7 +254,7 @@
       font-variation-settings: 'wdth' 105, 'wght' 600;
       font-size: 16px; line-height: 24px; letter-spacing: 0px;
       font-stretch: 105%; font-weight: 600;
-      color: rgba(252, 252, 253, 0.7); text-decoration: none;
+      color: var(--text-muted); text-decoration: none;
     }
 
     .info-btn {
@@ -272,7 +279,7 @@
       position: relative;
     }
     .distr-seg:nth-child(2) {
-      background: rgba(24,29,37,0.8);
+      background: var(--surface-segment);
       border-left: 1px dashed var(--border-card);
       border-right: 1px dashed var(--border-card);
     }
@@ -292,9 +299,9 @@
       box-sizing: border-box;
       align-items: center; justify-content: center;
       width: 28px; height: 28px;
-      border: 1px solid rgb(77, 87, 102); border-radius: 100%;
-      background-color: rgb(16, 19, 25);
-      color: rgba(252, 252, 253, 0.7);
+      border: 1px solid var(--border-distr); border-radius: 100%;
+      background-color: var(--canvas);
+      color: var(--text-muted);
       cursor: grab;
       overflow: hidden;
     }
@@ -325,12 +332,12 @@
     .radio-visual {
       display: block; width: 24px; height: 24px;
       border-radius: 50%;
-      background: rgba(24,29,37,0.6);
-      border: 1px solid rgba(219,223,230,0.6);
+      background: var(--surface-input);
+      border: 1px solid var(--border-input);
       position: relative; flex-shrink: 0; pointer-events: none;
     }
     .radio-control input[type="radio"]:checked ~ .radio-visual {
-      background: #404A59;
+      background: var(--surface-selected);
     }
     .radio-control input[type="radio"]:checked ~ .radio-visual::after {
       content: '';
@@ -338,7 +345,7 @@
       transform: translate(-50%, -50%);
       width: 12px; height: 12px;
       border-radius: 50%;
-      background: rgba(252,252,253,0.7);
+      background: var(--text-muted);
     }
     .radio-label {
       font-family: var(--font-copy);
@@ -364,8 +371,8 @@
       appearance: none; -webkit-appearance: none; cursor: pointer;
     }
     .select-field:focus { outline: none; }
-    .select-field option { background: #1e2433; color: var(--text-primary); }
-    .select-field optgroup { background: #1e2433; color: var(--text-muted); font-style: normal; font-size: 13px; }
+    .select-field option { background: var(--surface-option); color: var(--text-primary); }
+    .select-field optgroup { background: var(--surface-option); color: var(--text-muted); font-style: normal; font-size: 13px; }
     .select-chevron {
       position: absolute; right: 12px; top: 50%;
       transform: translateY(-50%);
@@ -406,13 +413,13 @@
       appearance: none; -webkit-appearance: none;
       width: 24px; height: 12px;
       border-radius: 999px;
-      background: #fcfcfd; border: 1px solid #2c343f;
+      background: var(--slider-progress); border: 1px solid var(--surface-hover);
       cursor: ew-resize;
     }
     input[type="range"].temp-slider::-moz-range-thumb {
       width: 24px; height: 12px;
       border-radius: 999px;
-      background: #fcfcfd; border: 1px solid #2c343f;
+      background: var(--slider-progress); border: 1px solid var(--surface-hover);
       cursor: ew-resize;
     }
     .slider-range-row {
@@ -469,7 +476,7 @@
       font-variation-settings: 'wdth' 105, 'wght' 600;
       font-size: 16px; line-height: 24px; letter-spacing: 0px;
       font-stretch: 105%; font-weight: 600;
-      color: rgba(252, 252, 253, 0.7); text-decoration: none;
+      color: var(--text-muted); text-decoration: none;
     }
     .result-value {
       font-family: var(--font-headline);
@@ -493,17 +500,17 @@
     .btn-primary {
       display: flex; align-items: center; justify-content: center;
       width: 100%; height: 48px;
-      background: #657081;
+      background: var(--surface-action);
       border: none;
       border-radius: 999px;
-      color: #fcfcfd;
+      color: var(--text-primary);
       font-family: var(--font-copy);
       font-variation-settings: 'wdth' 105, 'wght' 400;
       font-size: 14px; line-height: 20px;
       cursor: pointer; transition: background 0.15s; padding: 0 24px;
       text-decoration: none;
     }
-    .btn-primary:hover { background: #758292; }
+    .btn-primary:hover { background: var(--surface-action-hover); }
 
     /* ── TEXT LINKS ─────────────────────────────────────────────────────── */
     .text-link-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
@@ -520,11 +527,11 @@
       font-family: var(--font-copy);
       font-variation-settings: 'wdth' 105, 'wght' 400;
       font-size: 16px; line-height: 24px;
-      color: #fcfcfd;
+      color: var(--text-primary);
       text-decoration: underline;
       text-decoration-thickness: 1px;
       text-underline-offset: 4px;
-      text-decoration-color: #fcfcfd;
+      text-decoration-color: var(--text-primary);
       white-space: nowrap;
       cursor: pointer;
     }
@@ -621,7 +628,7 @@
     <div class="nav-icon topbar-search-left">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
       <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
-      <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="#DBDFE6"/>
+      <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="currentColor"/>
       </svg>
     </div>
   </div>
@@ -645,18 +652,18 @@
     <div class="nav-icon topbar-search-right">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
       <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
-      <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="#DBDFE6"/>
+      <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="currentColor"/>
       </svg>
     </div>
     <div class="nav-icon">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
       <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.11091 4.61091C4.2588 2.46303 7.7412 2.46303 9.88909 4.61091L12 6.72183L14.1109 4.61091C16.2588 2.46303 19.7412 2.46303 21.8891 4.61091C24.037 6.7588 24.037 10.2412 21.8891 12.3891L12 22.2782L2.11091 12.3891C-0.036971 10.2412 -0.036971 6.7588 2.11091 4.61091Z" stroke="#DBDFE6" stroke-linecap="round"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.11091 4.61091C4.2588 2.46303 7.7412 2.46303 9.88909 4.61091L12 6.72183L14.1109 4.61091C16.2588 2.46303 19.7412 2.46303 21.8891 4.61091C24.037 6.7588 24.037 10.2412 21.8891 12.3891L12 22.2782L2.11091 12.3891C-0.036971 10.2412 -0.036971 6.7588 2.11091 4.61091Z" stroke="currentColor" stroke-linecap="round"/>
       </svg>
     </div>
     <div class="nav-icon">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M17.5 13.5C18.1 13.5 18.5 13.9 18.5 14.5V21.5H5.5V14.5C5.5 13.9 5.9 13.5 6.5 13.5H17.5ZM13.5 3.5C14.6 3.5 15.5 4.4 15.5 5.5V8.5C15.5 9.6 14.6 10.5 13.5 10.5H10.5C9.4 10.5 8.5 9.6 8.5 8.5V5.5C8.5 4.4 9.4 3.5 10.5 3.5H13.5Z" stroke="#DBDFE6"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M17.5 13.5C18.1 13.5 18.5 13.9 18.5 14.5V21.5H5.5V14.5C5.5 13.9 5.9 13.5 6.5 13.5H17.5ZM13.5 3.5C14.6 3.5 15.5 4.4 15.5 5.5V8.5C15.5 9.6 14.6 10.5 13.5 10.5H10.5C9.4 10.5 8.5 9.6 8.5 8.5V5.5C8.5 4.4 9.4 3.5 10.5 3.5H13.5Z" stroke="currentColor"/>
       </svg>
     </div>
   </div>
@@ -670,7 +677,7 @@
     <div class="header-icon">
       <!-- battery-at-destination -->
       <svg width="33" height="41" viewBox="0 0 32.5 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20.5 36.5C20.5 37.5609 20.0786 38.5783 19.3284 39.3284C18.5783 40.0786 17.5609 40.5 16.5 40.5H4.5C3.43913 40.5 2.42172 40.0786 1.67157 39.3284C0.921428 38.5783 0.5 37.5609 0.5 36.5V4.5H5.5M5.5 4.5V0.5H15.5V4.5M5.5 4.5H15.5M15.5 4.5H20.5V18M15.5 14.5H10.5M10.5 14.5H5.5M10.5 14.5V19.5M10.5 14.5V9.5M6.5 32.5H14.5M25 29C26.6569 29 28 27.6569 28 26C28 24.3431 26.6569 23 25 23C23.3431 23 22 24.3431 22 26C22 27.6569 23.3431 29 25 29ZM32 26C32 22.1 28.9 19 25 19C21.1 19 18 22.1 18 26C18 29.9 25 40 25 40C25 40 32 29.9 32 26Z" stroke="#FCFCFD"/>
+        <path d="M20.5 36.5C20.5 37.5609 20.0786 38.5783 19.3284 39.3284C18.5783 40.0786 17.5609 40.5 16.5 40.5H4.5C3.43913 40.5 2.42172 40.0786 1.67157 39.3284C0.921428 38.5783 0.5 37.5609 0.5 36.5V4.5H5.5M5.5 4.5V0.5H15.5V4.5M5.5 4.5H15.5M15.5 4.5H20.5V18M15.5 14.5H10.5M10.5 14.5H5.5M10.5 14.5V19.5M10.5 14.5V9.5M6.5 32.5H14.5M25 29C26.6569 29 28 27.6569 28 26C28 24.3431 26.6569 23 25 23C23.3431 23 22 24.3431 22 26C22 27.6569 23.3431 29 25 29ZM32 26C32 22.1 28.9 19 25 19C21.1 19 18 22.1 18 26C18 29.9 25 40 25 40C25 40 32 29.9 32 26Z" stroke="currentColor"/>
       </svg>
     </div>
     <h1>Calculate your electric driving range</h1>
