@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audi Range Simulator</title>
+  <style>
+    /* ── FONTS ─────────────────────────────────────────────────────────── */
+    @font-face {
+      font-family: 'Audi Type Variable';
+      src: url('assets/fonts/AudiTypeVF_Lat.woff2') format('woff2');
+      font-weight: 400 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Audi Type Variable';
+      src: url('assets/fonts/AudiTypeVF.woff2') format('woff2');
+      font-weight: 400 700;
+      font-style: normal;
+      font-display: swap;
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* ── RESET ──────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* DS3 focus: browser focus ring (outline: auto) in the DS3 focus colour, keyboard focus only */
+    :focus:not(:focus-visible) { outline: none; }
+    :focus-visible { outline: auto var(--sys-border-width-sm) var(--border-focus); }
+
+    /* ── TOKENS ─────────────────────────────────────────────────────────── */
+    :root {
+      --canvas:            #101319;
+      --surface-card:      rgba(154,163,177,0.1);
+      --surface-input:     rgba(24,29,37,0.6);
+      --text-primary:      #fcfcfd;
+      --text-muted:        rgba(252,252,253,0.7);
+      --border-card:       rgba(252,252,253,0.2);
+      --border-input:      rgba(219,223,230,0.6);
+      --border-distr:      #4d5766;
+      --slider-track:      rgba(252,252,253,0.2);
+      --slider-progress:   #fcfcfd;
+      /* interaction surfaces / borders (DS3 Dark theme, measured on the live tool) */
+      --surface-topbar:         #020203;
+      --surface-shader:         rgba(2,2,3,0.7);
+      --surface-hover:          #2c343f;
+      --surface-selected:       #404a59;
+      --surface-selected-hover: #37404e;
+      --surface-raised:         #232a34;
+      --surface-input-hover:    rgba(44,52,63,0.6);
+      --surface-segment:        rgba(24,29,37,0.8);
+      --surface-option:         #1e2433;
+      --border-subtle:          rgba(219,223,230,0.2);
+      --border-input-focus:     #dbdfe6;
+      --border-focus:           #005fcc;
+      --surface-transparent:    rgba(154,163,177,0);   /* idle state of tinted surfaces (colour kept so it can transition) */
+      --border-subtle-0:        rgba(219,223,230,0);   /* idle state of the light border */
+      --border-layer:           #37404e;               /* info layer dialog border */
+      --border-sticky:          #dfe4e8;               /* top border of the mobile sticky result bar */
+      --gradient-layer:         linear-gradient(134deg, var(--surface-hover) 0%, var(--surface-raised) 100%);
+      --radius-card:       20px;
+      --radius-input:      10px;
+      --radius-pill:       999px;
+      --radius-media:      4px;
+      --max-content-width: 1920px;
+      --page-width:        320px;
+      --sys-page-margin:       16px;
+      --sys-breakpoint-xs:  320px;
+      --sys-breakpoint-sm:  375px;
+      --sys-breakpoint-md:  768px;
+      --sys-breakpoint-lg:  1024px;
+      --sys-breakpoint-xl:  1440px;
+      --sys-breakpoint-2xl: 1920px;
+      --sys-space-fixed-0:    0px;
+      --sys-space-fixed-25:   2px;
+      --sys-space-fixed-50:   4px;
+      --sys-space-fixed-100:  8px;
+      --sys-space-fixed-150:  12px;
+      --sys-space-fixed-200:  16px;
+      --sys-space-fixed-250:  20px;
+      --sys-space-fixed-300:  24px;
+      --sys-space-fixed-400:  32px;
+      --sys-space-fixed-450:  36px;
+      --sys-space-fixed-500:  40px;
+      --sys-space-fixed-600:  48px;
+      --sys-space-fixed-700:  56px;
+      --sys-space-fixed-800:  64px;
+      --sys-space-fixed-900:  72px;
+      --sys-space-fixed-1000: 80px;
+      --sys-space-fixed-1200: 96px;
+      --sys-space-fixed-1600: 128px;
+      --sys-space-fixed-2000: 160px;
+      --sys-space-fixed-2600: 208px;
+      --sys-space-relative-2xs: 4px;
+      --sys-space-relative-xs:  8px;
+      --sys-space-relative-sm:  12px;
+      --sys-space-relative-md:  16px;
+      --sys-space-relative-lg:  24px;
+      --sys-space-relative-xl:  28px;
+      --sys-space-relative-2xl: 36px;
+      --sys-space-relative-3xl: 40px;
+      --sys-space-relative-4xl: 48px;
+      --sys-space-relative-5xl: 64px;
+      --sys-space-relative-6xl: 80px;
+      --sys-space-relative-7xl: 96px;
+      --sys-space-relative-8xl: 120px;
+      --font-copy:         'Audi Type Variable', sans-serif;
+      --font-headline:     'Audi Type Variable', sans-serif;
+      --wdth-wide:         105;
+      --wdth-extended:     130;
+      --wght-normal:       400;
+      --wght-bold:         700;
+      --fvs-copy-normal:     'wdth' var(--wdth-wide),     'wght' var(--wght-normal);
+      --fvs-copy-bold:       'wdth' var(--wdth-wide),     'wght' var(--wght-bold);
+      --fvs-headline-normal: 'wdth' var(--wdth-extended), 'wght' var(--wght-normal);
+      --fvs-headline-bold:   'wdth' var(--wdth-extended), 'wght' var(--wght-bold);
+      /* borders, motion, stacking, blur */
+      --sys-border-width-sm: 1px;
+      --sys-border-width-md: 2px;
+      --sys-motion-duration-fast:  0.2s;
+      --sys-motion-duration-base:  0.25s;
+      --sys-motion-duration-layer: 0.24s;
+      --sys-motion-duration-layer-slide: 0.42s;
+      --sys-motion-duration-faq-inner: 0.32s;   /* FAQ answer fade / padding / visibility (the grid rows run --sys-motion-duration-base) */
+      --sys-motion-easing-faq-inner: ease-in;
+      --sys-motion-duration-reel:  1s;
+      --sys-motion-easing-standard: cubic-bezier(0.75, 0.02, 0.5, 1);
+      --sys-z-sticky: 10;
+      --sys-z-layer:  1000;
+      --sys-z-layer-close: 100;   /* Close button wrapper inside the info layer dialog */
+      --sys-blur-surface: 60px;
+      --layer-text-gap: 15px;   /* paragraph -> link line inside the info layer (measured on the live layer; no DS3 spacing token has 15px) */
+      /* fixed type: copy (16/24, 14/24, 12/20) and label (16/20, 14/20, 12/16, 10/12) */
+      --sys-fs-copy-order1:  1rem;      --sys-lh-copy-order1:  1.5rem;
+      --sys-fs-copy-order2:  0.875rem;  --sys-lh-copy-order2:  1.5rem;
+      --sys-fs-copy-order3:  0.75rem;   --sys-lh-copy-order3:  1.25rem;
+      --sys-fs-label-order1: 1rem;      --sys-lh-label-order1: 1.25rem;
+      --sys-fs-label-order2: 0.875rem;  --sys-lh-label-order2: 1.25rem;
+      --sys-fs-label-order3: 0.75rem;   --sys-lh-label-order3: 1rem;
+      --sys-fs-label-order4: 0.625rem;  --sys-lh-label-order4: 0.75rem;
+      --sys-fs-display-order1:  40px;  --sys-lh-display-order1:  60px;
+      --sys-fs-display-order2:  36px;  --sys-lh-display-order2:  52px;
+      --sys-fs-display-order3:  32px;  --sys-lh-display-order3:  48px;
+      --sys-fs-headline-order1: 28px;  --sys-lh-headline-order1: 40px;
+      --sys-fs-headline-order2: 24px;  --sys-lh-headline-order2: 36px;
+      --sys-fs-headline-order3: 20px;  --sys-lh-headline-order3: 32px;
+      --sys-fs-headline-order4: 16px;  --sys-lh-headline-order4: 24px;
+    }
+
+    /* ── CUSTOM MEDIA (CSS MQ Level 5 — postcss-custom-media compatible) ─── */
+    @custom-media --sys-breakpoint-sm  (min-width: 375px);
+    @custom-media --sys-breakpoint-md  (min-width: 768px);
+    @custom-media --sys-breakpoint-lg  (min-width: 1024px);
+    @custom-media --sys-breakpoint-xl  (min-width: 1440px);
+    @custom-media --sys-breakpoint-2xl (min-width: 1920px);
+
+    @media (min-width: 375px) {
+      :root { --sys-page-margin: 28px; }
+    }
+    @media (min-width: 768px) {
+      :root {
+        --sys-page-margin:            40px;
+        --sys-space-relative-3xl: 48px;
+        --sys-space-relative-4xl: 64px;
+        --sys-space-relative-5xl: 72px;
+        --sys-space-relative-6xl: 88px;
+        --sys-space-relative-7xl: 104px;
+        --sys-space-relative-8xl: 136px;
+        --sys-fs-display-order1:  48px;  --sys-lh-display-order1:  68px;
+        --sys-fs-display-order2:  44px;  --sys-lh-display-order2:  60px;
+        --sys-fs-display-order3:  36px;  --sys-lh-display-order3:  52px;
+      }
+    }
+    @media (min-width: 1024px) {
+      :root {
+        --page-width:             1024px;
+        --sys-page-margin:            60px;
+        --sys-space-relative-2xl: 40px;
+        --sys-space-relative-3xl: 56px;
+        --sys-space-relative-4xl: 72px;
+        --sys-space-relative-5xl: 88px;
+        --sys-space-relative-6xl: 104px;
+        --sys-space-relative-7xl: 128px;
+        --sys-space-relative-8xl: 168px;
+        --sys-fs-display-order1:  60px;  --sys-lh-display-order1:  84px;
+        --sys-fs-display-order2:  52px;  --sys-lh-display-order2:  76px;
+        --sys-fs-display-order3:  44px;  --sys-lh-display-order3:  64px;
+        --sys-fs-headline-order1: 36px;  --sys-lh-headline-order1: 52px;
+        --sys-fs-headline-order2: 28px;  --sys-lh-headline-order2: 40px;
+      }
+    }
+    @media (min-width: 1440px) {
+      :root {
+        --page-width:             1440px;
+        --sys-page-margin:            96px;
+        --sys-space-relative-xl:  32px;
+        --sys-space-relative-2xl: 56px;
+        --sys-space-relative-3xl: 72px;
+        --sys-space-relative-4xl: 88px;
+        --sys-space-relative-5xl: 104px;
+        --sys-space-relative-6xl: 120px;
+        --sys-space-relative-7xl: 160px;
+        --sys-space-relative-8xl: 216px;
+        --sys-fs-display-order1:  72px;  --sys-lh-display-order1:  100px;
+        --sys-fs-display-order2:  60px;  --sys-lh-display-order2:  84px;
+        --sys-fs-display-order3:  52px;  --sys-lh-display-order3:  76px;
+        --sys-fs-headline-order1: 40px;  --sys-lh-headline-order1: 60px;
+        --sys-fs-headline-order2: 32px;  --sys-lh-headline-order2: 44px;
+        --sys-fs-headline-order3: 24px;  --sys-lh-headline-order3: 36px;
+        --sys-fs-headline-order4: 18px;  --sys-lh-headline-order4: 28px;
+      }
+    }
+    @media (min-width: 1920px) {
+      :root {
+        --sys-page-margin:        96px;
+        --sys-space-relative-xl:  40px;
+        --sys-space-relative-2xl: 72px;
+        --sys-space-relative-3xl: 88px;
+        --sys-space-relative-4xl: 104px;
+        --sys-space-relative-5xl: 120px;
+        --sys-space-relative-6xl: 136px;
+        --sys-space-relative-7xl: 176px;
+        --sys-space-relative-8xl: 248px;
+        --sys-fs-display-order1:  84px;  --sys-lh-display-order1:  112px;
+        --sys-fs-display-order2:  72px;  --sys-lh-display-order2:  100px;
+        --sys-fs-display-order3:  60px;  --sys-lh-display-order3:  84px;
+        --sys-fs-headline-order1: 44px;  --sys-lh-headline-order1: 64px;
+        --sys-fs-headline-order2: 36px;  --sys-lh-headline-order2: 52px;
+        --sys-fs-headline-order4: 20px;  --sys-lh-headline-order4: 32px;
+      }
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--canvas);
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      color: var(--text-primary);
+    }
+    body {
+      max-width: var(--max-content-width);
+      margin-inline: auto;
+    }
+
+    /* ── TOPBAR ─────────────────────────────────────────────────────────── */
+    .topbar {
+      height: var(--sys-space-fixed-900); background: var(--surface-topbar);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--sys-page-margin);
+    }
+    .topbar-mobile-left { display: flex; align-items: center; flex: 1 0 0; }
+    .topbar-rings { display: flex; align-items: center; flex-shrink: 0; }
+    .topbar-rings img { width: 69px; height: var(--sys-space-fixed-300); }
+    .topbar-nav { display: none; align-items: center; gap: var(--sys-space-fixed-300); flex: 1 0 0; }
+    .topbar-nav-item {
+      font-family: var(--font-copy);
+      font-variation-settings: normal;
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-space-fixed-250);
+      color: var(--text-muted);
+      display: flex; justify-content: space-between; flex-flow: row;
+      text-decoration: none; white-space: nowrap; cursor: pointer;
+    }
+    .topbar-right { display: flex; align-items: center; flex: 1 0 0; justify-content: flex-end; }
+    .nav-icon { width: var(--sys-space-fixed-600); height: var(--sys-space-fixed-600); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+    .nav-icon img { display: block; object-fit: contain; }
+    /* hamburger button as live: 33x22 (no DS3 size token) with the 18px glyph inset 3px */
+    .topbar-menu-icon { width: 33px; height: 22px; justify-content: flex-start; padding-left: 3px; box-sizing: border-box; }
+    .topbar-search-right { display: none; }
+
+    /* ── PAGE ───────────────────────────────────────────────────────────── */
+    .page-layout { padding: var(--sys-space-relative-2xl) var(--sys-page-margin) 41px; display: flex; flex-direction: column; gap: 0; }
+
+    /* ── HEADER ─────────────────────────────────────────────────────────── */
+    .header { display: flex; align-items: flex-end; gap: var(--sys-space-fixed-250); max-width: 766px; }
+    .header-icon { flex-shrink: 0; width: var(--sys-space-fixed-600); height: var(--sys-space-fixed-600); display: flex; align-items: center; justify-content: center; }
+    .header h1 {
+      font-family: var(--font-headline);
+      font-variation-settings: var(--fvs-headline-normal);
+      font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); font-weight: var(--wght-normal);
+      letter-spacing: 0; color: var(--text-primary);
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────────────────────────── */
+    .section-group { display: flex; flex-direction: column; gap: var(--sys-space-relative-2xl); align-items: flex-start; }
+
+    /* ── INPUT PANEL ────────────────────────────────────────────────────── */
+    .section-input {
+      flex: 1; min-width: 0; width: 100%;
+      background: var(--canvas);
+      border: none;
+      padding: 0;
+      display: flex; flex-direction: column; gap: var(--sys-space-relative-xl);
+    }
+
+    /* ── COMBO ───────────────────────────────────────────────────────────── */
+    .combo { display: flex; flex-direction: column; gap: var(--sys-space-fixed-100); }
+    /* The info icon sits inline at the end of the label so it wraps together with the text */
+    .question { display: flex; align-items: center; min-height: var(--sys-space-fixed-450); }
+    .question-text {
+      display: block;
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0;
+      font-stretch: calc(var(--wdth-wide) * 1%); font-weight: var(--wght-normal);
+      color: var(--text-muted); text-decoration: none;
+    }
+    .question-end { white-space: nowrap; }
+
+    /* Info button (36x36, round). Hover/pressed: DS3 hover surface + subtle border. Keyboard focus: DS3 focus ring. */
+    .info-btn, .layer-close {
+      width: var(--sys-space-fixed-450); height: var(--sys-space-fixed-450);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; padding: 0; cursor: pointer;
+      color: var(--text-primary);
+      background-color: var(--surface-transparent);
+      border: var(--sys-border-width-sm) solid var(--border-subtle-0);
+      border-radius: var(--radius-pill);
+      transition-property: color, box-shadow, border-color, background-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
+    }
+    .info-btn:hover, .info-btn:active,
+    .layer-close:hover, .layer-close:active {
+      background-color: var(--surface-hover);
+      border-color: var(--border-subtle);
+    }
+    .question-end .info-btn {
+      display: inline-flex; vertical-align: middle;
+      /* 36px hit area, but only the 16px icon counts towards the line width (as in the design) */
+      height: var(--sys-space-fixed-450); margin-left: var(--sys-space-fixed-50); margin-right: calc(-1 * var(--sys-space-fixed-150));
+    }
+    /* 16x16 inline svg icons (<use> of the sprite at the top of <body>): same box as the live icons, drawn crisp at the button's pixel grid */
+    .icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .info-btn svg, .layer-close svg { display: block; width: var(--sys-space-fixed-200); height: var(--sys-space-fixed-200); }
+
+    /* ── DISTRIBUTION SLIDER ────────────────────────────────────────────── */
+    .slider-distr { padding-top: 0; }
+    .distr-outer { position: relative; }
+    .distr-segments {
+      display: flex;
+      border: var(--sys-border-width-sm) solid var(--border-distr);
+      border-radius: var(--radius-input);
+      position: relative; height: var(--sys-space-fixed-1000); overflow: visible;
+    }
+    .distr-seg {
+      flex: 1; display: flex;
+      align-items: center; justify-content: center;
+      position: relative;
+    }
+    .distr-seg:nth-child(2) {
+      background: var(--surface-segment);
+    }
+    .distr-seg svg { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); }
+    .distr-icon {
+      position: absolute; top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none; z-index: 1;
+    }
+    .distr-divider {
+      position: absolute; top: 0; bottom: 0; width: 0;
+      border-left: var(--sys-border-width-sm) dashed var(--border-card);
+      pointer-events: none; z-index: 1;
+    }
+    .distr-handle {
+      position: absolute;
+      transform: translateX(-50%);
+      z-index: 10; user-select: none;
+    }
+    .distr-handle-top    { top: 0; }
+    .distr-handle-bottom { bottom: 0; }
+    .distr-handle-top .distr-thumb    { top: calc(var(--distr-thumb-size) / -2); }
+    .distr-handle-bottom .distr-thumb { bottom: calc(var(--distr-thumb-size) / -2); }
+    /* The handle is a real slider (role=slider, tabindex=0). Focus-visible: DS3 fills it with the muted text colour. */
+    .distr-thumb {
+      --distr-thumb-size: 28px;
+      display: flex; position: absolute; z-index: 1;
+      left: calc(var(--distr-thumb-size) / -2);
+      box-sizing: border-box;
+      align-items: center; justify-content: center;
+      width: var(--distr-thumb-size); height: var(--distr-thumb-size);
+      border: var(--sys-border-width-sm) solid var(--border-distr); border-radius: 100%;
+      background-color: var(--canvas);
+      color: var(--text-muted);
+      cursor: grab;
+      overflow: hidden;
+      touch-action: none;
+    }
+    body.is-dragging { user-select: none; -webkit-user-select: none; }
+    .distr-thumb:focus-visible {
+      outline: none;
+      background-color: var(--text-muted);
+      border-color: var(--text-muted);
+    }
+    .distr-thumb-arrows {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      pointer-events: none;
+    }
+    .distr-labels {
+      display: flex; justify-content: space-between;
+      padding: var(--sys-space-fixed-300) 0 0;
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1);
+      color: var(--text-primary);
+    }
+    .distr-label-col { flex: 1; display: flex; flex-direction: column; gap: var(--sys-space-fixed-50); align-items: center; }
+    .distr-pct { font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); font-variation-settings: var(--fvs-copy-normal); font-weight: var(--wght-normal); color: var(--text-muted); }
+    .distr-name { font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); font-variation-settings: var(--fvs-copy-normal); font-weight: var(--wght-normal); color: var(--text-muted); }
+
+    /* ── RADIO GROUP ────────────────────────────────────────────────────── */
+    .radio-group { display: flex; gap: var(--sys-space-fixed-300); align-items: center; }
+    .radio-option { display: flex; align-items: flex-start; gap: var(--sys-space-fixed-150); cursor: pointer; }
+    .radio-control { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); flex-shrink: 0; position: relative; cursor: pointer; }
+    .radio-control input[type="radio"] {
+      position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 2; margin: 0;
+    }
+    /* visual circle — CSS-driven, no SVG mask issues */
+    .radio-visual {
+      display: block; width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300);
+      border-radius: 50%;
+      background: var(--surface-input);
+      border: var(--sys-border-width-sm) solid var(--border-input);
+      position: relative; flex-shrink: 0; pointer-events: none;
+      transition-property: border-color, color, background-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: ease;
+    }
+    .radio-control input[type="radio"]:checked ~ .radio-visual {
+      background: var(--surface-selected);
+    }
+    .radio-control input[type="radio"]:checked ~ .radio-visual::after {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: var(--sys-space-fixed-150); height: var(--sys-space-fixed-150);
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .radio-label {
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1);
+      color: var(--text-muted); padding-top: var(--sys-space-fixed-25);
+      transition: color var(--sys-motion-duration-base) ease;
+    }
+    /* hover (enabled): label text to 100%, checked circle to the DS3 selected-hover surface */
+    .radio-option:hover .radio-label { color: var(--text-primary); }
+    .radio-option:hover .radio-control input[type="radio"]:checked ~ .radio-visual { background: var(--surface-selected-hover); }
+    /* keyboard focus: DS3 focus ring on the hidden input and a solid 2px ring on the visual circle */
+    .radio-control input[type="radio"]:focus-visible { outline: auto var(--sys-border-width-sm) var(--border-focus); outline-offset: var(--sys-space-fixed-25); }
+    .radio-control input[type="radio"]:focus-visible ~ .radio-visual { outline: solid var(--sys-border-width-md) var(--border-focus); }
+
+    /* ── SELECT ─────────────────────────────────────────────────────────── */
+    .select-wrapper { position: relative; width: 100%; }
+    .select-field {
+      width: 100%; min-height: var(--sys-space-fixed-600);
+      background: var(--surface-input);
+      border: 0;
+      box-shadow: 0 0 0 var(--sys-border-width-sm) var(--border-input);
+      border-radius: var(--radius-input);
+      padding: var(--sys-space-fixed-150) var(--sys-space-fixed-600) var(--sys-space-fixed-150) var(--sys-space-fixed-150);
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1);
+      color: var(--text-primary);
+      appearance: none; -webkit-appearance: none; cursor: default;
+      transition-property: background, box-shadow;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
+    }
+    .select-field:hover { background: var(--surface-input-hover); }
+    .select-field:focus-visible { box-shadow: 0 0 0 var(--sys-border-width-sm) var(--border-input-focus); }
+    .select-field option { background: var(--surface-option); color: var(--text-primary); }
+    .select-field optgroup { background: var(--surface-option); color: var(--text-muted); font-style: normal; font-size: 13px; }
+    .select-chevron {
+      position: absolute; right: var(--sys-space-fixed-150); top: 50%;
+      transform: translateY(-50%);
+      width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); pointer-events: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .select-chevron svg { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); }
+
+    /* ── TEMPERATURE SLIDER ─────────────────────────────────────────────── */
+    .slider-temp { display: flex; flex-direction: column; width: 100%; }
+    .slider-value-row { position: relative; height: var(--sys-space-fixed-400); }
+    .slider-value-display {
+      position: absolute; bottom: var(--sys-space-fixed-25);
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1);
+      color: var(--text-muted); white-space: nowrap; padding: 0 var(--sys-space-fixed-100);
+    }
+    .slider-track-row { position: relative; height: var(--sys-space-fixed-300); display: flex; align-items: center; }
+    .slider-track-bg {
+      position: absolute; left: 0; right: 0;
+      height: 6px; background: var(--slider-track);
+      border-radius: var(--radius-pill);
+    }
+    .slider-track-fill {
+      position: absolute; left: 0; height: 6px;
+      background: var(--slider-progress);
+      border-radius: var(--radius-pill); pointer-events: none;
+    }
+    /* native range input, 24px tall like the live control so the keyboard focus ring hugs the track row */
+    input[type="range"].temp-slider {
+      position: absolute; left: 0; right: 0; width: 100%;
+      height: var(--sys-space-fixed-300); background: transparent;
+      appearance: none; -webkit-appearance: none;
+      cursor: default; z-index: 2; margin: 0;
+    }
+    input[type="range"].temp-slider::-webkit-slider-thumb {
+      appearance: none; -webkit-appearance: none;
+      width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-150);
+      border-radius: var(--radius-pill);
+      background: var(--slider-progress); border: var(--sys-border-width-sm) solid var(--surface-hover);
+    }
+    input[type="range"].temp-slider::-moz-range-thumb {
+      width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-150);
+      border-radius: var(--radius-pill);
+      background: var(--slider-progress); border: var(--sys-border-width-sm) solid var(--surface-hover);
+    }
+    .slider-range-row {
+      display: flex; justify-content: space-between; padding-top: var(--sys-space-fixed-100);
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); color: var(--text-muted);
+    }
+
+    /* ── OUTPUT PANEL ───────────────────────────────────────────────────── */
+    .section-output { display: flex; flex-direction: column; gap: 28px; width: 100%; padding-inline: var(--sys-space-fixed-50); }
+    .section-model { display: flex; flex-direction: column; gap: var(--sys-space-fixed-600); }
+    .model-combo { display: flex; flex-direction: column; gap: var(--sys-space-fixed-150); }
+    .model-label {
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
+    }
+    /* live layout: three columns (1fr, 4% gap, 1fr); Model is always the first column and Powertrain the third,
+       so a lone Model select keeps its half width exactly like the live page */
+    .select-group { display: grid; grid-template-columns: minmax(0, 1fr) 4% minmax(0, 1fr); }
+    .select-group > div { min-width: 0; }
+    .select-group > div:first-child { grid-column: 1; }
+    .select-group > div:last-child { grid-column: 3; }
+    .select-sub-label {
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); color: var(--text-muted);
+      padding-bottom: var(--sys-space-fixed-100); display: block;
+    }
+
+    /* ── CAR + DISCLAIMER ───────────────────────────────────────────────── */
+    .car-wrapper { display: flex; flex-direction: column; gap: var(--sys-space-fixed-50); }
+    .car-img-box { aspect-ratio: 260/110; width: 100%; position: relative; overflow: hidden; border-radius: var(--radius-media); }
+    .car-img-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .cons-data {
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0;
+      color: var(--text-muted);
+    }
+
+    /* ── RESULT CARD ────────────────────────────────────────────────────── */
+    .section-result {
+      background: var(--surface-card);
+      border-radius: var(--radius-card);
+      padding: var(--sys-space-fixed-300);
+      display: flex; flex-direction: column; gap: var(--sys-space-fixed-100);
+    }
+    #label-group { display: flex; flex-direction: column; gap: 0; }
+    .result-headline { display: flex; align-items: center; gap: var(--sys-space-fixed-50); height: var(--sys-space-fixed-300); margin-top: 5px; margin-bottom: calc(-1 * var(--sys-space-fixed-25)); }
+    .result-label {
+      font-family: var(--font-copy);
+      font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0;
+      font-stretch: calc(var(--wdth-wide) * 1%); font-weight: var(--wght-normal);
+      color: var(--text-muted); text-decoration: none;
+    }
+    .result-value {
+      font-family: var(--font-headline);
+      font-variation-settings: var(--fvs-headline-normal);
+      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2);
+      color: var(--text-primary); letter-spacing: 0;
+      display: flex; flex-wrap: wrap; align-items: baseline;
+    }
+    .slot-digit { display: inline-block; overflow: hidden; height: 1em; vertical-align: top; }
+    /* result digits are reels (0-9) that all slide at the same moment: transform 1s ease, no stagger (as on the live tool) */
+    .slot-reel { display: flex; flex-direction: column; transition: transform var(--sys-motion-duration-reel) ease; }
+    .slot-reel span { display: block; height: 1em; line-height: 1; text-align: center; }
+    .range-unit {
+      font-family: var(--font-headline);
+      font-variation-settings: var(--fvs-headline-normal);
+      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2);
+      color: var(--text-primary);
+    }
+
+    /* ── TYPOGRAPHY TOKENS ─────────────────────────────────────────────── */
+    /* Fixed: Copy */
+    .sys-type-copy-order1-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; }
+    .sys-type-copy-order1-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; }
+    .sys-type-copy-order2-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; }
+    .sys-type-copy-order2-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; }
+    .sys-type-copy-order3-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; }
+    .sys-type-copy-order3-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; }
+    /* Fixed: Label */
+    .sys-type-label-order1-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1); letter-spacing: 0; }
+    .sys-type-label-order1-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1); letter-spacing: 0; }
+    .sys-type-label-order2-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); letter-spacing: 0; }
+    .sys-type-label-order2-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order2); line-height: var(--sys-lh-label-order2); letter-spacing: 0; }
+    .sys-type-label-order3-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order3); line-height: var(--sys-lh-label-order3); letter-spacing: 0; }
+    .sys-type-label-order3-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order3); line-height: var(--sys-lh-label-order3); letter-spacing: 0; }
+    .sys-type-label-order4-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-label-order4); line-height: var(--sys-lh-label-order4); letter-spacing: 0; }
+    .sys-type-label-order4-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-label-order4); line-height: var(--sys-lh-label-order4); letter-spacing: 0; }
+    /* Fixed: Link */
+    .sys-type-link-order1-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order1-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order2-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order2-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order3-normal { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal); font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; text-decoration: underline; }
+    .sys-type-link-order3-bold   { font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-bold);   font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); letter-spacing: 0; text-decoration: underline; }
+    /* Responsive: Display */
+    .sys-type-display-order1-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-display-order1); line-height: var(--sys-lh-display-order1); letter-spacing: 0; }
+    .sys-type-display-order2-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); letter-spacing: 0; }
+    .sys-type-display-order3-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-display-order3); line-height: var(--sys-lh-display-order3); letter-spacing: 0; }
+    /* Responsive: Headline */
+    .sys-type-headline-order1-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
+    .sys-type-headline-order1-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order1); line-height: var(--sys-lh-headline-order1); letter-spacing: 0; }
+    .sys-type-headline-order2-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
+    .sys-type-headline-order2-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); letter-spacing: 0; }
+    .sys-type-headline-order3-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
+    .sys-type-headline-order3-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order3); line-height: var(--sys-lh-headline-order3); letter-spacing: 0; }
+    .sys-type-headline-order4-normal { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
+    .sys-type-headline-order4-bold   { font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-bold);   font-size: var(--sys-fs-headline-order4); line-height: var(--sys-lh-headline-order4); letter-spacing: 0; }
+
+    /* ── RESPONSIVE: TOPBAR ─────────────────────────────────────────────── */
+    /* Live: search sits left of the logo below 1024px and in the right group from 1024px; the desktop nav (logo + links left) starts at 1497px */
+    @media (min-width: 1024px) {
+      .topbar-search-left { display: none; }
+      .topbar-search-right { display: flex; }
+    }
+    @media (min-width: 1497px) {
+      .topbar { gap: var(--sys-space-fixed-400); }
+      .topbar-mobile-left { display: none; }
+      .topbar-nav { display: flex; }
+      .topbar-right { flex: initial; flex-shrink: 0; }
+    }
+
+    /* ── RESPONSIVE: LAYOUT ─────────────────────────────────────────────── */
+    @media (min-width: 1024px) {
+      .section-group { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 2.2fr); gap: var(--sys-space-relative-2xl); }
+      .section-input {
+        width: auto;
+        border: var(--sys-border-width-sm) solid var(--border-card);
+        border-radius: var(--radius-card);
+        padding: var(--sys-space-fixed-500);
+      }
+      .section-output { width: auto; }
+    }
+    @media (min-width: 1440px) {
+      .header { max-width: none; }
+      .section-input { padding: var(--sys-space-fixed-700); }
+    }
+    @media (min-width: 1920px) {
+      .section-group { gap: var(--sys-space-fixed-700); }
+      .section-input { flex: none; width: auto; padding: var(--sys-space-fixed-700); gap: var(--sys-space-fixed-400); }
+      .section-output { width: auto; }
+    }
+
+
+    /* ── LIVE ALIGNMENT: header gap, extra live elements, footnote, FAQ, sticky bar ────────────────── */
+    /* Residual px values below (51, 49, 47, 73, 30, 34, ...) are measured offsets of the live page; no DS3 spacing token has these values. */
+    @media (min-width: 1024px) and (max-width: 1439px) { .section-group { grid-template-columns: minmax(0, 4fr) minmax(0, 2.526fr); } }
+    .header { margin-bottom: var(--sys-space-fixed-500); }
+    @media (min-width: 768px)  { .header { margin-bottom: 51px; } }
+    @media (min-width: 1024px) { .header { margin-bottom: 49px; } }
+    @media (min-width: 1440px) { .header { margin-bottom: 47px; } }
+    @media (min-width: 1920px) { .header { margin-bottom: 73px; } }
+    .combo--select { padding-bottom: var(--sys-space-fixed-100); }
+    .model-combo .question { min-height: var(--sys-space-fixed-300); }
+    /* Text button (Show all values): button is 100% white and underlined, its label is 70%; hover/pressed fade the underline to 70% */
+    .cons-link {
+      display: block; align-self: flex-start; background: none; border: 0; padding: 0; text-align: left; cursor: pointer;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2); color: var(--text-primary);
+      text-decoration: underline; text-underline-offset: var(--sys-space-fixed-50);
+      transition-property: color, text-decoration-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
+    }
+    .cons-link > span { display: block; color: var(--text-muted); }
+    .cons-link:hover, .cons-link:active { color: var(--text-muted); }
+    .fn-ref { font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); vertical-align: top; margin-left: var(--sys-space-fixed-25); }
+    .section-input { position: relative; }
+    #input-end { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; pointer-events: none; }
+    .battery-options { display: grid; grid-template-columns: 1fr; gap: var(--sys-space-fixed-250); }
+    @media (min-width: 1024px) { .battery-options { grid-template-columns: 1fr 1fr; } }
+
+    /* footnote */
+    .footnote {
+      display: flex; gap: 19px; padding-inline: var(--sys-space-fixed-200); margin-top: 30px;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); color: var(--text-muted);
+    }
+    .footnote-mark { flex: 0 0 var(--sys-space-fixed-100); }
+    .footnote-text { margin: 0; }
+    @media (min-width: 375px)  { .footnote { padding-inline: 19px; } }
+    @media (min-width: 768px)  { .footnote { padding-inline: 35px; } }
+    @media (min-width: 1024px) { .footnote { padding-inline: 3px; } }
+    @media (min-width: 1440px) { .footnote { margin-top: 34px; } }
+
+    /* FAQ accordion */
+    .faq { display: flex; flex-direction: column; }
+    /* heading: text is always left-aligned inside a box that shrinks to fit and is centred (as on the live pages) */
+    .faq-heading {
+      width: fit-content; max-width: 100%; margin: 31px auto 0; text-align: left;
+      font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal); font-weight: var(--wght-normal);
+      font-size: var(--sys-fs-headline-order2); line-height: var(--sys-lh-headline-order2); color: var(--text-primary);
+    }
+    @media (min-width: 1024px) { .faq-heading { margin-top: 39px; } }
+    @media (min-width: 1920px) { .faq-heading { margin-top: 83px; } }
+    .faq-list { width: min(62.5vw, 1200px); align-self: center; margin-top: 13px; border-bottom: var(--sys-border-width-sm) solid var(--border-card); }
+    @media (min-width: 375px)  { .faq-list { margin-top: 15px; } }
+    @media (min-width: 768px)  { .faq-list { margin-top: var(--sys-space-fixed-400); } }
+    @media (min-width: 1024px) { .faq-list { margin-top: 42px; } }
+    @media (min-width: 1440px) { .faq-list { margin-top: 60px; } }
+    @media (min-width: 1920px) { .faq-list { margin-top: var(--sys-space-fixed-1000); } }
+    .faq-item { border-top: var(--sys-border-width-sm) solid var(--border-card); }
+    /* Row states (DS3): hover/pressed = hover surface + 70% text; focused (after click or keyboard) = selected surface + 70% text, focus wins over hover */
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between; gap: var(--sys-space-fixed-100);
+      width: 100%; padding: var(--sys-space-fixed-200); background-color: transparent; border: 0; text-align: left; cursor: pointer;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-label-order1); line-height: var(--sys-lh-label-order1); color: var(--text-primary);
+      transition: color var(--sys-motion-duration-base) ease, background-color var(--sys-motion-duration-base) ease;
+    }
+    .faq-q:hover, .faq-q:active { background-color: var(--surface-hover); color: var(--text-muted); }
+    .faq-q:focus:not(:active) { background-color: var(--surface-selected); color: var(--text-muted); }
+    .faq-q svg { flex: 0 0 var(--sys-space-fixed-300); width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); transition: transform var(--sys-motion-duration-fast) ease-in; }
+    .faq-q[aria-expanded="true"] svg { transform: rotate(180deg); }
+    /* Answer panel (as on the live page): the grid rows run 0fr -> 1fr over 0.25s, the inner (grid item, overflow hidden) fades in,
+       pads from 0 16px to 16px and turns visible over 0.32s ease-in, in both directions. Only one item is open at a time. */
+    .faq-panel { display: grid; grid-template-rows: 0fr; transition: all var(--sys-motion-duration-base) ease; }
+    .faq-panel.is-open { grid-template-rows: 1fr; }
+    .faq-panel-inner {
+      overflow: hidden; padding: 0 var(--sys-space-fixed-200); opacity: 0; visibility: hidden;
+      transition-property: transform, opacity, padding, visibility;
+      transition-duration: var(--sys-motion-duration-faq-inner);
+      transition-timing-function: var(--sys-motion-easing-faq-inner);
+    }
+    .faq-panel.is-open .faq-panel-inner { padding: var(--sys-space-fixed-200); opacity: 1; visibility: visible; }
+    .faq-panel-inner p {
+      margin: 0; font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
+    }
+
+    /* page bottom spacing (end of FAQ list to end of page, from the live page) */
+    @media (min-width: 375px)  { .page-layout { padding-bottom: 44px; } }
+    @media (min-width: 768px)  { .page-layout { padding-bottom: 60px; } }
+    @media (min-width: 1024px) { .page-layout { padding-bottom: 71px; } }
+    @media (min-width: 1440px) { .page-layout { padding-bottom: 92px; } }
+    @media (min-width: 1920px) { .page-layout { padding-bottom: 111px; } }
+
+    /* Sticky result bar (below 1024px only), as on the live page: fixed to the bottom, 64px wider than the viewport on the right,
+       10% tinted blurred surface with an opaque 1px top border; slides away (transform 0.2s) while the end of the input card is in view. */
+    .result-bar { display: none; }
+    @media (max-width: 1023px) {
+      .result-bar {
+        display: block; position: fixed; left: 0; right: calc(var(--sys-space-fixed-800) * -1); bottom: 0; z-index: var(--sys-z-sticky);
+        padding: var(--sys-space-fixed-200) var(--sys-space-fixed-400);
+        background-color: var(--surface-card);
+        border-top: var(--sys-border-width-sm) solid var(--border-sticky);
+        -webkit-backdrop-filter: blur(var(--sys-blur-surface)); backdrop-filter: blur(var(--sys-blur-surface));
+        transform: translateY(0);
+        transition: transform var(--sys-motion-duration-fast);
+      }
+      .result-bar.is-hidden { transform: translateY(100%); }
+    }
+    .result-bar-label {
+      display: block;
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
+    }
+    .result-bar-value {
+      display: block;
+      font-family: var(--font-headline); font-variation-settings: var(--fvs-headline-normal);
+      font-size: var(--sys-fs-display-order2); line-height: var(--sys-lh-display-order2); color: var(--text-primary);
+    }
+
+    /* ── INFO LAYER (modal) ─────────────────────────────────────────────── */
+    /* Same structure and motion as the live one-layer. Two fixed siblings (shader, then outer, both z-index 1000);
+       outer > width wrapper > open-animation wrapper > native <dialog open> > scroll container > content, plus the Close button.
+       Below 768px: bottom sheet that slides up (no fade). From 768px: centred dialog that rises 40px and fades in.
+       The layer is shown/hidden as a whole (#info-layer[hidden]): closing removes it at once, there is no exit animation. */
+    #info-layer { display: contents; }
+    #info-layer[hidden] { display: none; }
+    .layer-shader {
+      position: fixed; inset: 0; z-index: var(--sys-z-layer);
+      background-color: var(--surface-shader);
+      animation: layer-fade-in var(--sys-motion-duration-layer) var(--sys-motion-easing-standard);
+    }
+    .layer-outer {
+      position: fixed; inset: 0; z-index: var(--sys-z-layer);
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    }
+    .layer-width { width: min(100%, var(--sys-breakpoint-lg)); max-height: 100%; }
+    .layer-open {
+      display: flex; justify-content: center; max-height: 100%;
+      animation: layer-sheet-in var(--sys-motion-duration-layer-slide) var(--sys-motion-easing-standard) forwards;
+    }
+    .layer-dialog {
+      display: flex; flex-direction: column; justify-content: center; position: relative; inset: 0;
+      width: 100%; max-height: 100%; margin: 0; padding: 0; overflow: visible;
+      border: var(--sys-border-width-sm) solid var(--border-layer);
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
+      background: var(--gradient-layer);
+    }
+    .layer-scroll { max-height: 100vh; overflow: auto; }
+    .layer-content { padding: var(--sys-space-relative-xl); }
+    .layer-copy { padding-bottom: var(--sys-space-fixed-600); }   /* bottom sheet: extra space below the copy (as on the live layer) */
+    .layer-text {
+      margin: 0; font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order1); line-height: var(--sys-lh-copy-order1); color: var(--text-muted);
+    }
+    .layer-link {
+      display: block; width: fit-content; margin-top: var(--layer-text-gap);
+      font-family: var(--font-copy); font-variation-settings: var(--fvs-copy-normal);
+      font-size: var(--sys-fs-copy-order2); line-height: var(--sys-lh-copy-order2);
+      color: var(--text-primary); text-decoration: underline; cursor: pointer;
+      transition-property: color, text-decoration-color;
+      transition-duration: var(--sys-motion-duration-base);
+      transition-timing-function: var(--sys-motion-easing-standard);
+    }
+    .layer-link:hover, .layer-link:active { color: var(--text-muted); }
+    .layer-link[hidden] { display: none; }
+    .layer-close-wrap {
+      position: absolute; top: var(--sys-space-fixed-100); right: var(--sys-space-fixed-100); z-index: var(--sys-z-layer-close);
+      display: flex; justify-content: flex-end;
+    }
+    @keyframes layer-fade-in  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes layer-slide-in { from { transform: translateY(var(--sys-space-fixed-500)); } to { transform: translateY(0); } }
+    @keyframes layer-sheet-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @media (min-width: 768px) {
+      .layer-outer { justify-content: center; }
+      .layer-open {
+        animation: layer-slide-in var(--sys-motion-duration-layer-slide) var(--sys-motion-easing-standard) forwards,
+                   layer-fade-in var(--sys-motion-duration-layer) var(--sys-motion-easing-standard) forwards;
+      }
+      .layer-content { padding: var(--sys-space-fixed-600); }
+      .layer-copy { padding-bottom: 0; }
+    }
+    @media (min-width: 1024px) {
+      .layer-dialog { border-radius: var(--radius-card); }
+      .layer-content { padding: var(--sys-space-fixed-700); }
+    }
+    @media (min-width: 1440px) {
+      .layer-content { padding: var(--sys-space-fixed-800); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Icon sprite: 16x16 stroke icons (info-circle-xs, close-xs) referenced with <use>; colour follows currentColor -->
+<svg class="icon-sprite" aria-hidden="true" focusable="false">
+  <symbol id="icon-info-circle-xs" viewBox="0 0 16 16"><path d="M8 12.5V7M8 5.5V3.5M8 .5a7.5 7.5 0 1 1 0 15a7.5 7.5 0 1 1 0-15Z" stroke="currentColor"/></symbol>
+  <symbol id="icon-close-xs" viewBox="0 0 16 16"><path d="M3 3L13.3 13.3M13.25 3L3.25 13" stroke="currentColor"/></symbol>
+</svg>
+
+<!-- ── TOPBAR ─────────────────────────────────────────────────────────── -->
+<nav class="topbar">
+  <!-- Left below 1497px: hamburger, then search below 1024px -->
+  <div class="topbar-mobile-left">
+    <div class="nav-icon topbar-menu-icon">
+      <img src="assets/icons/menu.svg" width="18" height="9" alt="">
+    </div>
+    <div class="nav-icon topbar-search-left">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+      <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="#DBDFE6"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Audi rings: centered below 1497px, left from 1497px -->
+  <div class="topbar-rings">
+    <img src="assets/logo-audi.svg" width="69" height="24" alt="Audi">
+  </div>
+
+  <!-- Nav links (from 1497px) -->
+  <div class="topbar-nav">
+    <span class="topbar-nav-item">Models</span>
+    <span class="topbar-nav-item">Find &amp; Buy</span>
+    <span class="topbar-nav-item">Owners</span>
+    <span class="topbar-nav-item">Electric</span>
+    <span class="topbar-nav-item">Discover Audi</span>
+  </div>
+
+  <!-- Right icons (search from 1024px) -->
+  <div class="topbar-right">
+    <div class="nav-icon topbar-search-right">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+      <path d="M22 22L13.7174 13.7174M15.5435 9.02174C15.5435 12.987 12.5696 15.5435 9.02174 15.5435C5.42174 15.5435 2.5 12.6217 2.5 9.02174C2.5 5.42174 5.42174 2.5 9.02174 2.5C12.6217 2.5 15.5435 5.42174 15.5435 9.02174Z" stroke="#DBDFE6"/>
+      </svg>
+    </div>
+    <div class="nav-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.11091 4.61091C4.2588 2.46303 7.7412 2.46303 9.88909 4.61091L12 6.72183L14.1109 4.61091C16.2588 2.46303 19.7412 2.46303 21.8891 4.61091C24.037 6.7588 24.037 10.2412 21.8891 12.3891L12 22.2782L2.11091 12.3891C-0.036971 10.2412 -0.036971 6.7588 2.11091 4.61091Z" stroke="#DBDFE6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="nav-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M17.5 13.5C18.1 13.5 18.5 13.9 18.5 14.5V21.5H5.5V14.5C5.5 13.9 5.9 13.5 6.5 13.5H17.5ZM13.5 3.5C14.6 3.5 15.5 4.4 15.5 5.5V8.5C15.5 9.6 14.6 10.5 13.5 10.5H10.5C9.4 10.5 8.5 9.6 8.5 8.5V5.5C8.5 4.4 9.4 3.5 10.5 3.5H13.5Z" stroke="#DBDFE6"/>
+      </svg>
+    </div>
+  </div>
+</nav>
+
+<!-- ── PAGE ───────────────────────────────────────────────────────────── -->
+<div class="page-layout">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-icon">
+      <!-- battery-at-destination -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <path d="M33.5 40.5C33.5 41.5609 33.0786 42.5783 32.3284 43.3284C31.5783 44.0786 30.5609 44.5 29.5 44.5H17.5C16.4391 44.5 15.4217 44.0786 14.6716 43.3284C13.9214 42.5783 13.5 41.5609 13.5 40.5V8.5H18.5M18.5 8.5V4.5H28.5V8.5M18.5 8.5H28.5M28.5 8.5H33.5V22M28.5 18.5H23.5M23.5 18.5H18.5M23.5 18.5V23.5M23.5 18.5V13.5M19.5 36.5H27.5M38 33C39.6569 33 41 31.6569 41 30C41 28.3431 39.6569 27 38 27C36.3431 27 35 28.3431 35 30C35 31.6569 36.3431 33 38 33ZM45 30C45 26.1 41.9 23 38 23C34.1 23 31 26.1 31 30C31 33.9 38 44 38 44C38 44 45 33.9 45 30Z" stroke="#FCFCFD" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>Calculate your electric driving range</h1>
+  </div>
+
+  <!-- SECTION GROUP -->
+  <div class="section-group">
+
+    <!-- ── LEFT: INPUTS ─────────────────────────────────────────────────── -->
+    <div class="section-input">
+
+      <!-- Q1: Driving distribution -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text"><span id="q-distr-lead">Where do you travel and how </span><span class="question-end"><span id="q-distr-tail">often?</span><button type="button" class="info-btn" aria-label="More information about your driving profile" data-layer="profile">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
+        </div>
+
+        <div class="slider-distr">
+          <div class="distr-outer">
+            <div class="distr-segments" id="distrSegments">
+              <div class="distr-divider" id="distr-divider-1" style="left:34%"></div>
+              <div class="distr-divider" id="distr-divider-2" style="left:65%"></div>
+              <!-- City -->
+              <div class="distr-seg" id="seg-city"></div>
+              <!-- Country road -->
+              <div class="distr-seg" id="seg-country"></div>
+              <!-- Motorway -->
+              <div class="distr-seg" id="seg-motorway"></div>
+              <!-- Icons — absolutely centred in their region by JS -->
+              <div class="distr-icon" id="icon-city" style="left:16.67%">
+                <img src="assets/icons/city.svg" width="20" height="20" alt="">
+              </div>
+              <div class="distr-icon" id="icon-country" style="left:50%">
+                <img src="assets/icons/country.svg" width="24" height="22" alt="">
+              </div>
+              <div class="distr-icon" id="icon-motorway" style="left:83.33%">
+                <img src="assets/icons/motorway.svg" width="23" height="22" alt="">
+              </div>
+              <!-- Handle 1 -->
+              <div class="distr-handle distr-handle-top" id="handle1" style="left:34%">
+                <div class="distr-thumb" role="slider" tabindex="0" aria-labelledby="q-distr-lead q-distr-tail" aria-describedby="distr-values" aria-valuemin="0" aria-valuemax="100" aria-valuenow="34" aria-valuetext="">
+                  <div class="distr-thumb-arrows">
+                    <img src="assets/icons/arrow-left.svg" width="7" height="13" alt="">
+                    <img src="assets/icons/arrow-right.svg" width="7" height="13" alt="" style="transform:scaleX(-1)">
+                  </div>
+                </div>
+              </div>
+              <!-- Handle 2 -->
+              <div class="distr-handle distr-handle-bottom" id="handle2" style="left:65%">
+                <div class="distr-thumb" role="slider" tabindex="0" aria-labelledby="q-distr-lead q-distr-tail" aria-describedby="distr-values" aria-valuemin="0" aria-valuemax="100" aria-valuenow="65" aria-valuetext="">
+                  <div class="distr-thumb-arrows">
+                    <img src="assets/icons/arrow-left.svg" width="7" height="13" alt="">
+                    <img src="assets/icons/arrow-right.svg" width="7" height="13" alt="" style="transform:scaleX(-1)">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="distr-labels" id="distr-values">
+            <div class="distr-label-col">
+              <span class="distr-pct" id="pct-city">33%</span>
+              <span class="distr-name">City</span>
+            </div>
+            <div class="distr-label-col">
+              <span class="distr-pct" id="pct-country">33%</span>
+              <span class="distr-name">Country road</span>
+            </div>
+            <div class="distr-label-col">
+              <span class="distr-pct" id="pct-motorway">33%</span>
+              <span class="distr-name">Motorway</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2: Speed on motorway -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">Do you often drive faster than 120 km/h on the <span class="question-end">motorway?<button type="button" class="info-btn" aria-label="More information about driving faster on the motorway" data-layer="speed">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
+        </div>
+        <div class="radio-group">
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="speed" value="no" checked>
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">No</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="speed" value="yes">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Yes</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q3: Tyre size -->
+      <div class="combo combo--select">
+        <div class="question">
+          <span class="question-text">What size tyres does your vehicle <span class="question-end">have?<button type="button" class="info-btn" aria-label="More information about tyre selection" data-layer="tyres">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
+        </div>
+        <div class="select-wrapper">
+          <select class="select-field" id="sel-tyres">
+            <option value="18">18”</option>
+            <option value="19">19”</option>
+            <option value="20" selected>20”</option>
+            <option value="21">21”</option>
+            <option value="22">22”</option>
+          </select>
+          <div class="select-chevron">
+            <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+          </div>
+        </div>
+      </div>
+
+      <!-- Q4: Temperature -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">What is the outside <span class="question-end">temperature?<button type="button" class="info-btn" aria-label="More information about the outside temperature" data-layer="temp">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
+        </div>
+        <div class="slider-temp">
+          <div class="slider-value-row">
+            <span class="slider-value-display" id="temp-display">+20 °C</span>
+          </div>
+          <div class="slider-track-row">
+            <div class="slider-track-bg"></div>
+            <div class="slider-track-fill" id="temp-fill"></div>
+            <input type="range" class="temp-slider" id="temp-slider" min="-20" max="30" value="20" step="10">
+          </div>
+          <div class="slider-range-row">
+            <span>-20 °C</span>
+            <span>+30 °C</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q5: Heating / A/C -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">Is the heating or air conditioning <span class="question-end">on?<button type="button" class="info-btn" aria-label="More information about heating or air conditioning" data-layer="hvac">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
+        </div>
+        <div class="radio-group">
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="hvac" value="no">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">No</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="hvac" value="yes" checked>
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Yes</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q6: Vehicle load -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">How is the vehicle <span class="question-end">loaded?<button type="button" class="info-btn" aria-label="More information about the vehicle load" data-layer="load">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
+        </div>
+        <div class="radio-group">
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="load" value="normal">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Normal</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="load" value="full" checked>
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Full</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q7: Battery age (Italy market: "How old is your battery?", distances in km; Figma page [Range] Italy Market Legal Requirement) -->
+      <div class="combo">
+        <div class="question">
+          <span class="question-text">How old is your <span class="question-end">battery?<button type="button" class="info-btn" aria-label="More information about the battery age" data-layer="battery">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button></span></span>
+        </div>
+        <div class="battery-options">
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="battery" value="new" checked>
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">New vehicle</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="battery" value="y3">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Up to 3 years or 60,000 km</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="battery" value="y5">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Up to 5 years or 100,000 km</span>
+          </label>
+          <label class="radio-option">
+            <div class="radio-control">
+              <input type="radio" name="battery" value="y8">
+              <span class="radio-visual"></span>
+            </div>
+            <span class="radio-label">Up to 8 years or 160,000 km</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="input-end" aria-hidden="true"></div>
+
+    </div><!-- /section-input -->
+
+    <!-- ── RIGHT: OUTPUT ─────────────────────────────────────────────────── -->
+    <div class="section-output">
+
+      <div class="section-model">
+        <div class="model-combo">
+          <div class="question">
+            <span class="model-label">A6 e-tron</span>
+          </div>
+          <div class="select-group">
+            <div id="model-col">
+              <span class="select-sub-label">Model</span>
+              <div class="select-wrapper">
+                <select class="select-field" id="sel-model">
+                  <optgroup label="A6 e-tron">
+                    <option value="a6-sportback" selected>A6 Sportback e-tron</option>
+                    <option value="a6-avant">A6 Avant e-tron</option>
+                    <option value="s6-sportback">S6 Sportback e-tron</option>
+                    <option value="s6-avant">S6 Avant e-tron</option>
+                  </optgroup>
+                  <optgroup label="Q4 e-tron">
+                    <option value="q4-suv">Q4 SUV e-tron</option>
+                    <option value="q4-sportback">Q4 Sportback e-tron</option>
+                  </optgroup>
+                </select>
+                <div class="select-chevron">
+                  <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+                </div>
+              </div>
+            </div>
+            <div id="pt-col">
+              <span class="select-sub-label">Powertrain</span>
+              <div class="select-wrapper">
+                <select class="select-field" id="sel-powertrain">
+                </select>
+                <div class="select-chevron">
+                  <img src="assets/icons/chevron-down.svg" width="24" height="24" alt="">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="car-wrapper">
+          <div class="car-img-box">
+            <img id="car-img" src="assets/media/a6-etron/a6-sportback.png" alt="Audi A6 Sportback e-tron">
+          </div>
+          <p class="cons-data">Power consumption (combined): 15.4 - 13.4 kWh/100 km²; CO₂ emissions (combined): 0 g/km²</p>
+          <button type="button" class="cons-link"><span>Show all values</span></button>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="section-result">
+        <div id="label-group">
+          <div class="result-headline">
+            <span class="result-label">Estimated Range<sup class="fn-ref">1</sup></span>
+            <button type="button" class="info-btn" aria-label="More information about the range indication" data-layer="result">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
+            </button>
+          </div>
+          <p class="result-value" id="result-value"></p>
+        </div>
+      </div>
+
+    </div><!-- /section-output -->
+  </div><!-- /section-group -->
+
+  <!-- ── FOOTNOTE ────────────────────────────────────────────────────── -->
+  <div class="footnote">
+    <span class="footnote-mark">1</span>
+    <p class="footnote-text">Range indication based on WLTP and the influence of various factors. These can include individual driving style, the selected Audi drive select mode, electrical consumers switched on, vehicle configuration and load, and climatic conditions (weather). The actual range may vary.</p>
+  </div>
+
+  <!-- ── FAQ ─────────────────────────────────────────────────────────── -->
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 class="faq-heading" id="faq-heading" tabindex="-1">Find explanations and tricks here to get the most out of your range</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-1" aria-expanded="false" aria-controls="faq-a-1">
+          <span>What influence does the driving speed have on the range of my e-vehicle?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-1" role="region" aria-labelledby="faq-q-1" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-2" aria-expanded="false" aria-controls="faq-a-2">
+          <span>What influence do temperature fluctuations in the vehicle interior have on the range?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-2" role="region" aria-labelledby="faq-q-2" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-3" aria-expanded="false" aria-controls="faq-a-3">
+          <span>How should I best use the interior heating so that my electric vehicle does not lose too much range?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-3" role="region" aria-labelledby="faq-q-3" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-4" aria-expanded="false" aria-controls="faq-a-4">
+          <span>What influence does my individual driving style have on the range of my e-vehicle?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-4" role="region" aria-labelledby="faq-q-4" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-5" aria-expanded="false" aria-controls="faq-a-5">
+          <span>How can I use braking processes while driving positively for my range?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-5" role="region" aria-labelledby="faq-q-5" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-6" aria-expanded="false" aria-controls="faq-a-6">
+          <span>What influence does the interior air conditioning have on the range of my e-vehicle?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-6" role="region" aria-labelledby="faq-q-6" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-q" id="faq-q-7" aria-expanded="false" aria-controls="faq-a-7">
+          <span>What influence does the interior heating have on the range of my electric vehicle?</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10L12.5 15.5L18 10" stroke="currentColor"/></svg>
+        </button>
+        <div class="faq-panel" id="faq-a-7" role="region" aria-labelledby="faq-q-7" aria-hidden="true">
+          <div class="faq-panel-inner"><p>Answer copy to be added.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div><!-- /page-layout -->
+
+<!-- Info layer (modal): shared by all info buttons; shown while open (shader and outer are fixed siblings, like the live one-layer) -->
+<div id="info-layer" hidden>
+  <div class="layer-shader"></div>
+  <div class="layer-outer">
+    <div class="layer-width">
+      <div class="layer-open">
+        <dialog class="layer-dialog" open role="dialog" aria-modal="true" aria-label="Opened layer" tabindex="-1">
+          <div class="layer-scroll" data-scroll-context>
+            <div class="layer-content">
+              <div class="layer-copy">
+                <p class="layer-text" id="layer-text"></p>
+                <a class="layer-link" id="layer-link" href="#faq-heading">For more information, see the FAQ below.</a>
+              </div>
+            </div>
+          </div>
+          <div class="layer-close-wrap">
+            <button type="button" class="layer-close" id="layer-close" aria-label="Close layer">
+              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-close-xs"/></svg>
+            </button>
+          </div>
+        </dialog>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sticky result bar (below 1024px) -->
+<div class="result-bar is-hidden" id="result-bar" aria-hidden="true">
+  <span class="result-bar-label">Estimated Range</span>
+  <span class="result-bar-value" id="result-bar-value"></span>
+</div>
+
+<script>
+  /* ── MODEL CONFIG ── */
+  const MODELS = {
+    'a6-sportback': {
+      family: 'A6 e-tron',
+      powertrains: [
+        { value: 'etron',        label: 'e-tron',              buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-sportback-e-tron/configurator/?pr=GHAABA1_2027|0E0E|FW#configurator', consumption: '15,4 – 13,3 kWh/100 km' },
+        { value: 'performance',  label: 'e-tron performance',  buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-sportback-e-tron/configurator/?pr=GHAAC81_2027|0E0E|FW#configurator', consumption: '15,8 – 13,6 kWh/100 km' },
+        { value: 'quattro',      label: 'e-tron quattro',      buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-sportback-e-tron/configurator/?pr=GHAAD81_2027%7C0E0E%7CFW#configurator', consumption: '16,6 – 14,4 kWh/100 km' },
+      ],
+      tyres: [18,19,20,21,22], defaultTyre: 20,
+      image: 'assets/media/a6-etron/a6-sportback.png', alt: 'Audi A6 Sportback e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-sportback-e-tron/configurator/?pr=GHAABA1_2027|0E0E|FW#configurator',
+      newCars: 174, newCarsUrl: 'https://www.audi.co.uk/en/new-car-search/?#filter=carline.a6sbetron',
+      usedCars: 114, usedCarsUrl: 'https://www.audi.co.uk/en/used-car-search/?intcid=uc-vtp-filter-switch',
+    },
+    'a6-avant': {
+      family: 'A6 e-tron',
+      powertrains: [
+        { value: 'etron',        label: 'e-tron',             buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-avant-e-tron/configurator/?pr=GH5ABA1_2027|0E0E|FW#configurator', consumption: '16,3 – 14 kWh/100 km' },
+        { value: 'performance',  label: 'e-tron performance', buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-avant-e-tron/configurator/?pr=GH5AC81_2027|0E0E|FW#configurator', consumption: '16,8 – 14,3 kWh/100 km' },
+        { value: 'quattro',      label: 'e-tron quattro',     buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-avant-e-tron/configurator/?pr=GH5AD81_2027%7C0E0E%7CFW#configurator', consumption: '17,7 – 15,2 kWh/100 km' },
+      ],
+      tyres: [18,19,20,21,22], defaultTyre: 20,
+      image: 'assets/media/a6-etron/a6-avant.png', alt: 'Audi A6 Avant e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/a6-avant-e-tron/configurator/?pr=GH5ABA1_2027|0E0E|FW#configurator',
+      newCars: 143, newCarsUrl: 'https://www.audi.co.uk/en/new-car-search/',
+      usedCars: 73, usedCarsUrl: 'https://www.audi.co.uk/en/used-car-search/',
+    },
+    's6-sportback': {
+      family: 'A6 e-tron',
+      powertrains: null,
+      tyres: [18,19,20,21,22], defaultTyre: 21,
+      image: 'assets/media/a6-etron/s6-sportback.png', alt: 'Audi S6 Sportback e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/s6-sportback-e-tron/configurator/?pr=GHASE81_2027%7C0E0E%7CGX#configurator',
+      newCars: 8, newCarsUrl: 'https://entry.audi.com/entry?country=gb&language=en&sc_market=uk&target=results&filter=carline.s6sbetron',
+      usedCars: 2, usedCarsUrl: 'https://entry.audi.com/entry?country=gb&language=en&sc_market=ukuc&target=results&filter=carline.s6sbetron',
+      consumption: '16,7 – 15,7 kWh/100 km',
+    },
+    's6-avant': {
+      family: 'A6 e-tron',
+      powertrains: null,
+      tyres: [18,19,20,21,22], defaultTyre: 21,
+      image: 'assets/media/a6-etron/s6-avant.png', alt: 'Audi S6 Avant e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/a6-e-tron/s6-avant-e-tron/configurator/?pr=GH5SE81_2027%7C0E0E%7CGX#configurator',
+      newCars: 8, newCarsUrl: 'https://entry.audi.com/entry?country=gb&language=en&sc_market=uk&target=results&filter=carline.s6avantetron',
+      usedCars: 9, usedCarsUrl: 'https://entry.audi.com/entry?country=gb&language=en&sc_market=ukuc&target=results&filter=carline.s6avantetron',
+      consumption: '17,5 – 16,4 kWh/100 km',
+    },
+    'q4-suv': {
+      family: 'Q4 e-tron',
+      powertrains: [
+        { value: '40etron',   label: 'e-tron',             buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron/configurator/?pr=F4GAHM1_2027|V6V6|AI#configurator', consumption: '18 – 15,3 kWh/100 km' },
+        { value: '45etron',   label: 'e-tron performance', buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron/configurator/?pr=F4GA5K1_2027|V6V6|AI#configurator', consumption: '18,4 – 15,6 kWh/100 km' },
+        { value: '55quattro', label: 'e-tron quattro',     buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron/configurator/?pr=F4GAU31_2027%7CV6V6%7CAI#configurator', consumption: '19,1 – 16,1 kWh/100 km' },
+      ],
+      tyres: [19,20,21], defaultTyre: 20,
+      image: 'assets/media/q4-etron/q4-suv.png', alt: 'Audi Q4 SUV e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron/configurator/?pr=F4GAHM1_2027|V6V6|AI#configurator',
+      newCars: 202, newCarsUrl: 'https://www.audi.co.uk/en/new-car-search/',
+      usedCars: null, usedCarsUrl: 'https://www.audi.co.uk/en/used-car-search/?intcid=uc-vtp-filter-switch',
+    },
+    'q4-sportback': {
+      family: 'Q4 e-tron',
+      powertrains: [
+        { value: '40etron',   label: 'e-tron',             buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron-sportback/configurator/?pr=F4TAHM1_2027|V6V6|AI#configurator', consumption: '17,3 – 14,8 kWh/100 km' },
+        { value: '45etron',   label: 'e-tron performance', buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron-sportback/configurator/?pr=F4GA5K1_2027|V6V6|AI#configurator', consumption: '17,7 – 15,2 kWh/100 km' },
+        { value: '55quattro', label: 'e-tron quattro',     buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron-sportback/configurator/?pr=F4TAU31_2027|V6V6|AI#configurator', consumption: '18,6 – 15,6 kWh/100 km' },
+      ],
+      tyres: [19,20,21], defaultTyre: 20,
+      image: 'assets/media/q4-etron/q4-sportback.png', alt: 'Audi Q4 Sportback e-tron',
+      buildUrl: 'https://www.audi.co.uk/en/models/q4/q4-e-tron-sportback/configurator/?pr=F4TAHM1_2027|V6V6|AI#configurator',
+      newCars: 307, newCarsUrl: 'https://www.audi.co.uk/en/new-car-search/',
+      usedCars: 3, usedCarsUrl: 'https://www.audi.co.uk/en/used-car-search/?intcid=uc-vtp-filter-switch',
+    },
+  };
+
+  /* ── BASE RANGES (WLTP, miles) ── */
+  const BASE = {
+    'a6-sportback': { etron: 365, performance: 436, quattro: 414 },
+    'a6-avant':     { etron: 350, performance: 419, quattro: 399 },
+    's6-sportback': { default: 399 },
+    's6-avant':     { default: 380 },
+    'q4-suv':       { '40etron': 256, '45etron': 351, '55quattro': 327 },
+    'q4-sportback': { '40etron': 270, '45etron': 347, '55quattro': 355 },
+  };
+
+  let cityPct = 34;
+  let countryPct = 31;
+  function mwPct() { return Math.max(0, 100 - cityPct - countryPct); }
+
+  function updateConsumption() {
+    const model = document.getElementById('sel-model').value;
+    const cfg   = MODELS[model];
+    if (!cfg) return;
+    let consumption = cfg.consumption ?? null;
+    if (cfg.powertrains) {
+      const pt = document.getElementById('sel-powertrain').value;
+      const ptCfg = cfg.powertrains.find(p => p.value === pt);
+      if (ptCfg) consumption = ptCfg.consumption ?? null;
+    }
+    const el = document.querySelector('.cons-data');
+    // Design format: dot decimals, hyphen range and a footnote marker after the units
+    const fmt = c => c.replace(/,/g, '.').replace(' – ', ' - ');
+    if (el) el.textContent = consumption
+      ? `Power consumption (combined): ${fmt(consumption)}²; CO₂ emissions (combined): 0 g/km²`
+      : '';
+  }
+
+  function updateModelConfig() {
+    const model = document.getElementById('sel-model').value;
+    const cfg   = MODELS[model];
+    if (!cfg) return;
+
+    // Floating family label
+    document.querySelector('.model-label').textContent = cfg.family;
+
+    // Powertrain dropdown
+    const ptContainer = document.getElementById('pt-col');
+    if (cfg.powertrains) {
+      ptContainer.style.display = '';
+      const ptSel = document.getElementById('sel-powertrain');
+      ptSel.innerHTML = cfg.powertrains
+        .map(p => `<option value="${p.value}">${p.label}</option>`).join('');
+    } else {
+      ptContainer.style.display = 'none';
+    }
+
+    // Tyre options
+    const tyreSel = document.getElementById('sel-tyres');
+    tyreSel.innerHTML = cfg.tyres
+      .map(t => `<option value="${t}"${t === cfg.defaultTyre ? ' selected' : ''}>${t}”</option>`).join('');
+
+    // Car image
+    const img = document.getElementById('car-img');
+    img.src = cfg.image;
+    img.alt = cfg.alt;
+
+    // Consumption — resolved after powertrain options are populated
+    updateConsumption();
+
+    updateResult();
+  }
+
+  function calcRange() {
+    const model       = document.getElementById('sel-model').value;
+    const powertrain  = document.getElementById('sel-powertrain').value;
+    const modelBase   = BASE[model] ?? {};
+    const base        = modelBase[powertrain] ?? modelBase.default ?? Object.values(modelBase)[0] ?? 365;
+    const defaultTyre = MODELS[model]?.defaultTyre ?? 20;
+
+    const city    = cityPct / 100;
+    const country = countryPct / 100;
+    const mw      = mwPct() / 100;
+    const REF_MIX = (1/3) * 1.18 + (1/3) * 1.00 + (1/3) * 0.78;
+    const mix     = (city * 1.18 + country * 1.00 + mw * 0.78) / REF_MIX;
+
+    const highSpeed  = document.querySelector('input[name="speed"]:checked')?.value === 'yes';
+    const tyreSize   = parseInt(document.getElementById('sel-tyres').value);
+    const temp       = parseInt(document.getElementById('temp-slider').value);
+    const hvacOn     = document.querySelector('input[name="hvac"]:checked')?.value === 'yes';
+    const loadFull   = document.querySelector('input[name="load"]:checked')?.value === 'full';
+    const batteryF   = { new: 1.00, y3: 0.97, y5: 0.94, y8: 0.90 }[document.querySelector('input[name="battery"]:checked')?.value] ?? 1.00;
+
+    let tempF;
+    if      (temp <= 0)  tempF = 0.72 + (temp + 20) / 20 * 0.22;
+    else if (temp <= 20) tempF = 0.94 + (temp / 20) * 0.06;
+    else                 tempF = 1.00 - (temp - 20) / 10 * 0.06;
+
+    const total = base
+      * mix
+      * (highSpeed ? 0.90 : 1.00)
+      * (1 - (tyreSize - defaultTyre) * 0.015)
+      * tempF
+      * (hvacOn   ? 0.92 : 1.00)
+      * (loadFull ? 0.96 : 1.00)
+      * batteryF;
+
+    return Math.round(total);
+  }
+
+  function buildSlots(container, value) {
+    const digits = String(value).split('');
+    const existing = container.querySelectorAll('.slot-digit');
+    if (existing.length !== digits.length) {
+      container.innerHTML = '';
+      digits.forEach(() => {
+        const col = document.createElement('span');
+        col.className = 'slot-digit';
+        const reel = document.createElement('span');
+        reel.className = 'slot-reel';
+        for (let i = 0; i <= 9; i++) {
+          const d = document.createElement('span');
+          d.textContent = i;
+          reel.appendChild(d);
+        }
+        col.appendChild(reel);
+        container.appendChild(col);
+      });
+      const unit = document.createElement('span');
+      unit.className = 'range-unit';
+      unit.textContent = ' miles';
+      container.appendChild(unit);
+    }
+    container.querySelectorAll('.slot-digit').forEach((col, i) => {
+      const d = parseInt(digits[i]);
+      const reel = col.querySelector('.slot-reel');
+      reel.style.transform = `translateY(-${d}em)`;
+    });
+  }
+
+  function updateResult() {
+    const value = calcRange();
+    buildSlots(document.getElementById('result-value'), value);
+    const bar = document.getElementById('result-bar-value');
+    if (bar) bar.textContent = value + ' miles';
+  }
+
+  /* ── DISTRIBUTION SLIDER ── */
+  const segments  = document.getElementById('distrSegments');
+  const handle1El = document.getElementById('handle1');
+  const handle2El = document.getElementById('handle2');
+
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  /* Icon shrink/fade as a segment nears the edge (mirrors VW range-simulator's dist-icon sizing) */
+  const ICON_MAX = 24, ICON_MIN = 10;
+  function iconScale(pct) {
+    return clamp(ICON_MIN + (ICON_MAX - ICON_MIN) * (pct - 5) / 15, ICON_MIN, ICON_MAX) / ICON_MAX;
+  }
+  function iconOpacity(pct) {
+    return pct < 4 ? 0 : Math.min(1, (pct - 4) / 4);
+  }
+
+  const thumb1El = handle1El.querySelector('.distr-thumb');
+  const thumb2El = handle2El.querySelector('.distr-thumb');
+
+  /* Whole-percent model (as on the live tool): h1 = city, h2 = city + country road, the rest is motorway.
+     Left handle runs from 0 to the right handle's value, right handle from the left handle's value to 100. */
+  function setHandles(h1, h2) {
+    handle1El.style.left = h1 + '%';
+    handle2El.style.left = h2 + '%';
+    document.getElementById('distr-divider-1').style.left = h1 + '%';
+    document.getElementById('distr-divider-2').style.left = h2 + '%';
+    cityPct    = h1;
+    countryPct = h2 - h1;
+    document.getElementById('pct-city').textContent     = cityPct + '%';
+    document.getElementById('pct-country').textContent  = countryPct + '%';
+    document.getElementById('pct-motorway').textContent = mwPct() + '%';
+
+    /* slider semantics */
+    thumb1El.setAttribute('aria-valuemin', '0');
+    thumb1El.setAttribute('aria-valuemax', String(h2));
+    thumb1El.setAttribute('aria-valuenow', String(h1));
+    thumb1El.setAttribute('aria-valuetext', `${cityPct}% City ${countryPct}% Country road`);
+    thumb2El.setAttribute('aria-valuemin', String(h1));
+    thumb2El.setAttribute('aria-valuemax', '100');
+    thumb2El.setAttribute('aria-valuenow', String(h2));
+    thumb2El.setAttribute('aria-valuetext', `${countryPct}% Country road ${mwPct()}% Motorway`);
+
+    /* resize segment widths */
+    document.getElementById('seg-city').style.flex     = cityPct + ' 0 0%';
+    document.getElementById('seg-country').style.flex  = countryPct + ' 0 0%';
+    document.getElementById('seg-motorway').style.flex = mwPct() + ' 0 0%';
+
+    /* position each icon at its region's true centre, and shrink + fade it as the region nears the edge */
+    const iconCentres = [h1 / 2, (h1 + h2) / 2, (h2 + 100) / 2];
+    [['#icon-city', cityPct], ['#icon-country', countryPct], ['#icon-motorway', mwPct()]]
+      .forEach(([sel, pct], i) => {
+        const icon = document.querySelector(sel);
+        icon.style.left = iconCentres[i] + '%';
+        const img = icon.querySelector('img');
+        img.style.transform = `scale(${iconScale(pct)})`;
+        img.style.opacity   = iconOpacity(pct);
+      });
+
+    updateResult();
+  }
+
+  let dragging = null, dragStartX = 0, dragStartPct = 0;
+
+  /* mouse: the browser focuses the handle itself (pointer focus, so no focus-visible fill); touch: no emulated mouse events */
+  function dragStart(e, which) {
+    dragging = which;
+    dragStartX   = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    dragStartPct = which === 1 ? cityPct : cityPct + countryPct;
+    document.body.classList.add('is-dragging');
+    if (e.type === 'touchstart') e.preventDefault();
+  }
+
+  function dragMove(clientX) {
+    const rect  = segments.getBoundingClientRect();
+    const dxPct = ((clientX - dragStartX) / rect.width) * 100;
+    const newP  = Math.round(clamp(dragStartPct + dxPct, 0, 100));
+    const h2    = cityPct + countryPct;
+    if (dragging === 1) setHandles(clamp(newP, 0, h2), h2);
+    else                setHandles(cityPct, clamp(newP, cityPct, 100));
+  }
+
+  document.addEventListener('mousemove', e => { if (dragging) dragMove(e.clientX); });
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    dragMove(e.touches[0].clientX);
+  }, { passive: false });
+  const dragEnd = () => { dragging = null; document.body.classList.remove('is-dragging'); };
+  document.addEventListener('mouseup',  dragEnd);
+  document.addEventListener('touchend', dragEnd);
+
+  handle1El.addEventListener('mousedown',  e => dragStart(e, 1));
+  handle2El.addEventListener('mousedown',  e => dragStart(e, 2));
+  handle1El.addEventListener('touchstart', e => dragStart(e, 1), { passive: false });
+  handle2El.addEventListener('touchstart', e => dragStart(e, 2), { passive: false });
+
+  /* keyboard: Arrow Right/Up +1, Arrow Left/Down -1, Page Up +10, Page Down -10, Home = minimum, End = maximum */
+  [[thumb1El, 1], [thumb2El, 2]].forEach(([thumb, which]) => {
+    thumb.addEventListener('keydown', e => {
+      const h1 = cityPct, h2 = cityPct + countryPct;
+      const [lo, hi] = which === 1 ? [0, h2] : [h1, 100];
+      let v = which === 1 ? h1 : h2;
+      switch (e.key) {
+        case 'ArrowRight': case 'ArrowUp':   v += 1;  break;
+        case 'ArrowLeft':  case 'ArrowDown': v -= 1;  break;
+        case 'PageUp':   v += 10; break;
+        case 'PageDown': v -= 10; break;
+        case 'Home': v = lo; break;
+        case 'End':  v = hi; break;
+        default: return;
+      }
+      e.preventDefault();
+      v = clamp(v, lo, hi);
+      if (which === 1) setHandles(v, h2); else setHandles(h1, v);
+    });
+  });
+
+  /* ── TEMPERATURE SLIDER ── */
+  const tempSlider  = document.getElementById('temp-slider');
+  const tempDisplay = document.getElementById('temp-display');
+  const tempFill    = document.getElementById('temp-fill');
+  let heatingManuallySet = false;
+
+  function updateTemp() {
+    const val = parseInt(tempSlider.value);
+    const pct = ((val - (-20)) / 50) * 100;
+    tempFill.style.width = pct + '%';
+    tempDisplay.style.left = `calc(var(--sys-space-fixed-150) + (100% - 2 * var(--sys-space-fixed-150)) * ${pct / 100})`;
+    tempDisplay.style.transform = 'translateX(-50%)';
+    tempDisplay.textContent = (val > 0 ? '+' : '') + val + ' °C';
+    if (!heatingManuallySet) {
+      const autoYes = val !== 10 && val !== 20;
+      document.querySelector(`input[name="hvac"][value="${autoYes ? 'yes' : 'no'}"]`).checked = true;
+    }
+    updateResult();
+  }
+  tempSlider.addEventListener('input', updateTemp);
+
+  /* ── SELECTS ── */
+  document.getElementById('sel-model').addEventListener('change', updateModelConfig);
+  document.getElementById('sel-powertrain').addEventListener('change', () => { updateConsumption(); updateResult(); });
+  document.getElementById('sel-tyres').addEventListener('change', updateResult);
+
+  /* ── RADIO CHANGE ── */
+  document.querySelectorAll('input[type="radio"]').forEach(r =>
+    r.addEventListener('change', updateResult)
+  );
+  document.querySelectorAll('input[name="hvac"]').forEach(r =>
+    r.addEventListener('change', () => { heatingManuallySet = true; })
+  );
+
+  /* ── INIT ── */
+  updateModelConfig();
+  setHandles(34, 65);
+  updateTemp();
+
+  /* ── FAQ ACCORDION (exclusive, as on the live page) ──
+     Only one answer is open at a time: opening a row closes the open one at the same moment, clicking the open row closes it.
+     Enter / Space are the native button click. aria-expanded (button) and aria-hidden (panel) follow. */
+  const faqRows = [...document.querySelectorAll('.faq-q')];
+  const setFaqRow = (btn, open) => {
+    const panel = document.getElementById(btn.getAttribute('aria-controls'));
+    btn.setAttribute('aria-expanded', String(open));
+    panel.setAttribute('aria-hidden', String(!open));
+    panel.classList.toggle('is-open', open);
+  };
+  faqRows.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      faqRows.forEach(other => { if (other !== btn && other.getAttribute('aria-expanded') === 'true') setFaqRow(other, false); });
+      setFaqRow(btn, open);
+    });
+  });
+
+  /* ── INFO LAYER (modal) ──
+     Click on an info button shows the shared layer (CSS plays the open animation): focus moves to the dialog, Tab cycles link -> Close.
+     About 525ms after opening the page is scroll-locked (body position: fixed; top: -scrollY); closing restores it.
+     Escape / click outside the dialog / Close button remove the layer at once (no exit animation) and return focus to the info button. */
+  const LAYERS = {
+    profile: { faq: true,  text: 'Define your personal driving profile here and find out how the combination of driving scenarios you choose affects the range of your electric vehicle. Depending on the profile you define, there are direct implications for the range of your vehicle. For example, driving at high speed on the motorway uses considerably more energy than using the vehicle in city traffic.' },
+    speed:   { faq: true,  text: 'Driving faster than 120 km/h on the motorway considerably increases air resistance and therefore energy consumption. Select Yes if you regularly drive at these speeds to see how this affects the range of your electric vehicle.' },
+    tyres:   { faq: false, text: 'Find out here how the choice of wheel size and tyre type affects the consumption and range of your electric vehicle. In general, summer tyres have better rolling properties than winter tyres because of their tread, rubber compound and so on. The range effects shown here are based on a label A summer tyre and a label C winter tyre. Other tyres can lead to different effects on the range of the vehicle. When choosing the wheel size, it is mainly its aerodynamic properties that affect the range.' },
+    temp:    { faq: true,  text: 'The outside temperature has a considerable effect on the range. In cold weather the battery can deliver less energy and more energy is needed for heating, so the range falls. Mild temperatures give the longest range.' },
+    hvac:    { faq: false, text: 'Experience the effect of heating and air conditioning on the range of your electric vehicle. In contrast to the combustion vehicle, these secondary consumers are served exclusively from the high-voltage battery and thus have a strong influence on the possible range of the e-vehicle with high heating or cooling outputs.' },
+    load:    { faq: true,  text: 'The load changes the weight of the vehicle and therefore its energy consumption. A fully loaded vehicle needs more energy to drive, which reduces the range.' },
+    battery: { faq: false, text: 'The state of health (SoH) describes the ageing of the high-voltage battery. Over time its usable capacity decreases slightly, which reduces the range compared with a new vehicle.' },
+    result:  { faq: true,  text: 'The estimated range is calculated from the WLTP range of the selected model and the influence of the settings you have made. The actual range may vary.' },
+  };
+  const LAYER_LOCK_DELAY_MS = 525;   // measured on the live layer: the scroll lock is applied ~525ms after the click
+  const layerEl    = document.getElementById('info-layer');
+  const dialogEl   = layerEl.querySelector('.layer-dialog');
+  const layerText  = document.getElementById('layer-text');
+  const layerLink  = document.getElementById('layer-link');
+  const layerClose = document.getElementById('layer-close');
+  let layerOpener  = null;
+  let lockTimer    = 0;
+  let lockedAt     = null;   // scroll position while the page is locked
+
+  function lockPageScroll() {
+    lockedAt = window.scrollY;
+    document.body.style.top = '-' + lockedAt + 'px';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  }
+  function unlockPageScroll() {
+    clearTimeout(lockTimer);
+    if (lockedAt === null) return;
+    document.body.style.top = document.body.style.position = document.body.style.width = '';
+    window.scrollTo(0, lockedAt);
+    lockedAt = null;
+  }
+  function openLayer(btn) {
+    const cfg = LAYERS[btn.dataset.layer];
+    if (!cfg) return;
+    layerOpener = btn;
+    layerText.textContent = cfg.text;
+    layerLink.hidden = !cfg.faq;
+    layerEl.hidden = false;
+    dialogEl.focus();
+    clearTimeout(lockTimer);
+    lockTimer = setTimeout(lockPageScroll, LAYER_LOCK_DELAY_MS);
+  }
+  function closeLayer(returnFocus = true) {
+    if (layerEl.hidden) return;
+    layerEl.hidden = true;
+    unlockPageScroll();
+    const opener = layerOpener;
+    layerOpener = null;
+    if (returnFocus && opener) opener.focus({ preventScroll: true });
+  }
+  document.querySelectorAll('.info-btn[data-layer]').forEach(b => b.addEventListener('click', () => openLayer(b)));
+  layerClose.addEventListener('click', () => closeLayer());
+  layerEl.addEventListener('click', e => { if (!dialogEl.contains(e.target)) closeLayer(); });
+  layerLink.addEventListener('click', e => {
+    e.preventDefault();
+    closeLayer(false);
+    const h = document.getElementById('faq-heading');
+    h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    h.focus({ preventScroll: true });
+  });
+  document.addEventListener('keydown', e => {
+    if (layerEl.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeLayer(); return; }
+    if (e.key !== 'Tab') return;
+    const tabbables = [layerLink, layerClose].filter(el => !el.hidden);
+    const first = tabbables[0], last = tabbables[tabbables.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey) { if (active === first || active === dialogEl || !dialogEl.contains(active)) { e.preventDefault(); last.focus(); } }
+    else if (active === last || !dialogEl.contains(active)) { e.preventDefault(); first.focus(); }
+  });
+
+  /* ── STICKY RESULT BAR (below 1024px): visible while the end of the input card is still below the viewport ── */
+  (() => {
+    const bar = document.getElementById('result-bar');
+    const end = document.getElementById('input-end');
+    if (!bar || !end || !('IntersectionObserver' in window)) return;
+    new IntersectionObserver(([e]) => {
+      const hide = e.isIntersecting || e.boundingClientRect.top < 0;
+      bar.classList.toggle('is-hidden', hide);
+      bar.setAttribute('aria-hidden', String(hide));
+    }).observe(end);
+  })();
+</script>
+</body>
+</html>
