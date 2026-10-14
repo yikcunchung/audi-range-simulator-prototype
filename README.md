@@ -10,7 +10,7 @@ Open `index.html` in a browser. There is nothing to install or build, and it wor
 |---|---|
 | `index.html` | The default page, as on the live tool |
 | `italy-market/index-italy.html` | The Italy market version: adds the question "How old is your battery?" |
-| `next-step/index-cta-group.html`, `next-step/index-emerged.html` | Work in progress: result section with call-to-action buttons. Not the default. |
+| `next-step/index-section-group.html`, `next-step/index-cta-emerged.html` | Work in progress, needs further development: result section with call-to-action buttons. The client prefers the layout in `index-section-group.html` (buttons in their own card); `index-cta-emerged.html` is the alternative (buttons directly under the result card). Figma: page `[Range] Add Next Step CTAs`, sections "Section Group (Client Preferred)" and "CTA Emerged". |
 | `assets/` | Fonts, icons and model images |
 
 ## What you can try
