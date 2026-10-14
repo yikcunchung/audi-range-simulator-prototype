@@ -45,7 +45,7 @@
       --radius-pill:       999px;
       --max-content-width: 1920px;
       --page-width:        320px;
-      --sys-page-margin:   28px;
+      --sys-page-margin:   16px;
       --sys-breakpoint-xs:  320px;
       --sys-breakpoint-sm:  375px;
       --sys-breakpoint-md:  768px;
@@ -99,6 +99,9 @@
       --sys-fs-copy-order2:  0.875rem;
     }
 
+    @media (min-width: 375px) {
+      :root { --sys-page-margin: 28px; }
+    }
     @media (min-width: 768px) {
       :root {
         --sys-page-margin:        40px;
