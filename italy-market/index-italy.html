@@ -345,18 +345,16 @@
     .distr-seg {
       flex: 1; display: flex;
       align-items: center; justify-content: center;
-      position: relative;
+      position: relative; overflow: hidden;
     }
     .distr-seg:nth-child(2) {
       background: var(--surface-segment);
     }
     .distr-seg svg { width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); }
-    .distr-icon {
-      position: absolute; top: 50%;
-      transform: translate(-50%, -50%);
-      display: flex; align-items: center; justify-content: center;
-      pointer-events: none; z-index: 1;
-    }
+    /* As on live: each icon keeps its 24px size and full opacity (no scaling, no fade). It sits centred in its region; when the region gets narrower
+       than 24px the region clips it (cut off on the right), the icon is pushed out, not shrunk. */
+    .distr-icon { flex: 0 1 var(--sys-space-fixed-300); min-width: 0; height: var(--sys-space-fixed-300); overflow: hidden; pointer-events: none; }
+    .distr-icon-box { display: flex; align-items: center; justify-content: center; width: var(--sys-space-fixed-300); height: var(--sys-space-fixed-300); }
     .distr-divider {
       position: absolute; top: 0; bottom: 0; width: 0;
       border-left: var(--sys-border-width-sm) dashed var(--border-card);
@@ -956,20 +954,16 @@
               <div class="distr-divider" id="distr-divider-1" style="left:34%"></div>
               <div class="distr-divider" id="distr-divider-2" style="left:65%"></div>
               <!-- City -->
-              <div class="distr-seg" id="seg-city"></div>
+              <div class="distr-seg" id="seg-city">
+                <span class="distr-icon"><span class="distr-icon-box"><img src="../assets/icons/city.svg" width="20" height="20" alt=""></span></span>
+              </div>
               <!-- Country road -->
-              <div class="distr-seg" id="seg-country"></div>
+              <div class="distr-seg" id="seg-country">
+                <span class="distr-icon"><span class="distr-icon-box"><img src="../assets/icons/country.svg" width="24" height="22" alt=""></span></span>
+              </div>
               <!-- Motorway -->
-              <div class="distr-seg" id="seg-motorway"></div>
-              <!-- Icons — absolutely centred in their region by JS -->
-              <div class="distr-icon" id="icon-city" style="left:16.67%">
-                <img src="../assets/icons/city.svg" width="20" height="20" alt="">
-              </div>
-              <div class="distr-icon" id="icon-country" style="left:50%">
-                <img src="../assets/icons/country.svg" width="24" height="22" alt="">
-              </div>
-              <div class="distr-icon" id="icon-motorway" style="left:83.33%">
-                <img src="../assets/icons/motorway.svg" width="23" height="22" alt="">
+              <div class="distr-seg" id="seg-motorway">
+                <span class="distr-icon"><span class="distr-icon-box"><img src="../assets/icons/motorway.svg" width="23" height="22" alt=""></span></span>
               </div>
               <!-- Handle 1 -->
               <div class="distr-handle distr-handle-top" id="handle1" style="left:34%">
@@ -1571,15 +1565,6 @@
 
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
-  /* Icon shrink/fade as a segment nears the edge (mirrors VW range-simulator's dist-icon sizing) */
-  const ICON_MAX = 24, ICON_MIN = 10;
-  function iconScale(pct) {
-    return clamp(ICON_MIN + (ICON_MAX - ICON_MIN) * (pct - 5) / 15, ICON_MIN, ICON_MAX) / ICON_MAX;
-  }
-  function iconOpacity(pct) {
-    return pct < 4 ? 0 : Math.min(1, (pct - 4) / 4);
-  }
-
   const thumb1El = handle1El.querySelector('.distr-thumb');
   const thumb2El = handle2El.querySelector('.distr-thumb');
 
@@ -1610,17 +1595,6 @@
     document.getElementById('seg-city').style.flex     = cityPct + ' 0 0%';
     document.getElementById('seg-country').style.flex  = countryPct + ' 0 0%';
     document.getElementById('seg-motorway').style.flex = mwPct() + ' 0 0%';
-
-    /* position each icon at its region's true centre, and shrink + fade it as the region nears the edge */
-    const iconCentres = [h1 / 2, (h1 + h2) / 2, (h2 + 100) / 2];
-    [['#icon-city', cityPct], ['#icon-country', countryPct], ['#icon-motorway', mwPct()]]
-      .forEach(([sel, pct], i) => {
-        const icon = document.querySelector(sel);
-        icon.style.left = iconCentres[i] + '%';
-        const img = icon.querySelector('img');
-        img.style.transform = `scale(${iconScale(pct)})`;
-        img.style.opacity   = iconOpacity(pct);
-      });
 
     updateResult();
   }
