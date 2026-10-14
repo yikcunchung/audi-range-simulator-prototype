@@ -696,8 +696,6 @@
     .fn-ref { font-size: var(--sys-fs-copy-order3); line-height: var(--sys-lh-copy-order3); vertical-align: top; margin-left: var(--sys-space-fixed-25); }
     .section-input { position: relative; }
     #input-end { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; pointer-events: none; }
-    .battery-options { display: grid; grid-template-columns: 1fr; gap: var(--sys-space-fixed-250); }
-    @media (min-width: 1024px) { .battery-options { grid-template-columns: 1fr 1fr; } }
 
     /* footnote */
     .footnote {
@@ -1125,45 +1123,6 @@
         </div>
       </div>
 
-      <!-- Q7: Battery condition -->
-      <div class="combo">
-        <div class="question">
-          <span class="question-text">What is the condition of the vehicle <span class="question-end">battery?<button type="button" class="info-btn" aria-label="More information about the battery condition" data-layer="battery">
-              <svg width="16" height="16" fill="none" aria-hidden="true"><use href="#icon-info-circle-xs"/></svg>
-            </button></span></span>
-        </div>
-        <div class="battery-options">
-          <label class="radio-option">
-            <div class="radio-control">
-              <input type="radio" name="battery" value="new" checked>
-              <span class="radio-visual"></span>
-            </div>
-            <span class="radio-label">New vehicle</span>
-          </label>
-          <label class="radio-option">
-            <div class="radio-control">
-              <input type="radio" name="battery" value="y3">
-              <span class="radio-visual"></span>
-            </div>
-            <span class="radio-label">Up to 3 years or 37,000 miles</span>
-          </label>
-          <label class="radio-option">
-            <div class="radio-control">
-              <input type="radio" name="battery" value="y5">
-              <span class="radio-visual"></span>
-            </div>
-            <span class="radio-label">Up to 5 years or 62,000 miles</span>
-          </label>
-          <label class="radio-option">
-            <div class="radio-control">
-              <input type="radio" name="battery" value="y8">
-              <span class="radio-visual"></span>
-            </div>
-            <span class="radio-label">Up to 8 years or 100,000 miles</span>
-          </label>
-        </div>
-      </div>
-
       <div id="input-end" aria-hidden="true"></div>
 
     </div><!-- /section-input -->
@@ -1506,7 +1465,6 @@
     const temp       = parseInt(document.getElementById('temp-slider').value);
     const hvacOn     = document.querySelector('input[name="hvac"]:checked')?.value === 'yes';
     const loadFull   = document.querySelector('input[name="load"]:checked')?.value === 'full';
-    const batteryF   = { new: 1.00, y3: 0.97, y5: 0.94, y8: 0.90 }[document.querySelector('input[name="battery"]:checked')?.value] ?? 1.00;
 
     let tempF;
     if      (temp <= 0)  tempF = 0.72 + (temp + 20) / 20 * 0.22;
@@ -1519,8 +1477,7 @@
       * (1 - (tyreSize - defaultTyre) * 0.015)
       * tempF
       * (hvacOn   ? 0.92 : 1.00)
-      * (loadFull ? 0.96 : 1.00)
-      * batteryF;
+      * (loadFull ? 0.96 : 1.00);
 
     return Math.round(total);
   }
@@ -1746,7 +1703,6 @@
     temp:    { faq: true,  text: 'The outside temperature has a considerable effect on the range. In cold weather the battery can deliver less energy and more energy is needed for heating, so the range falls. Mild temperatures give the longest range.' },
     hvac:    { faq: false, text: 'Experience the effect of heating and air conditioning on the range of your electric vehicle. In contrast to the combustion vehicle, these secondary consumers are served exclusively from the high-voltage battery and thus have a strong influence on the possible range of the e-vehicle with high heating or cooling outputs.' },
     load:    { faq: true,  text: 'The load changes the weight of the vehicle and therefore its energy consumption. A fully loaded vehicle needs more energy to drive, which reduces the range.' },
-    battery: { faq: false, text: 'The state of health (SoH) describes the ageing of the high-voltage battery. Over time its usable capacity decreases slightly, which reduces the range compared with a new vehicle.' },
     result:  { faq: true,  text: 'The estimated range is calculated from the WLTP range of the selected model and the influence of the settings you have made. The actual range may vary.' },
   };
   const LAYER_LOCK_DELAY_MS = 525;   // measured on the live layer: the scroll lock is applied ~525ms after the click
