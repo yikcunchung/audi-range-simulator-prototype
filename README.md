@@ -9,8 +9,8 @@ Open `index.html` in a browser. There is nothing to install or build, and it wor
 | File | What it is |
 |---|---|
 | `index.html` | The default page, as on the live tool |
-| `index-italy.html` | The Italy market version: adds the question "How old is your battery?" |
-| `index-cta-group.html`, `index-emerged.html` | Work in progress: result section with call-to-action buttons. Not the default. |
+| `italy-market/index-italy.html` | The Italy market version: adds the question "How old is your battery?" |
+| `next-step/index-cta-group.html`, `next-step/index-emerged.html` | Work in progress: result section with call-to-action buttons. Not the default. |
 | `assets/` | Fonts, icons and model images |
 
 ## What you can try
