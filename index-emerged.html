@@ -593,6 +593,9 @@
     /* result digits are reels (0-9) that all slide at the same moment: transform 1s ease, no stagger (as on the live tool) */
     .slot-reel { display: flex; flex-direction: column; transition: transform var(--sys-motion-duration-reel) ease; }
     .slot-reel span { display: block; height: 1em; line-height: 1; text-align: center; }
+    /* The gap between value and unit sits at the end of the value, not as a leading space in the unit, so a wrapped "miles" starts flush left.
+       0.3312em = width of the space glyph in the display font (no DS3 token) */
+    .slot-digit:nth-last-child(2) { margin-right: 0.3312em; }
     .range-unit {
       font-family: var(--font-headline);
       font-variation-settings: var(--fvs-headline-normal);
@@ -695,7 +698,7 @@
 
     /* ── RESPONSIVE: LAYOUT ─────────────────────────────────────────────── */
     @media (min-width: 1024px) {
-      .section-group { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 2.2fr); gap: var(--sys-space-relative-2xl); }
+      .section-group { display: grid; grid-template-columns: 4fr 2.2fr; gap: var(--sys-space-relative-2xl); }
       .section-input {
         width: auto;
         border: var(--sys-border-width-sm) solid var(--border-card);
@@ -717,7 +720,6 @@
 
     /* ── LIVE ALIGNMENT: header gap, extra live elements, footnote, FAQ, sticky bar ────────────────── */
     /* Residual px values below (51, 49, 47, 73, 30, 34, ...) are measured offsets of the live page; no DS3 spacing token has these values. */
-    @media (min-width: 1024px) and (max-width: 1439px) { .section-group { grid-template-columns: minmax(0, 4fr) minmax(0, 2.526fr); } }
     .header { margin-bottom: var(--sys-space-fixed-500); }
     @media (min-width: 768px)  { .header { margin-bottom: 51px; } }
     @media (min-width: 1024px) { .header { margin-bottom: 49px; } }
@@ -1602,7 +1604,7 @@
       });
       const unit = document.createElement('span');
       unit.className = 'range-unit';
-      unit.textContent = ' miles';
+      unit.textContent = 'miles';
       container.appendChild(unit);
     }
     container.querySelectorAll('.slot-digit').forEach((col, i) => {
